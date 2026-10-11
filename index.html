@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ñam Ñam · Tu diario de restaurantes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#EEF2EE;--card:#fff;--ink:#17231F;--mute:#66756F;--line:#D9E1DB;--ac:#0E6F73;--acf:#fff;--star:#E8A800;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1715;--card:#18231F;--ink:#EAF1ED;--mute:#93A39B;--line:#2A3A34;--ac:#4FC3C7;--acf:#08201F;--star:#F2B705}}
+:root[data-theme="dark"]{--bg:#0F1715;--card:#18231F;--ink:#EAF1ED;--mute:#93A39B;--line:#2A3A34;--ac:#4FC3C7;--acf:#08201F;--star:#F2B705}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif;display:flex;justify-content:center}
+#app{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative}
+header{padding:12px 16px 6px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center}
+header h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.5px;text-align:center}.ib{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:17px;cursor:pointer;justify-self:end}
+#view{flex:1;overflow-y:auto;padding:8px 14px 24px}
+nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
+nav button{flex:1;border:0;background:none;color:var(--mute);padding:8px 0 10px;font-family:inherit;font-weight:600;font-size:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button span{display:flex;padding:5px 20px;border-radius:999px;transition:background .15s,color .15s}
+nav button.on{color:var(--ink);font-weight:800}nav button.on span{background:var(--ink);color:var(--bg)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:14px;overflow:hidden}
+.pad{padding:12px 14px}
+.row{display:flex;align-items:center;gap:10px}
+.sp{justify-content:space-between}
+.av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;flex:none}
+.photo{height:210px;display:grid;place-items:center;font-size:84px}
+.sc{background:var(--star);color:#1b1500;font-weight:800;border-radius:10px;padding:4px 9px;font-size:16px}
+.mute{color:var(--mute);font-size:13px}
+h2{margin:6px 2px 12px;font-size:20px}
+.btn{border:1px solid var(--ac);background:none;color:var(--ac);border-radius:999px;padding:6px 14px;font:600 13px inherit;font-family:inherit;cursor:pointer}
+.btn.fill{background:var(--ac);color:var(--acf)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;color:var(--mute);padding:8px;border-radius:9px;font:600 14px inherit;font-family:inherit;cursor:pointer}
+.seg button.on{background:var(--ac);color:var(--acf)}
+input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;margin-bottom:10px}
+.fab{position:absolute;right:18px;bottom:84px;width:56px;height:56px;border-radius:50%;border:0;background:var(--ac);color:var(--acf);font-size:30px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.stats{display:flex;gap:8px;margin:12px 0}
+.stats div{flex:1;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 4px}
+.stats b{display:block;font-size:20px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.grid div{aspect-ratio:1;display:grid;place-items:center;font-size:38px;border-radius:8px;position:relative}
+.grid i{position:absolute;right:4px;bottom:4px;font-style:normal;font-size:12px;font-weight:800;background:var(--star);color:#1b1500;border-radius:6px;padding:1px 5px}
+.map{width:100%;border-radius:16px;border:1px solid var(--line);background:#CFE3E0;display:block;margin-bottom:12px}
+.pin{cursor:pointer}
+#modal{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:30}
+#modal.show{display:flex}
+#modal .sheet{background:var(--bg);width:100%;border-radius:20px 20px 0 0;padding:18px;max-height:90%;overflow:auto}
+#toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;display:none;z-index:40}
+.tag{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px;margin:0 4px 4px 0}
+.lnk{background:none;border:0;padding:0;display:block;width:100%;cursor:pointer;color:inherit;font:inherit;text-align:left}.photo{overflow:hidden}.photo img{width:100%;height:100%;object-fit:cover;display:block}.fl:focus-within{outline:3px solid var(--ac);outline-offset:2px}.vh{position:absolute;width:1px;height:1px;opacity:0}.grid div{overflow:hidden}.grid img{width:100%;height:100%;object-fit:cover}.btn:disabled{opacity:.35}
+html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparent}#view{min-height:0}.btn{min-height:38px}
+.car{position:relative;background:var(--line);overflow:hidden}
+.trk{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.trk::-webkit-scrollbar{display:none}
+.sl{flex:0 0 100%;height:100%;scroll-snap-align:center}
+.sl img,.ph{width:100%;height:100%}
+.sl img{object-fit:cover;display:block}
+.ph{display:grid;place-items:center;font-size:84px}
+.cnt{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:999px;padding:2px 9px;font-size:12px}
+.cb{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;border:0;background:rgba(0,0,0,.5);color:#fff;font-size:20px;cursor:pointer}
+.cb.l{left:8px}.cb.r{right:8px}
+.grid button{aspect-ratio:1;position:relative;border:0;border-radius:8px;overflow:hidden;padding:0;font-size:38px;cursor:pointer;display:grid;place-items:center}
+.grid b{position:absolute;left:4px;bottom:4px;font-size:11px;font-weight:600;background:rgba(0,0,0,.65);color:#fff;border-radius:6px;padding:1px 5px}
+.sgl{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:-4px 0 10px;overflow:hidden}
+.sgi{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border:0;background:none;color:var(--ink);font:inherit;cursor:pointer;text-align:left}
+.sgi:hover,.sgi:focus-visible{background:var(--bg)}
+.dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);box-shadow:0 0 2px rgba(0,0,0,.6)}
+.dots i.on{background:#fff;transform:scale(1.3)}
+.grid em{position:absolute;top:5px;right:6px;font-style:normal;color:#fff;font-size:14px;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.pk{position:relative;border:2px solid transparent;border-radius:12px;padding:0;background:var(--card);cursor:pointer;overflow:hidden;color:var(--ink);font:inherit;text-align:left}
+.pk .th{aspect-ratio:1;display:grid;place-items:center;font-size:34px;overflow:hidden}
+.pk img{width:100%;height:100%;object-fit:cover}
+.pk span{display:block;padding:4px 6px;font-size:12px;line-height:1.2}
+.pk.sel{border-color:var(--ac)}
+.pk.sel::after{content:'✓';position:absolute;top:6px;right:6px;background:var(--ac);color:var(--acf);border-radius:50%;width:22px;height:22px;display:grid;place-items:center;font-size:13px}
+@media (hover:none){.cb{display:none}}
+@media (min-width:860px){#app{max-width:680px;box-shadow:0 0 0 1px var(--line)}#modal{align-items:center;justify-content:center}#modal .sheet{max-width:500px;border-radius:20px}}
+#auth{position:absolute;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.abox{width:100%;max-width:380px;margin:auto}
+.btn.gbtn{width:100%;padding:11px;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0;font-weight:600;font-size:15px}
+.or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:14px 0}
+.or::before,.or::after{content:'';flex:1;height:1px;background:var(--line)}
+.aerr{min-height:22px;margin-bottom:8px;font-size:14px}
+.ig{width:100%;max-width:350px;margin:auto}
+.igc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:26px 32px;margin-bottom:10px;text-align:center}
+.igc.s{padding:18px;font-size:14px}
+.igt{color:var(--mute);font-weight:600;font-size:15px;margin:0 0 14px;line-height:1.3}
+.igf{position:relative;display:block;margin-bottom:8px;text-align:left}
+.igf input{margin:0;padding:20px 10px 6px;font-size:15px;background:var(--bg);border-radius:6px;border:1px solid var(--line)}
+.igf span{position:absolute;left:11px;top:14px;font-size:14px;color:var(--mute);pointer-events:none;transition:top .1s,font-size .1s}
+.igf input:not(:placeholder-shown)+span,.igf input:focus+span{top:5px;font-size:10.5px}
+.igf .sh{position:absolute;right:10px;top:12px;font-size:14px}
+.igb{width:100%;border:0;border-radius:8px;background:var(--ac);color:var(--acf);font:inherit;font-weight:700;padding:9px;min-height:38px;cursor:pointer;margin-top:6px}
+.igb:disabled{opacity:.45;cursor:default}
+.lk{background:none;border:0;color:var(--ac);font:inherit;font-weight:700;cursor:pointer;padding:0}
+.lk.sm{font-weight:500;font-size:13px}
+.mk{font-size:18px;background:#fff;border:2px solid #0E6F73;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header><svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><path d="M8 20h24a12 12 0 0 1-24 0z" fill="var(--acf)"/><path d="M15 15q-2-3 0-5M21 15q-2-3 0-5M27 15q-2-3 0-5" stroke="var(--acf)" stroke-width="2" fill="none" stroke-linecap="round"/></svg><h1>Ñam Ñam</h1><button class="ib" id="th" aria-label="Cambiar tema">◐</button></header>
+  <main id="view"></main>
+  <button class="fab" id="fab" aria-label="Nueva valoración">+</button>
+  <nav>
+    <button data-t="feed"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5.5h4V20"/></svg></span>Inicio</button>
+    <button data-t="social"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 4.5"/></svg></span>Social</button>
+    <button data-t="explore"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>Explorar</button>
+    <button data-t="me"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>Perfil</button>
+  </nav>
+  <div id="modal"><div class="sheet" id="sheet"></div></div>
+  <div id="toast"></div>
+  <div id="auth" role="dialog" aria-modal="true" aria-label="Iniciar sesión o crear cuenta"></div>
+</div>
+<script>
+/* ===== CONFIGURACIÓN =====
+   Déjalo así para el modo demostración, o rellénalo para el modo real (mira README.md). */
+const CONFIG={
+  OSM:true,      // true = mapa de OpenStreetMap (Leaflet) + bares y restaurantes reales (Overpass)
+  SUPABASE:null   // {url:'https://xxxx.supabase.co', key:'tu_clave_publicable'} = cuentas y base de datos
+};
+const R=[];
+const me={name:'',user:'',bio:'',pub:true,fr:0,fg:0};
+let feed=[];
+const FW=[],PROF={};
+const COL={};
+const PUB={};
+const PAL=['#C0562F','#6B5BC0','#B0447A','#2E7D9A','#2E8B57','#9A6B2E','#7A8B2E','#2E6B9A'];
+const ucol=u=>u=='Tú'?'#0E6F73':COL[u]||PAL[[...String(u)].reduce((a,c)=>a+c.charCodeAt(0),0)%PAL.length];
+const av=(u,z)=>`<div class="av" style="background:${ucol(u)}${z?`;width:${z}px;height:${z}px;font-size:${z/2}px`:''}">${esc(u[0].toUpperCase())}</div>`;
+const rn=id=>R.find(r=>r.id==id);
+const mk=(n,m,ids,w,msgs)=>{const sp={n,m,v:{},w,msgs};ids.forEach(id=>{const y=feed.find(p=>p.u=='Tú'&&p.r==id);sp.v[id]=y?[{u:'Tú',s:y.s,title:y.title,t:y.t,pr:y.pr,imgs:y.imgs}]:[]});return sp};
+let groups=[],chats={};
+let wish=[],cats={'Italianos':[],'Asiáticos':[]};
+const RESP=['Genial, me apunto 😋','Buena idea, lo miro y te digo','Apúntalo para la próxima','Jajaja eso quiero probarlo'];
+let tab='feed',mode='list',city='',sel=null,sub=null,sub2=null,st=0,sg='g',fm='fol',wedit=false,nid=20,fc=false;
+const $=s=>document.querySelector(s),v=$('#view');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mt=t=>esc(t).replace(/@([\w.]*\w)/g,'<b style="color:var(--ac)">@$1</b>');
+const eur=n=>'€'.repeat(n),PL=['','Económico','Normal','Caro','Muy caro'];
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2200)}
+function avg(id){const a=feed.filter(p=>p.r==id).map(p=>p.s);return a.length?+(a.reduce((x,y)=>x+y)/a.length).toFixed(2):'–'}
+const avgE=E=>+(E.reduce((t,e)=>t+e.s,0)/E.length).toFixed(2);
+const go=x=>{sub=x;sub2=null;st=0;wedit=false;render();v.scrollTop=0};
+const cur=()=>sub==null?null:(sg=='g'?groups[sub]:chats[sub]);
+const sheet=h=>{$('#sheet').innerHTML=h;$('#modal').classList.add('show')},hide=()=>$('#modal').classList.remove('show');
+const back=()=>v.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>go(null));
+const seg2=a=>`<div class="seg">${a.map((t,i)=>`<button data-st="${i}" class="${i==st?'on':''}">${t}</button>`).join('')}</div>`;
+const segBind=()=>v.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=+b.dataset.st;wedit=false;render()});
+const opts=ids=>R.filter(r=>!ids.includes(r.id)).map(r=>`<option value="${r.id}">${esc(r.n)} · ${esc(r.c)}</option>`).join('');
+const priceHTML=pr=>`<div class="row" style="margin-bottom:10px">${[1,2,3,4].map(n=>`<button class="btn ${pr==n?'fill':''}" data-pr="${n}" style="flex:1;padding:8px 2px" aria-pressed="${pr==n}">${eur(n)}</button>`).join('')}</div>`;
+const priceBind=(get,set)=>document.querySelectorAll('#sheet [data-pr]').forEach(b=>b.onclick=()=>{const n=+b.dataset.pr;set(get()==n?0:n);document.querySelectorAll('#sheet [data-pr]').forEach(x=>{const on=+x.dataset.pr==get();x.classList.toggle('fill',on);x.setAttribute('aria-pressed',on)})});
+const PE=['🍽️','🥂','🍰','☕','🧾','🌿','🍷','🥖','🍋','🥗'];
+const slides=p=>{const r=rn(p.r);return p.imgs&&p.imgs.length?p.imgs.map(i=>`<img src="${i}" alt="${esc(p.title)}">`):Array.from({length:p.np||2},(_,i)=>`<div class="ph" style="background:${r.bg}">${i?PE[i%10]:r.e}</div>`)};
+const car=(p,h,open)=>{const sl=slides(p);return `<div class="car" style="height:${h}px"${open?` data-open="${p.id}"`:''}><div class="trk">${sl.map(x=>`<div class="sl">${x}</div>`).join('')}</div>${sl.length>1?`<div class="dots">${sl.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div><span class="cnt">1/${sl.length}</span><button class="cb l" aria-label="Foto anterior">‹</button><button class="cb r" aria-label="Foto siguiente">›</button>`:''}</div>`};
+function carBind(){v.querySelectorAll('.car').forEach(c=>{const t=c.querySelector('.trk'),n=c.querySelector('.cnt');if(!n)return;
+  t.onscroll=()=>{const k=Math.round(t.scrollLeft/t.clientWidth);n.textContent=(k+1)+'/'+t.children.length;c.querySelectorAll('.dots i').forEach((d,i)=>d.classList.toggle('on',i==k))};
+  c.querySelector('.l').onclick=e=>{e.stopPropagation();t.scrollBy({left:-t.clientWidth,behavior:'smooth'})};
+  c.querySelector('.r').onclick=e=>{e.stopPropagation();t.scrollBy({left:t.clientWidth,behavior:'smooth'})}})}
+
+const photoHTML=()=>`<label class="btn fill fl" style="display:block;text-align:center;margin-bottom:8px;cursor:pointer;border-radius:14px;padding:12px"><span id="pt"></span><input type="file" id="pf" class="vh" accept="image/*" multiple></label><div id="th2" style="display:flex;gap:10px;overflow-x:auto;padding:6px 6px 8px 0"></div>`;
+function photoBind(imgs){
+  const draw=()=>{$('#pt').textContent=imgs.length?`📷 Añadir más fotos (${imgs.length}/10)`:'📷 Elegir fotos de la galería (obligatorio, hasta 10)';
+    $('#th2').innerHTML=imgs.map((u,i)=>`<div style="position:relative;flex:none"><img src="${u}" alt="Foto ${i+1}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;display:block"><button class="btn" data-rm="${i}" aria-label="Quitar foto ${i+1}" style="position:absolute;top:-6px;right:-6px;min-height:0;width:24px;height:24px;padding:0;background:var(--card);border-radius:50%">✕</button></div>`).join('');
+    $('#th2').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{imgs.splice(+b.dataset.rm,1);draw()})};
+  draw();
+  $('#pf').onchange=async e=>{const fl=[...e.target.files];e.target.value='';const room=10-imgs.length;
+    if(fl.length>room)toast('Máximo 10 fotos por reseña');
+    const r=await Promise.all(fl.slice(0,Math.max(room,0)).map(x=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(x)})));imgs.push(...r);draw()};
+}
+function wishUI(list,box,title,pm){
+  let ed=false;
+  const row=(x,i)=>{let ic,nm,sb,rt,ex='';
+    if(pm){const p=feed.find(q=>q.id==x);if(!p)return '';const r=rn(p.r);ic=`<div style="width:48px;height:48px;border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:24px;background:${r.bg};flex:none">${p.imgs.length?`<img src="${p.imgs[0]}" alt="" style="width:100%;height:100%;object-fit:cover">`:r.e}</div>`;nm=r.n;sb=p.title;rt=p.s}
+    else{const r=rn(x);ic=`<div class="av" style="background:${r.bg};font-size:22px">${r.e}</div>`;nm=r.n;sb=r.c+' · '+r.t;rt=avg(x);const w=list===wish&&wnotes[x];if(w)ex=(w.note?`<div class="mute">📝 ${esc(w.note)}</div>`:'')+(w.tags&&w.tags.length?`<div>${w.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:'')}
+    return `<div class="card pad row"><b class="mute" style="width:20px">${i+1}</b>${ic}<div style="flex:1;min-width:0"><b>${esc(nm)}</b><div class="mute">${esc(sb)}</div>${ex}</div>${ed?`<button class="btn" data-m="${i},-1" aria-label="Subir" ${i?'':'disabled'}>▲</button><button class="btn" data-m="${i},1" aria-label="Bajar" ${i<list.length-1?'':'disabled'}>▼</button><button class="btn" data-x="${i}" aria-label="Quitar">✕</button>`:`<div class="sc">${rt}</div>`}</div>`};
+  const draw=()=>{
+    box.innerHTML=`<div class="row sp" style="margin-bottom:10px"><b>${esc(title)} (${list.length})</b><div class="row"><button class="btn" id="we">${ed?'Listo':'Editar'}</button><button class="btn fill" id="wa">+ Añadir</button></div></div>`+(list.length?list.map(row).join(''):`<p class="mute">${pm?'Esta lista está vacía. Pulsa Añadir y elige tus publicaciones.':'Aún no hay restaurantes. Pulsa Añadir para guardar los que quieras probar.'}</p>`);
+    box.querySelector('#we').onclick=()=>{ed=!ed;draw()};
+    box.querySelector('#wa').onclick=()=>{
+      if(pm){
+        const pk=feed.filter(p=>p.u=='Tú'&&!list.includes(p.id));
+        if(!pk.length)return toast(feed.some(p=>p.u=='Tú')?'Ya has añadido todas tus reseñas':'Aún no tienes reseñas. Publica una con +');
+        const sel=new Set();
+        sheet(`<h2>Añadir a ${esc(title)}</h2><p class="mute" style="margin-top:0">Elige entre tus publicaciones:</p><div class="pgrid">${pk.map(p=>{const r=rn(p.r);return `<button class="pk" data-k="${p.id}" aria-pressed="false"><div class="th" style="background:${r.bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:r.e}</div><span>${esc(r.n)}</span></button>`}).join('')}</div><button class="btn fill" id="wb" style="width:100%">Añadir a la lista</button>`);
+        document.querySelectorAll('#sheet [data-k]').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle('sel',sel.has(k));b.setAttribute('aria-pressed',sel.has(k))});
+        $('#wb').onclick=()=>{if(!sel.size)return toast('Elige al menos una publicación');list.push(...sel);hide();draw();toast('Añadido a '+title)};
+        return}
+      sheet(`<h2>Añadir a ${esc(title)}</h2><div id="ph"></div>`);
+      placePick($('#ph'),r=>{if(list.includes(r.id))return toast('Ya está en la lista');list.push(r.id);if(list===wish)persistWish(r.id);hide();draw()})};
+    box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.m.split(',').map(Number);[list[i],list[i+d]]=[list[i+d],list[i]];draw()});
+    box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{list.splice(+b.dataset.x,1);if(list===wish)persistWish();draw()});
+  };draw()}
+
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.t==tab);b.setAttribute('aria-current',b.dataset.t==tab?'page':'false')});
+  $('#fab').style.display=((tab=='feed'||tab=='me')&&sub==null)?'block':'none';
+  ({feed:rFeed,social:rSocial,explore:rExplore,me:rMe})[tab]();
+  carBind();
+}
+function likeBind(){v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>{const p=feed.find(x=>x.id==b.dataset.like);p.k=p.k?0:1;b.className='btn '+(p.k?'fill':'');b.textContent='♥ '+(p.l+p.k)})}
+function post(p){const r=rn(p.r);return `<article class="card"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div><div class="sc">${p.s}</div></div>${car(p,210,1)}
+<div class="pad"><button class="lnk" data-open="${p.id}"><b>${esc(p.title)}</b>${p.pr?` <span class="mute">· ${eur(p.pr)}</span>`:''}</button>${p.tg.length?`<div class="mute">con ${p.tg.map(esc).join(', ')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button><button class="btn" data-cm="${p.id}">💬 ${p.c.length}</button></div></div></article>`}
+function postDet(p,label){
+  if(!p)return go(null);
+  const r=rn(p.r),own=p.u=='Tú';
+  v.innerHTML=`<button class="btn" data-back>‹ ${label}</button><div class="card" style="margin-top:12px"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div>${own?`<button class="btn" id="pe">Editar</button><button class="btn" id="pd" aria-label="Eliminar reseña">🗑</button>`:`<button class="btn ${p.f?'':'fill'}" id="pf2">${p.f?'Siguiendo':'Seguir'}</button>`}</div>${car(p,280,0)}
+  <div class="pad"><h2 style="margin:0 0 8px">${esc(p.title)}</h2><div class="row" style="flex-wrap:wrap;margin-bottom:10px"><span class="sc">${p.s}/10</span>${p.pr?`<span class="tag" style="margin:0">${eur(p.pr)} · ${PL[p.pr]}</span>`:`<span class="mute">Sin precio indicado</span>`}</div>
+  ${p.tg.length?`<div style="margin-bottom:10px">${p.tg.map(x=>`<span class="tag">con ${esc(x)}</span>`).join('')}</div>`:''}<p style="margin:0 0 10px">${p.t?mt(p.t):'<span class="mute">Sin descripción.</span>'}</p><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button></div></div>
+  <div class="row" style="margin-bottom:14px"><input id="ci" placeholder="Escribe un comentario" aria-label="Comentario" style="margin:0"><button class="btn fill" id="cs">Comentar</button></div>
+  <h2>Comentarios (${p.c.length})</h2>${p.c.map(c=>`<div class="card pad"><b>${esc(c.u)}</b> ${mt(c.t)}</div>`).join('')||'<p class="mute">Sé el primero en comentar.</p>'}`;
+  back();likeBind();
+  const send=()=>{const t=$('#ci').value.trim();if(!t)return toast('Escribe algo para comentar');p.c.push({u:'Tú',t});render();$('#ci').focus()};
+  $('#cs').onclick=send;$('#ci').onkeydown=e=>{if(e.key=='Enter')send()};
+  if(fc){fc=false;$('#ci').focus()}
+  if(!own)$('#pf2').onclick=()=>{const f=p.f?0:1;feed.forEach(q=>{if(q.u==p.u)q.f=f});render()};
+  if(own){
+    $('#pd').onclick=()=>{sheet(`<h2>¿Eliminar esta reseña?</h2><p class="mute">Se borrará con sus likes y comentarios.</p><div class="row"><button class="btn fill" id="dy">Eliminar</button><button class="btn" id="dn">Cancelar</button></div>`);
+      $('#dn').onclick=hide;$('#dy').onclick=()=>{feed=feed.filter(x=>x!==p);Object.keys(cats).forEach(k=>cats[k]=cats[k].filter(i=>i!=p.id));hide();toast('Reseña eliminada');go(null)}};
+    $('#pe').onclick=()=>{let pr=p.pr,imgs=[...p.imgs];
+      sheet(`<h2>Editar reseña</h2>${photoHTML()}<input id="et" value="${esc(p.title)}" maxlength="60" aria-label="Título"><label class="mute" for="es">Valoración: <b id="ev">${p.s}</b>/10</label><input type="range" id="es" min="0" max="10" step="0.25" value="${p.s}"><div class="mute" style="margin-bottom:6px">Precio (opcional)</div>${priceHTML(pr)}<textarea id="ed" rows="3" aria-label="Descripción">${esc(p.t)}</textarea><button class="btn fill" id="eb" style="width:100%;padding:12px">Guardar cambios</button>`);
+      photoBind(imgs);$('#es').oninput=e=>$('#ev').textContent=e.target.value;priceBind(()=>pr,n=>pr=n);
+      $('#eb').onclick=()=>{const t=$('#et').value.trim();if(!t)return toast('El título no puede estar vacío');if(!imgs.length)return toast('Añade al menos una foto');p.title=t;p.imgs=[...imgs];p.s=+$('#es').value;p.pr=pr;p.t=$('#ed').value.trim();hide();toast('Cambios guardados');render()}};
+  }
+}
+function rFeed(){
+  if(sub!=null)return postDet(feed.find(x=>x.id==sub),'Inicio');
+  const disc=feed.filter(p=>(PUB[p.u]&&p.u!='Tú')||(p.u=='Tú'&&me.pub));
+  v.innerHTML=`<div class="seg"><button data-fm="fol" class="${fm=='fol'?'on':''}">Siguiendo</button><button data-fm="all" class="${fm=='all'?'on':''}">Descubrir</button></div>`+(fm=='all'?`<div class="row" style="margin-bottom:10px"><input id="us" placeholder="Buscar personas por nombre o @usuario" value="${esc(uq)}" aria-label="Buscar personas" autocomplete="off" style="margin:0"><button class="btn fill" id="ub">Buscar</button></div><div id="ur"></div><div id="dg">${disc.length?'<p class="mute" style="margin:0 2px 10px">Fotos de perfiles públicos. Toca una para verla completa.</p>':'<p class="mute">Aún no hay fotos de perfiles públicos.</p>'}<div class="grid">${disc.map(p=>`<button data-open="${p.id}" aria-label="Abrir reseña de ${esc(p.u)}: ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<b>${esc(p.u)}</b><i>${p.s}</i>${(p.imgs.length||p.np||2)>1?'<em>▣</em>':''}</button>`).join('')}</div></div>`:(feed.some(p=>p.f)?feed.filter(p=>p.f).map(post).join(''):'<p class="mute" style="margin:8px 2px">Aún no hay publicaciones. Pulsa + para subir tu primera reseña.</p>'))+'<div style="height:70px"></div>';
+  v.querySelectorAll('[data-fm]').forEach(b=>b.onclick=()=>{fm=b.dataset.fm;render()});
+  if(fm=='all')usersUI();
+  v.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>go(+b.dataset.open));
+  v.querySelectorAll('[data-cm]').forEach(b=>b.onclick=()=>{fc=true;go(+b.dataset.cm)});likeBind();
+}
+function addTo(sp,p){
+  const id=p.r,e={u:'Tú',s:p.s,title:p.title,t:p.t,pr:p.pr,imgs:p.imgs},nw=!sp.v[id];
+  const E=sp.v[id]=sp.v[id]||[],i=E.findIndex(x=>x.u=='Tú');i>=0?E[i]=e:E.push(e);
+  sp.msgs.push({u:'Tú',rv:{id,s:p.s,title:p.title,nw}});return nw}
+function rSocial(){
+  if(sub!=null){const sp=cur();return sp?spDet(sp):go(null)}
+  v.innerHTML=`<div class="seg"><button data-sg="g" class="${sg=='g'?'on':''}">Grupos</button><button data-sg="c" class="${sg=='c'?'on':''}">Chats</button></div><div id="bx"></div>`;
+  v.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{sg=b.dataset.sg;render()});
+  const bx=$('#bx');
+  if(sg=='g'){
+    bx.innerHTML=(groups.length?'':'<p class="mute">Aún no tienes grupos.</p>')+groups.map((g,i)=>`<button class="card pad row sp" data-g="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(g.n)}</b><div class="mute">${g.m.length+1} personas · ${Object.keys(g.v).length} visitados · ${g.w.length} por probar</div></div><span class="mute">›</span></button>`).join('')+`<button class="btn fill" id="ng">Crear grupo</button>`;
+    bx.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>go(+b.dataset.g));
+    $('#ng').onclick=()=>{
+      sheet(`<h2>Nuevo grupo</h2><input id="gn" placeholder="Nombre (Pareja, Familia, Cuadrilla…)" aria-label="Nombre del grupo"><p class="mute">${FW.length?'Elige a quién invitas:':'Aún no sigues a nadie; podrás invitar gente más adelante.'}</p>${FW.map(x=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" value="${x}" style="width:auto;margin:0"> ${x}</label>`).join('')}<button class="btn fill" id="gs">Crear grupo</button>`);
+      $('#gs').onclick=()=>{const n=$('#gn').value.trim();if(!n)return toast('Pon un nombre al grupo');
+        const m=[...document.querySelectorAll('#sheet input[type=checkbox]:checked')].map(c=>c.value),ids=[...new Set(feed.filter(p=>p.u=='Tú').map(p=>p.r))];
+        groups.push(mk(n,m,ids,[],[{u:'Tú',t:'Grupo creado.'}]));hide();go(groups.length-1)}};
+  }else{
+    bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div></button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
+    bx.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>go(b.dataset.u));
+    $('#nc').onclick=()=>{sheet(`<h2>Nuevo chat</h2><p class="mute">${FW.length?'Elige a quién sigues:':'Aún no sigues a nadie.'}</p>${FW.map(x=>`<button class="card pad row" data-n="${x}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(x)}<b>${x}</b></button>`).join('')}`);
+      document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{const u=b.dataset.n;chats[u]=chats[u]||mk(u,[u],[],[],[]);hide();go(u)})};
+  }
+}
+function spDet(sp){
+  if(sub2!=null)return rDet(sp,sub2);
+  const isG=sg=='g',us=['Tú',...sp.m];
+  v.innerHTML=`<div class="row" style="margin-bottom:10px"><button class="btn" data-back>‹ ${isG?'Grupos':'Chats'}</button>${isG?`<h2 style="margin:0">${esc(sp.n)}</h2>`:`${av(sp.n)}<b>${esc(sp.n)}</b>`}</div>${isG?`<div style="margin-bottom:10px">${us.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>`:''}${seg2(['Chat','Visitados','Por probar'])}<div id="bx"></div>`;
+  back();segBind();const bx=$('#bx');
+  if(st==1)return visitedUI(sp,bx);
+  if(st==2)return wishUI(sp.w,bx,'Por probar'+(isG?'':' con '+sp.n));
+  chatUI(sp,bx);
+}
+function chatUI(sp,bx){
+  const multi=sp.m.length>1;
+  bx.innerHTML=(sp.msgs.length?sp.msgs.map(m=>{const mine=m.u=='Tú',al=mine?'flex-end':'flex-start',lab=!mine&&multi?`<div class="mute" style="margin:0 4px 2px">${esc(m.u)}</div>`:'';
+    if(m.rv)return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:8px">${lab}<button class="card pad lnk" data-rv="${m.rv.id}" style="width:auto;max-width:85%;background:var(--card)"><div class="mute">${mine?'Añadiste':esc(m.u)+' añadió'} una reseña</div><b>${esc(m.rv.title)}</b><div class="row" style="margin:6px 0"><span class="sc">${m.rv.s}</span><span class="mute">${esc(rn(m.rv.id).n)}</span></div><div class="mute">${m.rv.nw?'🆕 Nuevo en Visitados':'📊 Media ahora: '+avgE(sp.v[m.rv.id])}</div></button></div>`;
+    return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:6px">${lab}<div style="max-width:78%;padding:9px 13px;border-radius:16px;border:1px solid var(--line);background:${mine?'var(--ac)':'var(--card)'};color:${mine?'var(--acf)':'var(--ink)'}">${esc(m.t)}</div></div>`}).join(''):`<p class="mute">Empieza la conversación.</p>`)+
+  `<div class="row" style="position:sticky;bottom:0;padding:8px 0;background:var(--bg)"><input id="mi" placeholder="Escribe un mensaje" aria-label="Mensaje" style="margin:0"><button class="btn fill" id="ms">Enviar</button></div>`;
+  v.scrollTop=v.scrollHeight;
+  bx.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{st=1;sub2=+b.dataset.rv;render();v.scrollTop=0});
+  const send=()=>{const t=$('#mi').value.trim();if(!t)return;sp.msgs.push({u:'Tú',t});render();$('#mi').focus();};
+  $('#ms').onclick=send;$('#mi').onkeydown=e=>{if(e.key=='Enter')send()};
+}
+function visitedUI(sp,bx){
+  const rows=Object.keys(sp.v).map(Number).map(id=>({id,E:sp.v[id],a:avgE(sp.v[id])})).sort((x,y)=>y.a-x.a);
+  bx.innerHTML=(rows.length?rows.map(x=>{const r=rn(x.id);return `<div class="card pad" data-r="${x.id}" role="button" tabindex="0" style="cursor:pointer"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1"><b>${esc(r.n)}</b><div class="mute">${esc(r.c)} · ${esc(r.t)}</div></div><div class="sc">${x.a}</div><span class="mute">›</span></div><div style="margin-top:8px">${x.E.map(e=>`<span class="tag">${esc(e.u)} ${e.s}</span>`).join('')}</div></div>`}).join(''):`<p class="mute">Aún no hay restaurantes visitados.</p>`)+`<button class="btn fill" id="ar">Añadir mi valoración</button>`;
+  bx.querySelectorAll('[data-r]').forEach(c=>{const fn=()=>{sub2=+c.dataset.r;render();v.scrollTop=0};c.onclick=fn;c.onkeydown=e=>{if(e.key=='Enter')fn()}});
+  $('#ar').onclick=()=>{
+    sheet(`<h2>Añadir a ${esc(sp.n)}</h2><div id="ph" style="margin-bottom:10px"></div><label class="mute" for="gv">Tu nota: <b id="gvv">8</b>/10</label><input type="range" id="gv" min="0" max="10" step="0.25" value="8"><button class="btn fill" id="gb">Añadir a la lista</button>`);
+    let rid=0;placePick($('#ph'),r=>{rid=r.id});
+    $('#gv').oninput=e=>$('#gvv').textContent=e.target.value;
+    $('#gb').onclick=()=>{const id=rid;if(!id)return toast('Elige un restaurante o bar');const nw=addTo(sp,{r:id,s:+$('#gv').value,title:rn(id).n,t:'',pr:0,imgs:[]});hide();toast(nw?'Nuevo restaurante en Visitados':'Valoración sumada a la media');render()}};
+}
+function rDet(sp,id){
+  const r=rn(id),E=sp.v[id]||[],prs=E.filter(e=>e.pr).map(e=>e.pr),mp=prs.length?Math.round(prs.reduce((a,b)=>a+b)/prs.length):0;
+  v.innerHTML=`<button class="btn" data-bk>‹ ${esc(sp.n)}</button><div class="card pad" style="margin-top:12px"><div class="row"><div class="av" style="background:${r.bg};font-size:26px;width:52px;height:52px">${r.e}</div><div style="flex:1"><h2 style="margin:0">${esc(r.n)}</h2><div class="mute">${esc(r.c)} · ${esc(r.t)}</div></div><div class="sc" style="font-size:20px">${E.length?avgE(E):'–'}</div></div><div style="margin-top:10px"><span class="tag">${E.length} valoraciones</span>${mp?`<span class="tag">Precio medio ${eur(mp)}</span>`:''}</div></div><h2>Valoraciones</h2>`+
+  E.map(e=>`<div class="card"><div class="pad row">${av(e.u)}<b style="flex:1">${esc(e.u)}</b><div class="sc">${e.s}</div></div>${e.imgs&&e.imgs.length?car({id:0,r:id,title:e.title,imgs:e.imgs},220,0):''}<div class="pad"><b>${esc(e.title)}</b>${e.pr?` <span class="tag">${eur(e.pr)} · ${PL[e.pr]}</span>`:''}<p style="margin:6px 0 0">${e.t?mt(e.t):'<span class="mute">Sin descripción.</span>'}</p></div></div>`).join('');
+  $('[data-bk]').onclick=()=>{sub2=null;render();v.scrollTop=0};
+}
+const OSM=!!CONFIG.OSM;
+let gcenter=null,gres=[],gmsg='',gview=null,gfilter='all',gname='',nrid=1000,wsync=new Set();const wnotes={};
+const BGS=['#F0C987','#E3A6A1','#C9A27E','#A9D6D3','#EAB48F','#B7CBE8','#E8D5A8'];
+const CU={italian:'Italiano',pizza:'Pizzería',japanese:'Japonés',sushi:'Sushi',chinese:'Chino',spanish:'Español',regional:'Regional',basque:'Vasco',tapas:'Tapas',burger:'Hamburguesería',mexican:'Mexicano',indian:'Indio',seafood:'Marisquería',steak_house:'Asador',kebab:'Kebab',thai:'Tailandés',coffee_shop:'Cafetería',wine:'Bar de vinos',mediterranean:'Mediterráneo',vegetarian:'Vegetariano',international:'Internacional'};
+const OVP='https://overpass-api.de/api/interpreter',AM='["amenity"~"^(restaurant|bar|pub)$"]["name"]',ocache=new Map();
+const qArea=(la,ln,rad)=>`[out:json][timeout:25];nwr${AM}(around:${rad},${la},${ln});out center tags 200;`;
+const qName=(rx,la,ln)=>`[out:json][timeout:25];nwr${AM}["name"~"${rx}",i](around:15000,${la},${ln});out center tags 20;`;
+async function overpass(ql){
+  if(ocache.has(ql))return ocache.get(ql);
+  let r;try{r=await fetch(OVP,{method:'POST',body:'data='+encodeURIComponent(ql),headers:{'Content-Type':'application/x-www-form-urlencoded'}})}catch(e){throw new Error('No se pudo conectar con el servidor de mapas. Revisa tu conexión.')}
+  if(r.status==429||r.status==503||r.status==504)throw new Error('El servidor público de mapas está saturado. Inténtalo de nuevo en unos segundos.');
+  if(!r.ok)throw new Error('El servidor de mapas respondió con un error ('+r.status+').');
+  const j=await r.json();ocache.set(ql,j.elements||[]);return ocache.get(ql)}
+async function geocode(q){
+  let r;try{r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&accept-language=es&q='+encodeURIComponent(q))}catch(e){throw new Error('No se pudo buscar ese lugar. Revisa tu conexión.')}
+  if(!r.ok)throw new Error('No se pudo buscar ese lugar ahora mismo.');
+  const j=await r.json();if(!j.length)throw new Error('No encontramos ese lugar. Prueba con otro nombre.');
+  return {lat:+j[0].lat,lng:+j[0].lon,name:(j[0].display_name||q).split(',')[0]}}
+function regOSM(o){
+  const t=o.tags||{},am=t.amenity,isBar=am=='bar'||am=='pub',cu=(t.cuisine||'').split(';')[0].trim();
+  const addr=[[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' '),t['addr:city']].filter(Boolean).join(', '),key=o.type+'/'+o.id;
+  const d={n:t.name||'Sin nombre',c:t['addr:city']||o.hint||'',t:CU[cu]||(am=='pub'?'Pub':isBar?'Bar':'Restaurante'),k:isBar?'bar':'restaurant',e:isBar?'🍺':'🍽️',lat:o.lat,lng:o.lng,addr,osmk:key,cu};
+  let r=R.find(x=>x.osmk==key);if(r){Object.assign(r,d);return r}
+  r={id:nrid++,bg:BGS[nrid%BGS.length],...d};R.push(r);return r}
+function regVenue(v){
+  const k=v.kind=='bar'?'bar':'restaurant',key=v.osm_type+'/'+v.osm_id;
+  const d={n:v.name,c:v.city||'',t:CU[v.cuisine]||(k=='bar'?'Bar':'Restaurante'),k,e:k=='bar'?'🍺':'🍽️',lat:v.lat,lng:v.lng,addr:v.address||'',osmk:key,cu:v.cuisine||'',dbid:v.id};
+  let r=R.find(x=>x.osmk==key);if(r){Object.assign(r,d);return r}
+  r={id:nrid++,bg:BGS[nrid%BGS.length],...d};R.push(r);return r}
+const toR=(e,hint)=>{const la=e.lat!=null?e.lat:(e.center&&e.center.lat),ln=e.lon!=null?e.lon:(e.center&&e.center.lon);return la==null?null:regOSM({type:e.type,id:e.id,lat:la,lng:ln,tags:e.tags,hint})};
+async function areaSearch(la,ln,rad,hint){
+  gcenter={lat:la,lng:ln};
+  const els=await overpass(qArea(la,ln,rad)),dd=r=>(r.lat-la)**2+((r.lng-ln)*Math.cos(la*Math.PI/180))**2;
+  return els.map(e=>toR(e,hint)).filter(Boolean).sort((a,b)=>dd(a)-dd(b))}
+async function searchPlaces(q){
+  if(!OSM){const k=q.toLowerCase();return R.filter(r=>!k||r.n.toLowerCase().includes(k)||r.c.toLowerCase().includes(k))}
+  if(gcenter){
+    const rx=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\\/g,'\\\\').replace(/"/g,'\\"');
+    return (await overpass(qName(rx,gcenter.lat,gcenter.lng))).map(e=>toR(e)).filter(Boolean).slice(0,8)}
+  let r;try{r=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=10&addressdetails=1&extratags=1&accept-language=es&q='+encodeURIComponent(q))}catch(e){throw new Error('No se pudo buscar. Revisa tu conexión.')}
+  if(!r.ok)throw new Error('No se pudo buscar ahora mismo.');
+  const j=(await r.json()).filter(x=>x.category=='amenity'&&['restaurant','bar','pub'].includes(x.type));
+  if(!j.length)throw new Error('No encontramos ese local. Busca primero la ciudad en Explorar para afinar.');
+  return j.slice(0,8).map(x=>{const a=x.address||{};return regOSM({type:x.osm_type,id:x.osm_id,lat:+x.lat,lng:+x.lon,tags:{name:x.name,amenity:x.type,cuisine:x.extratags&&x.extratags.cuisine,'addr:city':a.city||a.town||a.village,'addr:street':a.road,'addr:housenumber':a.house_number}})})}
+async function loadLeaflet(){
+  if(window.L&&L.map)return;
+  await new Promise((res,rej)=>{const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(l);
+    const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';sc.onload=res;sc.onerror=()=>rej(new Error('No se pudo cargar el mapa. Revisa tu conexión.'));document.head.appendChild(sc)})}
+async function ensureVenue(r){
+  if(r.dbid||!r.osmk)return;const [t,i]=r.osmk.split('/');
+  await sbx(sb.from('venues').upsert({osm_type:t,osm_id:+i,name:r.n,kind:r.k,cuisine:r.cu||null,city:r.c||null,lat:r.lat,lng:r.lng,address:r.addr||null,created_by:ses.uid},{onConflict:'osm_type,osm_id',ignoreDuplicates:true}));
+  const d=await sbx(sb.from('venues').select('id').eq('osm_type',t).eq('osm_id',+i).single());r.dbid=d.id}
+async function persistWish(id){
+  if(!REAL||!ses||!sb)return;
+  try{
+    for(const x of [...wsync]){if(!wish.includes(x)){const r=rn(x);if(r&&r.dbid)await sbx(sb.from('saved_venues').delete().eq('user_id',ses.uid).eq('venue_id',r.dbid));wsync.delete(x)}}
+    if(id!=null){const r=rn(id);if(!r)return;await ensureVenue(r);if(!r.dbid)return;const n=wnotes[id]||{note:'',tags:[]};
+      await sbx(sb.from('saved_venues').upsert({user_id:ses.uid,venue_id:r.dbid,note:n.note,tags:n.tags},{onConflict:'user_id,venue_id'}));wsync.add(id)}
+  }catch(e){toast('No se pudo sincronizar tu catálogo')}}
+async function loadSaved(){
+  const rows=await sbx(sb.from('saved_venues').select('note,tags,venues(*)').eq('user_id',ses.uid).order('created_at'));
+  wish.length=0;wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k]);
+  rows.forEach(x=>{if(!x.venues)return;const r=regVenue(x.venues);wish.push(r.id);wsync.add(r.id);wnotes[r.id]={note:x.note||'',tags:x.tags||[]}})}
+function manualAdd(pl,k,chosen,onPick){
+  pl.insertAdjacentHTML('beforeend','<button class="sgi" id="padd"><b>+ Añadir un sitio a mano</b></button>');
+  $('#padd').onclick=()=>{
+    pl.innerHTML=`<div class="pad"><input id="mn" placeholder="Nombre del local" value="${esc(k)}" aria-label="Nombre del local"><input id="mc" placeholder="Ciudad o pueblo" aria-label="Ciudad o pueblo"><div class="row" style="margin-bottom:8px"><button class="btn fill" id="mkr" style="flex:1">Restaurante</button><button class="btn" id="mkb" style="flex:1">Bar</button></div><button class="btn fill" id="mok" style="width:100%">Añadir</button></div>`;
+    let kind='restaurant';
+    $('#mkr').onclick=()=>{kind='restaurant';$('#mkr').classList.add('fill');$('#mkb').classList.remove('fill')};
+    $('#mkb').onclick=()=>{kind='bar';$('#mkb').classList.add('fill');$('#mkr').classList.remove('fill')};
+    $('#mok').onclick=()=>{const n=$('#mn').value.trim();if(n.length<2)return toast('Escribe el nombre del local');
+      const r={id:nrid++,bg:BGS[nrid%BGS.length],n,c:$('#mc').value.trim(),t:kind=='bar'?'Bar':'Restaurante',k:kind,e:kind=='bar'?'🍺':'🍽️'};R.push(r);chosen(r);onPick(r)}}}
+function placePick(host,onPick,pre){
+  const chosen=r=>{host.innerHTML=`<div class="card pad row" style="margin-bottom:10px"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><b>${esc(r.n)}</b><div class="mute">${esc(r.c)} · ${esc(r.t)}</div></div><button class="btn" id="pchg">Cambiar</button></div>`;$('#pchg').onclick=start};
+  const start=()=>{
+    host.innerHTML=`<div class="row" style="margin-bottom:8px"><input id="pq" placeholder="Busca un restaurante o bar" aria-label="Buscar restaurante o bar" autocomplete="off" style="margin:0">${OSM?'<button class="btn fill" id="pgo">Buscar</button>':''}</div><div id="pl" class="sgl" style="display:none"></div>`;
+    const q=$('#pq'),pl=$('#pl');let t=null;
+    const run=async()=>{const k=q.value.trim();if(OSM&&k.length<2){pl.style.display='block';pl.innerHTML='<div class="pad mute">Escribe al menos 2 letras.</div>';return}
+      pl.style.display='block';pl.innerHTML='<div class="pad mute">Buscando…</div>';
+      try{const L=await searchPlaces(k);
+        pl.innerHTML=L.length?L.slice(0,8).map(r=>`<button class="sgi" data-pid="${r.id}"><span class="av" style="background:${r.bg};width:30px;height:30px;font-size:15px">${r.e}</span><span style="min-width:0"><b>${esc(r.n)}</b><br><span class="mute">${esc(r.c)} · ${esc(r.t)}</span></span></button>`).join(''):'<div class="pad mute">Sin resultados. Prueba con otro nombre.</div>';
+        pl.querySelectorAll('[data-pid]').forEach(b=>b.onclick=()=>{const r=rn(b.dataset.pid);chosen(r);onPick(r)});manualAdd(pl,k,chosen,onPick)}
+      catch(e){pl.innerHTML=`<div class="pad mute">${esc(e.message||'No se pudo buscar.')}</div>`;manualAdd(pl,k,chosen,onPick)}};
+    if(OSM){$('#pgo').onclick=run;q.onkeydown=e=>{if(e.key=='Enter')run()}}else{q.oninput=()=>{clearTimeout(t);t=setTimeout(run,300)};run()}
+  };
+  pre?chosen(pre):start();
+}
+function saveSheet(r){
+  const cur=wnotes[r.id]||{note:'',tags:[]},has=wish.includes(r.id);
+  sheet(`<h2>${has?'Actualizar':'Guardar'} ${esc(r.n)}</h2><input id="sn" placeholder="Nota (ej. probar el pulpo)" value="${esc(cur.note)}" maxlength="140" aria-label="Nota"><input id="st" placeholder="Etiquetas separadas por comas (ej. cena, pareja)" value="${esc(cur.tags.join(', '))}" aria-label="Etiquetas"><button class="btn fill" id="sv" style="width:100%;padding:12px">${has?'Guardar cambios':'Guardar en mi catálogo'}</button>`);
+  $('#sv').onclick=()=>{wnotes[r.id]={note:$('#sn').value.trim(),tags:$('#st').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean).slice(0,8)};if(!has)wish.push(r.id);persistWish(r.id);hide();toast(has?'Actualizado':'Guardado en tu catálogo')};
+}
+function bindActs(root){
+  root.querySelectorAll('[data-val]').forEach(b=>b.onclick=()=>newReview(rn(b.dataset.val)));
+  root.querySelectorAll('[data-want]').forEach(b=>b.onclick=()=>saveSheet(rn(b.dataset.want)));
+}
+function rExploreOSM(){
+  const flt=r=>(gfilter=='all'||r.k==gfilter)&&(!gname||r.n.toLowerCase().includes(gname.toLowerCase()));
+  v.innerHTML=`<div class="row" style="margin-bottom:10px"><input id="q" placeholder="Ciudad o pueblo (Bilbao, Getxo…)" value="${esc(city)}" aria-label="Buscar ciudad o pueblo" style="margin:0"><button class="btn fill" id="qs">Buscar</button></div>
+  <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn" id="near">Cerca de mí</button>${[['all','Todos'],['restaurant','Restaurantes'],['bar','Bares']].map(([k,t])=>`<button class="btn ${gfilter==k?'fill':''}" data-f="${k}" aria-pressed="${gfilter==k}">${t}</button>`).join('')}</div>
+  <input id="gn" placeholder="Filtrar por nombre" value="${esc(gname)}" aria-label="Filtrar por nombre"><div class="seg"><button data-m="list" class="${mode=='list'?'on':''}">Lista</button><button data-m="map" class="${mode=='map'?'on':''}">Mapa</button></div><div id="res"></div>
+  <p class="mute" style="font-size:12px;margin-top:14px">Datos © colaboradores de OpenStreetMap (ODbL).</p>`;
+  const item=r=>`<div class="card pad"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><b>${esc(r.n)}</b><div class="mute">${esc(r.addr||r.c||'Sin dirección registrada')}</div><div class="mute">${esc(r.t)}</div></div>${avg(r.id)!='–'?`<div class="sc">${avg(r.id)}</div>`:''}</div><div class="row" style="margin-top:10px"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button></div></div>`;
+  const run=async fn=>{$('#res').innerHTML='<p class="mute">Buscando bares y restaurantes…</p>';
+    try{gres=await fn();gmsg=gres.length?'':'No hay bares ni restaurantes registrados en OpenStreetMap en esta zona.'}catch(e){gres=[];gmsg=e.message||'No se pudo buscar.'}draw()};
+  const draw=async()=>{
+    const box=$('#res'),L2=gres.filter(flt);
+    if(!gres.length){box.innerHTML=`<p class="mute">${esc(gmsg||'Busca una ciudad o un pueblo, o pulsa «Cerca de mí», para ver bares y restaurantes del mapa de OpenStreetMap.')}</p>`;return}
+    if(!L2.length){box.innerHTML='<p class="mute">Ningún local coincide con el filtro.</p>';return}
+    if(mode=='list'){box.innerHTML=`<p class="mute" style="margin:0 2px 8px">${L2.length} locales</p>`+L2.map(item).join('');bindActs(box);return}
+    box.innerHTML=`<div id="gmap" style="height:360px;border-radius:16px;margin-bottom:8px;border:1px solid var(--line);isolation:isolate"></div><button class="btn" id="here" style="margin-bottom:10px">Buscar en esta zona</button><div id="pc"><p class="mute">Toca un marcador para ver el local.</p></div>`;
+    const card=()=>{const r=rn(sel);if(!r)return;$('#pc').innerHTML=item(r);bindActs($('#pc'))};
+    try{await loadLeaflet();
+      const map=L.map($('#gmap')).setView(gview?[gview.lat,gview.lng]:[L2[0].lat,L2[0].lng],gview?gview.z:15),pts=[];
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+      L2.forEach(r=>{pts.push([r.lat,r.lng]);L.marker([r.lat,r.lng],{icon:L.divIcon({html:`<div class="mk">${r.e}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17]}),title:r.n}).addTo(map).on('click',()=>{sel=r.id;card()})});
+      if(!gview)map.fitBounds(L.latLngBounds(pts),{padding:[30,30],maxZoom:17});
+      map.on('moveend',()=>{const c=map.getCenter();gview={lat:c.lat,lng:c.lng,z:map.getZoom()}});
+      $('#here').onclick=()=>{if(map.getZoom()<14)return toast('Acerca el mapa para buscar en esta zona');
+        const c=map.getCenter(),rad=Math.min(3000,Math.round(map.distance(c,map.getBounds().getNorthEast())));gview={lat:c.lat,lng:c.lng,z:map.getZoom()};run(()=>areaSearch(c.lat,c.lng,rad,city))};
+    }catch(e){$('#gmap').innerHTML=`<p class="pad mute">${esc(e.message||'No se pudo cargar el mapa.')}</p>`}
+  };
+  $('#qs').onclick=()=>{city=$('#q').value.trim();if(!city)return;gview=null;run(async()=>{const g=await geocode(city);return areaSearch(g.lat,g.lng,2500,g.name)})};
+  $('#q').onkeydown=e=>{if(e.key=='Enter')$('#qs').click()};
+  $('#near').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{gview=null;run(()=>areaSearch(p.coords.latitude,p.coords.longitude,1500,''))},()=>toast('No pudimos acceder a tu ubicación'),{timeout:8000}):toast('Tu navegador no permite ubicación');
+  v.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{gfilter=b.dataset.f;rExploreOSM()});
+  v.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;rExploreOSM()});
+  let tm=null;$('#gn').oninput=e=>{gname=e.target.value;clearTimeout(tm);tm=setTimeout(draw,mode=='map'?400:120)};
+  draw();
+}
+function rExploreOff(){v.innerHTML=`<div class="card pad"><b>Mapa no activado</b><p class="mute" style="margin:6px 0 0">El mapa de OpenStreetMap con bares y restaurantes reales se activa en la versión publicada de la app (mira el README). Mientras tanto puedes añadir restaurantes a mano al crear una reseña.</p></div>`}
+function rExplore(){return OSM?rExploreOSM():rExploreOff()}
+function wishScreen(){
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Lista de deseos</h2><div class="seg"><button data-wv="0" class="${st==0?'on':''}">Sueltos</button><button data-wv="1" class="${st==1?'on':''}">Por grupos</button></div><div id="bx"></div>`;
+  back();v.querySelectorAll('[data-wv]').forEach(b=>b.onclick=()=>{st=+b.dataset.wv;render()});
+  const bx=$('#bx');
+  if(st==0)return wishUI(wish,bx,'Mis restaurantes por probar');
+  const L=[...groups.map(g=>[g.n,g.w]),...Object.keys(chats).filter(u=>chats[u].w.length).map(u=>['Con '+u,chats[u].w])];
+  bx.innerHTML=L.map((_,i)=>`<div id="wg${i}" style="margin-bottom:18px"></div>`).join('');
+  L.forEach(([n,w],i)=>wishUI(w,$('#wg'+i),n));
+}
+function catsScreen(){
+  const ck=Object.keys(cats);
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Mis listas por tipo</h2>${ck.map((c,i)=>`<button class="card pad row sp" data-c="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(c)}</b><div class="mute">${cats[c].length} reseñas</div></div><span class="mute">›</span></button>`).join('')}<button class="btn fill" id="nl">+ Nueva lista</button>`;
+  back();v.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>go(ck[b.dataset.c]));
+  $('#nl').onclick=()=>{sheet(`<h2>Nueva lista</h2><input id="ln" placeholder="Italianos, Asiáticos, Brunch…" aria-label="Nombre de la lista"><button class="btn fill" id="lb">Crear y elegir publicaciones</button>`);
+    $('#lb').onclick=()=>{const q=$('#ln').value.trim();if(!q)return toast('Pon un nombre a la lista');if(cats[q])return toast('Esa lista ya existe');cats[q]=[];hide();go(q);$('#wa').click()}};
+}
+function rMe(){
+  if(typeof sub=='number')return postDet(feed.find(x=>x.id==sub),'Perfil');
+  if(sub=='#wish')return wishScreen();
+  if(sub=='#cats')return catsScreen();
+  if(sub!=null){
+    v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><h2 style="margin-top:12px">${esc(sub)}</h2><div id="bx"></div>`;
+    $('[data-bk]').onclick=()=>go('#cats');return wishUI(cats[sub],$('#bx'),sub,true)}
+  const mp=feed.filter(p=>p.u=='Tú'),n=new Set(mp.map(p=>p.r)).size,a=mp.length?+(mp.reduce((t,p)=>t+p.s,0)/mp.length).toFixed(2):'–';
+  v.innerHTML=`<div class="row" style="margin:6px 2px"><div class="av" style="width:72px;height:72px;font-size:30px;background:#0E6F73">${esc(me.name[0])}</div><div><b style="font-size:20px">${esc(me.name)}</b><div class="mute">${esc(me.user)} · ${me.pub?'Perfil público':'Perfil privado'}</div></div></div><p style="margin:6px 2px">${me.bio?esc(me.bio):'<span class="mute">Añade una bio en Editar perfil.</span>'}</p>
+  <div class="stats"><div><b>${n}</b><span class="mute">sitios</span></div><div><b>${me.fr||0}</b><span class="mute">seguidores</span></div><div><b>${me.fg||0}</b><span class="mute">siguiendo</span></div><div><b>${a}</b><span class="mute">media</span></div></div>
+  <button class="btn" id="ed" style="width:100%;margin-bottom:10px">Editar perfil</button>
+  <div class="row" style="margin-bottom:14px"><button class="btn fill" id="bw" style="flex:1;padding:12px">❤️ Lista de deseos</button><button class="btn fill" id="bc" style="flex:1;padding:12px">🗂️ Mis listas</button></div>
+  <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${p.c.length}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
+  v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(+b.dataset.p));
+  $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');
+  $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button>`);
+    $('#lo').onclick=logout;if($('#lg'))$('#lg').onclick=()=>REAL?linkReal():googleSim(true);
+    $('#es').onclick=()=>{me.name=$('#en').value||me.name;me.bio=$('#eb').value;me.pub=$('#ep').checked;saveProfile();hide();toast('Cambios guardados');render()}};
+}
+function shareSheet(p,tg){
+  const who=[...new Set([...Object.keys(chats),...tg])];
+  sheet(`<h2>Reseña publicada 🎉</h2>${tg.length?`<p class="mute">📩 Hemos avisado a ${tg.map(esc).join(', ')} de que los has etiquetado.</p>`:''}<p style="margin-top:0">¿Quieres añadir <b>${esc(rn(p.r).n)}</b> con tu nota a alguna lista?</p>
+  <div class="mute" style="margin-bottom:6px">Grupos</div>${groups.map((g,i)=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" data-sh="g:${i}" style="width:auto;margin:0" ${tg.length&&tg.every(t=>g.m.includes(t))?'checked':''}> ${esc(g.n)}</label>`).join('')}
+  <div class="mute" style="margin:10px 0 6px">Personas</div>${who.map(u=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" data-sh="p:${u}" style="width:auto;margin:0" ${tg.includes(u)?'checked':''}> ${esc(u)}</label>`).join('')}
+  <div class="row" style="margin-top:12px"><button class="btn fill" id="sb" style="flex:1">Añadir y avisar en el chat</button><button class="btn" id="sn">Ahora no</button></div>`);
+  $('#sn').onclick=()=>{hide();toast(tg.length?'Notificación enviada a '+tg.join(', '):'Reseña publicada')};
+  $('#sb').onclick=()=>{let n=0,nw=0;document.querySelectorAll('#sheet [data-sh]:checked').forEach(c=>{const [k,x]=c.dataset.sh.split(':');
+    const sp=k=='g'?groups[+x]:(chats[x]=chats[x]||mk(x,[x],[],[],[]));if(addTo(sp,p))nw++;n++});
+    hide();toast(n?`Añadido a ${n} ${n>1?'listas':'lista'} (${nw} nuevo${nw==1?'':'s'} en Visitados)`:'Reseña publicada');render()};
+}
+function newReview(pre){
+  let imgs=[],pr=0,rid=pre?pre.id:0;
+  const ppl=()=>{const sc=x=>groups.filter(g=>g.m.includes(x)).length+(chats[x]?1:0);return [...FW].sort((a,b)=>sc(b)-sc(a))};
+  const hint=x=>{const g=groups.find(g=>g.m.includes(x));return g?g.n:(chats[x]?'Chat':'')};
+  sheet(`<h2>Nueva reseña</h2>
+  ${photoHTML()}
+  <input id="rt" placeholder="Título (ej. La mejor tortilla de Bilbao)" maxlength="60" aria-label="Título">
+  <div id="ph" style="margin-bottom:10px"></div>
+  <label class="mute" for="rs">Valoración: <b id="rv">8</b>/10</label><input type="range" id="rs" min="0" max="10" step="0.25" value="8">
+  <div class="mute" style="margin-bottom:6px">Precio (opcional)</div>${priceHTML(0)}
+  <textarea id="rd" rows="3" placeholder="Cuenta qué tal estuvo. Escribe @ para etiquetar a quien fue contigo" aria-label="Descripción"></textarea>
+  <div id="sg" class="sgl" role="listbox" aria-label="Personas sugeridas" style="display:none"></div>
+  <button class="btn fill" id="rp" style="width:100%;padding:12px">Publicar</button>`);
+  placePick($('#ph'),r=>{rid=r.id},pre);photoBind(imgs);
+  $('#rs').oninput=e=>$('#rv').textContent=e.target.value;
+  priceBind(()=>pr,n=>pr=n);
+  const rd=$('#rd'),sgb=$('#sg');
+  const sug=()=>{const pos=rd.selectionStart,txt=rd.value.slice(0,pos),m=txt.match(/@([\w.]*)$/);
+    if(!m){sgb.style.display='none';return}
+    const q=m[1].toLowerCase(),L=ppl().filter(x=>x.toLowerCase().startsWith(q));
+    if(!L.length){sgb.style.display='none';return}
+    sgb.style.display='block';
+    sgb.innerHTML=L.map(x=>`<button class="sgi" data-n="${x}" role="option">${av(x,28)}<b>${x}</b><span class="mute" style="margin-left:auto">${esc(hint(x))}</span></button>`).join('');
+    sgb.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const nm='@'+b.dataset.n+' ',np=txt.length-m[0].length+nm.length;rd.value=txt.slice(0,txt.length-m[0].length)+nm+rd.value.slice(pos);rd.focus();rd.setSelectionRange(np,np);sug()})};
+  rd.oninput=sug;rd.onclick=sug;rd.onkeyup=e=>{if(e.key.startsWith('Arrow'))sug()};
+  $('#rp').onclick=()=>{const id=rid,n=+$('#rs').value,title=$('#rt').value.trim(),t=rd.value.trim();
+    if(!id)return toast('Elige el restaurante o bar');
+    if(!imgs.length)return toast('Añade al menos una foto de tu galería');
+    if(!title)return toast('Pon un título a tu reseña');
+    const tg=FW.filter(x=>new RegExp('@'+x.replace(/\./g,'\\.')+'(?![\\w])').test(t));
+    const p={id:nid++,u:'Tú',r:id,s:n,title,t,pr,imgs,tg,l:0,k:0,w:'ahora',f:1,c:[]};
+    feed.unshift(p);tab='feed';fm='fol';go(null);shareSheet(p,tg)};
+}
+$('#fab').onclick=()=>newReview();
+$('#modal').onclick=e=>{if(e.target.id=='modal')hide()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;go(null)});
+$('#th').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()=='#0F1715';d.dataset.theme=dark?'light':'dark'};
+
+const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><path d="M8 20h24a12 12 0 0 1-24 0z" fill="var(--acf)"/><path d="M15 15q-2-3 0-5M21 15q-2-3 0-5M27 15q-2-3 0-5" stroke="var(--acf)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const GICON='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
+const REAL=!!CONFIG.SUPABASE;
+let accts={},ses=null,amode='in',sb=null,stripped=false;
+try{accts=JSON.parse(localStorage.getItem('nn_accts')||'{}')}catch(e){}
+const store=()=>{try{localStorage.setItem('nn_accts',JSON.stringify(accts))}catch(e){}};
+const sha=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent(t)))}};
+const lock=on=>document.querySelectorAll('#app>header,#app>main,#app>nav,#fab').forEach(e=>e.inert=on);
+const E=m=>new Error(m);
+const SBU='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+async function sbInit(){
+  if(!window.supabase)await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=SBU;sc.onload=res;sc.onerror=()=>rej(new Error('supabase'));document.head.appendChild(sc)});
+  sb=window.supabase.createClient(CONFIG.SUPABASE.url,CONFIG.SUPABASE.key)}
+const SERR=e=>{const m=((e&&e.message)||'').toLowerCase();
+  if(m.includes('invalid login'))return 'Correo o contraseña incorrectos.';
+  if(m.includes('already registered')||m.includes('already been registered'))return 'Ya existe una cuenta con ese correo.';
+  if(m.includes('not confirmed'))return 'Confirma tu correo antes de iniciar sesión. Te hemos enviado un enlace.';
+  if(m.includes('password'))return 'La contraseña no es válida (mínimo 6 caracteres).';
+  if(m.includes('rate limit')||m.includes('too many'))return 'Demasiados intentos. Prueba en unos minutos.';
+  if(m.includes('fetch')||m.includes('network'))return 'Sin conexión. Revisa tu red.';
+  if(m.includes('identity')&&m.includes('already'))return 'Esa cuenta de Google ya está vinculada a otro usuario.';
+  return 'Ha ocurrido un error. Inténtalo de nuevo.'};
+const sbx=async p=>{const {data,error}=await p;if(error)throw E(SERR(error));return data};
+const here=()=>location.origin+location.pathname;
+async function afterSession(user){
+  const p=await sbx(sb.from('profiles').select('*').eq('id',user.id).single());
+  ses={uid:user.id,email:user.email,name:p.name,user:p.username,bio:p.bio||'',pub:p.pub!==false,g:(user.identities||[]).some(i=>i.provider=='google')};
+  enterApp();await loadSaved();await loadFollows();render()}
+let uq='',ures=null,umsg='';
+async function findUsers(q){
+  const t=q.replace(/[%,()*\\]/g,' ').trim().toLowerCase();
+  if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub').or(`username.ilike.*${t}*,name.ilike.*${t}*`).neq('id',ses.uid).limit(20));
+    return rows.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
+  return Object.entries(accts).filter(([e,a])=>e!==ses.email&&((a.name||'').toLowerCase().includes(t)||(a.user||'').toLowerCase().includes(t))).slice(0,20).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:a.pub!==false}))}
+async function setFollow(p,on){
+  if(REAL){if(on)await sbx(sb.from('follows').insert({follower:ses.uid,followed:p.id}));else await sbx(sb.from('follows').delete().eq('follower',ses.uid).eq('followed',p.id))}
+  else{const a=accts[ses.email];a.following=a.following||[];if(on){if(!a.following.includes(p.id))a.following.push(p.id)}else a.following=a.following.filter(x=>x!==p.id);store()}
+  if(on){if(!FW.includes(p.user)){FW.push(p.user);me.fg++}PROF[p.user]=p}else{const i=FW.indexOf(p.user);if(i>=0){FW.splice(i,1);me.fg--}}}
+async function loadFollows(){
+  FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);
+  if(REAL){
+    const rows=await sbx(sb.from('follows').select('followed').eq('follower',ses.uid));
+    if(rows.length){const ps=await sbx(sb.from('profiles').select('id,username,name,bio,pub').in('id',rows.map(r=>r.followed)));
+      ps.forEach(r=>{FW.push(r.username);PROF[r.username]={id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}})}
+    const c=await sb.from('follows').select('follower',{count:'exact',head:true}).eq('followed',ses.uid);me.fr=c.count||0}
+  else{const a=accts[ses.email]||{};
+    (a.following||[]).forEach(e=>{const b=accts[e];if(b){FW.push(b.user);PROF[b.user]={id:e,user:b.user,name:b.name,bio:b.bio||'',pub:b.pub!==false}}});
+    me.fr=Object.values(accts).filter(x=>(x.following||[]).includes(ses.email)).length}
+  me.fg=FW.length}
+function sheetUser(u){
+  const f=FW.includes(u.user);
+  sheet(`<div class="row" style="margin-bottom:10px">${av(u.user,56)}<div><h2 style="margin:0">${esc(u.name)}</h2><div class="mute">@${esc(u.user)} · ${u.pub?'Perfil público':'Perfil privado'}</div></div></div><p>${u.bio?esc(u.bio):'<span class="mute">Sin bio.</span>'}</p><button class="btn ${f?'':'fill'}" id="uf" style="width:100%;padding:12px">${f?'Siguiendo':'Seguir'}</button>`);
+  $('#uf').onclick=async()=>{const on=!FW.includes(u.user);try{await setFollow(u,on);hide();toast(on?'Ahora sigues a '+u.name:'Has dejado de seguir a '+u.name);if(tab=='feed'&&sub==null&&fm=='all')usersUI()}catch(e){toast(e.message)}}}
+function usersUI(){
+  const inp=$('#us'),box=$('#ur'),dg=$('#dg');
+  const card=u=>{const f=FW.includes(u.user);return `<div class="card pad row">${av(u.user)}<button class="lnk" data-pu="${esc(u.user)}" style="flex:1;min-width:0"><b>${esc(u.name)}</b><div class="mute">@${esc(u.user)}${u.pub?'':' · perfil privado'}</div></button><button class="btn ${f?'':'fill'}" data-fo="${esc(u.user)}">${f?'Siguiendo':'Seguir'}</button></div>`};
+  const draw=()=>{
+    if(ures===null&&!umsg){box.innerHTML='';dg.style.display='';return}
+    dg.style.display='none';
+    box.innerHTML=umsg?`<p class="mute">${esc(umsg)}</p>`:(ures.length?ures.map(card).join(''):'<p class="mute">No hemos encontrado a nadie con ese nombre.</p>');
+    box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=async()=>{const u=ures.find(x=>x.user==b.dataset.fo),on=!FW.includes(u.user);b.disabled=true;
+      try{await setFollow(u,on);toast(on?'Ahora sigues a '+u.name:'Has dejado de seguir a '+u.name)}catch(e){toast(e.message)}draw()});
+    box.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>sheetUser(ures.find(x=>x.user==b.dataset.pu)))};
+  const run=async()=>{uq=inp.value.trim();
+    if(!uq){ures=null;umsg='';draw();return}
+    if(uq.length<2){ures=null;umsg='Escribe al menos 2 letras.';draw();return}
+    umsg='';dg.style.display='none';box.innerHTML='<p class="mute">Buscando…</p>';
+    try{ures=await findUsers(uq)}catch(e){ures=null;umsg=e.message||'No se pudo buscar.'}draw()};
+  let t=null;inp.oninput=()=>{clearTimeout(t);t=setTimeout(run,350)};
+  inp.onkeydown=e=>{if(e.key=='Enter'){clearTimeout(t);run()}};$('#ub').onclick=run;
+  draw()}
+function enterApp(){
+  me.name=ses.name;me.user='@'+ses.user;me.bio=ses.bio||'';me.pub=ses.pub!==false;me.fr=0;me.fg=0;
+  $('#auth').style.display='none';lock(false);tab='feed';go(null)}
+function demoEnter(email){ses={...accts[email],email};try{localStorage.setItem('nn_sess',email)}catch(e){}enterApp();loadFollows().then(render)}
+function showAuth(){ses=null;amode='in';authView();$('#auth').style.display='flex';lock(true)}
+async function authRegister(d){
+  if(REAL){
+    if(!(await sbx(sb.rpc('username_available',{u:d.user}))))throw E('Ese nombre de usuario no está disponible.');
+    const r=await sbx(sb.auth.signUp({email:d.email,password:d.pw,options:{data:{name:d.name,username:d.user},emailRedirectTo:here()}}));
+    if(r.user&&r.user.identities&&!r.user.identities.length)throw E('Ya existe una cuenta con ese correo.');
+    if(!r.session){amode='in';authView();$('#aerr').textContent='✉ Te hemos enviado un correo para confirmar tu cuenta. Después podrás iniciar sesión.'}
+    return}
+  if(accts[d.email])throw E('Ya existe una cuenta con ese correo.');
+  if(Object.values(accts).some(a=>a.user==d.user))throw E('Ese nombre de usuario no está disponible.');
+  accts[d.email]={name:d.name,user:d.user,h:await sha(d.pw),g:false,bio:'',pub:true};store();demoEnter(d.email)}
+async function authLogin(email,pw){
+  if(REAL){await sbx(sb.auth.signInWithPassword({email,password:pw}));return}
+  const a=accts[email];if(!a)throw E('Correo o contraseña incorrectos.');
+  if(!a.h)throw E('Esta cuenta usa Google. Pulsa «Iniciar sesión con Google».');
+  if(a.h!==await sha(pw))throw E('Correo o contraseña incorrectos.');demoEnter(email)}
+async function authReset(email){
+  if(!REAL)throw E('El envío de correos se activa al conectar Supabase.');
+  await sbx(sb.auth.resetPasswordForEmail(email,{redirectTo:here()}))}
+async function authGoogleReal(err){try{await sbx(sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:here()}}))}catch(e){err(e.message)}}
+async function linkReal(){try{await sbx(sb.auth.linkIdentity({provider:'google',options:{redirectTo:here()}}))}catch(e){toast(e.message)}}
+async function saveProfile(){
+  if(!ses)return;ses.name=me.name;ses.bio=me.bio;ses.pub=me.pub;
+  if(REAL){try{await sbx(sb.from('profiles').update({name:me.name,bio:me.bio,pub:me.pub}).eq('id',ses.uid))}catch(e){toast('No se pudo guardar en la base de datos')}}
+  else if(accts[ses.email]){Object.assign(accts[ses.email],{name:me.name,bio:me.bio,pub:me.pub});store()}}
+function resetData(){FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
+async function logout(){hide();resetData();if(REAL){try{await sb.auth.signOut()}catch(e){}}else{try{localStorage.removeItem('nn_sess')}catch(e){}}showAuth()}
+function googleSim(link){
+  sheet(`<h2>Continuar con Google</h2><p class="mute" style="margin-top:0">Simulación: con Firebase conectado se abre la ventana oficial de Google.</p><input id="ge" type="email" placeholder="tucuenta@gmail.com" autocomplete="email" aria-label="Cuenta de Google"><div id="gerr" role="alert" class="aerr"></div><button class="btn fill" id="gc" style="width:100%;padding:12px">${link?'Vincular cuenta':'Continuar'}</button>`);
+  const fn=()=>{const em=$('#ge').value.trim().toLowerCase();
+    if(!/^\S+@\S+\.\S+$/.test(em))return $('#gerr').textContent='⚠ Escribe un email válido';
+    if(link){ses.g=true;accts[ses.email].g=true;store();hide();toast('Cuenta de Google vinculada');return}
+    if(!accts[em]){const b=em.split('@')[0].replace(/[^a-z0-9._]/g,'').slice(0,20)||'usuario';let u=b,i=0;while(Object.values(accts).some(a=>a.user==u))u=b+(++i);
+      accts[em]={name:b.replace(/[._]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),user:u,g:true,bio:'',pub:true}}
+    accts[em].g=true;store();hide();demoEnter(em)};
+  $('#gc').onclick=fn;$('#ge').onkeydown=e=>{if(e.key=='Enter')fn()};$('#ge').focus();
+}
+function authView(){
+  const up=amode=='up';
+  $('#auth').innerHTML=`<div class="ig"><div class="igc"><div style="margin-bottom:${up?12:26}px">${LOGO(52)}<div style="font-size:34px;font-weight:800;letter-spacing:-1px;margin-top:6px">Ñam Ñam</div></div>
+  ${up?`<p class="igt">Regístrate para ver los restaurantes y reseñas de tus amigos.</p><button class="btn gbtn" id="gg">${GICON} Registrarte con Google</button><div class="or"><span>O</span></div>`:''}
+  <label class="igf"><input id="ae" type="email" placeholder=" " autocomplete="email" aria-label="Correo electrónico"><span>Correo electrónico</span></label>
+  ${up?`<label class="igf"><input id="an" placeholder=" " autocomplete="name" aria-label="Nombre completo"><span>Nombre completo</span></label><label class="igf"><input id="au" placeholder=" " autocomplete="username" autocapitalize="none" aria-label="Nombre de usuario"><span>Nombre de usuario</span></label>`:''}
+  <label class="igf"><input id="ap" type="password" placeholder=" " autocomplete="${up?'new-password':'current-password'}" aria-label="Contraseña" style="padding-right:76px"><span>Contraseña</span><button type="button" class="lk sh" id="sh" hidden>Mostrar</button></label>
+  ${up?'<p class="mute" style="font-size:12px;margin:6px 0">Al registrarte aceptas las condiciones y la política de privacidad de Ñam Ñam.</p>':''}
+  <button class="igb" id="as" disabled>${up?'Registrarte':'Iniciar sesión'}</button>
+  <div id="aerr" role="alert" class="aerr" style="margin-top:10px"></div>
+  ${up?'':`<div class="or"><span>O</span></div><button class="btn gbtn" id="gg">${GICON} Iniciar sesión con Google</button><div style="margin-top:14px"><button class="lk sm" id="fp">¿Has olvidado tu contraseña?</button></div>`}
+  </div><div class="igc s">${up?'¿Tienes una cuenta?':'¿No tienes una cuenta?'} <button class="lk" data-am="${up?'in':'up'}">${up?'Inicia sesión':'Regístrate'}</button></div>
+  ${REAL?'':'<p class="mute" style="text-align:center;font-size:12px">Modo demostración: las cuentas se guardan solo en este navegador. Conecta Firebase para guardarlas en una base de datos real.</p>'}</div>`;
+  const val=()=>({email:$('#ae').value.trim().toLowerCase(),pw:$('#ap').value,name:up?$('#an').value.trim():'',user:up?$('#au').value.trim():''});
+  const ok=()=>{const d=val();return /^\S+@\S+\.\S+$/.test(d.email)&&d.pw.length>=6&&(!up||(d.name&&/^[a-z0-9._]{3,20}$/.test(d.user)))};
+  const chk=()=>{$('#as').disabled=!ok()};
+  const err=m=>$('#aerr').textContent=m?'⚠ '+m:'';
+  const submit=async()=>{if(!ok())return;err('');$('#as').disabled=true;const d=val();
+    try{if(up)await authRegister(d);else await authLogin(d.email,d.pw)}catch(e){err(e.message)}chk()};
+  document.querySelectorAll('#auth input').forEach(i=>{
+    i.oninput=()=>{if(i.id=='au')i.value=i.value.toLowerCase().replace(/[^a-z0-9._]/g,'');if(i.id=='ap')$('#sh').hidden=!i.value;chk()};
+    i.onkeydown=e=>{if(e.key=='Enter')submit()}});
+  $('#sh').onclick=()=>{const p=$('#ap'),h=p.type=='password';p.type=h?'text':'password';$('#sh').textContent=h?'Ocultar':'Mostrar'};
+  $('#as').onclick=submit;
+  $('#gg').onclick=()=>REAL?authGoogleReal(err):googleSim(false);
+  if(!up)$('#fp').onclick=async()=>{const m=$('#ae').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(m))return err('Escribe tu correo arriba y vuelve a pulsar.');
+    try{await authReset(m);err('');$('#aerr').textContent='✉ Si existe una cuenta con ese correo, te hemos enviado un enlace para restablecerla.'}catch(e){err(e.message)}};
+  document.querySelectorAll('#auth [data-am]').forEach(b=>b.onclick=()=>{amode=b.dataset.am;authView()});
+}
+async function boot(){
+  showAuth();
+  if(REAL){
+    try{await sbInit()}catch(e){$('#aerr').textContent='⚠ No se pudo conectar con Supabase. Revisa la configuración.';return}
+    sb.auth.onAuthStateChange((ev,session)=>{
+      if(ev=='PASSWORD_RECOVERY')setTimeout(()=>{sheet(`<h2>Nueva contraseña</h2><input id="np" type="password" placeholder="Nueva contraseña (mínimo 6)" autocomplete="new-password" aria-label="Nueva contraseña"><div id="nperr" class="aerr"></div><button class="btn fill" id="npb" style="width:100%;padding:12px">Guardar contraseña</button>`);
+        $('#npb').onclick=async()=>{const p=$('#np').value;if(p.length<6)return $('#nperr').textContent='⚠ Mínimo 6 caracteres';try{await sbx(sb.auth.updateUser({password:p}));hide();toast('Contraseña actualizada')}catch(e){$('#nperr').textContent='⚠ '+e.message}}},300);
+      if(session){if(ses&&ses.uid==session.user.id)return;
+        setTimeout(()=>afterSession(session.user).catch(()=>{showAuth();$('#aerr').textContent='⚠ No se pudo cargar tu perfil. Revisa la configuración de la base de datos.'}),0)}
+      else if(ev=='SIGNED_OUT')showAuth()});
+    return}
+  let e=null;try{e=localStorage.getItem('nn_sess')}catch(x){}
+  if(e&&accts[e])demoEnter(e)}
+render();boot();
+</script>
+</body>
+</html>
