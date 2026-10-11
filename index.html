@@ -173,7 +173,7 @@ function photoBind(imgs){
     if(fl.length>room)toast('Máximo 10 fotos por reseña');
     const r=await Promise.all(fl.slice(0,Math.max(room,0)).map(x=>new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(x)})));imgs.push(...r);draw()};
 }
-function wishUI(list,box,title,pm){
+function wishUI(list,box,title,pm,onChange){
   let ed=false;
   const row=(x,i)=>{let ic,nm,sb,rt,ex='';
     if(pm){const p=feed.find(q=>q.id==x);if(!p)return '';const r=rn(p.r);ic=`<div style="width:48px;height:48px;border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:24px;background:${r.bg};flex:none">${p.imgs.length?`<img src="${p.imgs[0]}" alt="" style="width:100%;height:100%;object-fit:cover">`:r.e}</div>`;nm=r.n;sb=p.title;rt=p.s}
@@ -189,47 +189,52 @@ function wishUI(list,box,title,pm){
         const sel=new Set();
         sheet(`<h2>Añadir a ${esc(title)}</h2><p class="mute" style="margin-top:0">Elige entre tus publicaciones:</p><div class="pgrid">${pk.map(p=>{const r=rn(p.r);return `<button class="pk" data-k="${p.id}" aria-pressed="false"><div class="th" style="background:${r.bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:r.e}</div><span>${esc(r.n)}</span></button>`}).join('')}</div><button class="btn fill" id="wb" style="width:100%">Añadir a la lista</button>`);
         document.querySelectorAll('#sheet [data-k]').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle('sel',sel.has(k));b.setAttribute('aria-pressed',sel.has(k))});
-        $('#wb').onclick=()=>{if(!sel.size)return toast('Elige al menos una publicación');list.push(...sel);hide();draw();toast('Añadido a '+title)};
+        $('#wb').onclick=()=>{if(!sel.size)return toast('Elige al menos una publicación');list.push(...sel);if(onChange)onChange();hide();draw();toast('Añadido a '+title)};
         return}
       sheet(`<h2>Añadir a ${esc(title)}</h2><div id="ph"></div>`);
-      placePick($('#ph'),r=>{if(list.includes(r.id))return toast('Ya está en la lista');list.push(r.id);if(list===wish)persistWish(r.id);hide();draw()})};
-    box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.m.split(',').map(Number);[list[i],list[i+d]]=[list[i+d],list[i]];draw()});
-    box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{list.splice(+b.dataset.x,1);if(list===wish)persistWish();draw()});
+      placePick($('#ph'),r=>{if(list.includes(r.id))return toast('Ya está en la lista');list.push(r.id);if(list===wish)persistWish(r.id);if(onChange)onChange();hide();draw()})};
+    box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.m.split(',').map(Number);[list[i],list[i+d]]=[list[i+d],list[i]];if(list===wish)persistWishOrder();if(onChange)onChange();draw()});
+    box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{list.splice(+b.dataset.x,1);if(list===wish)persistWish();if(onChange)onChange();draw()});
   };draw()}
 
 function render(){
+  if(!(tab=='social'&&sub!=null&&st==0&&sub2==null)){clearInterval(pollT);pollT=null}
   document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.t==tab);b.setAttribute('aria-current',b.dataset.t==tab?'page':'false')});
   $('#fab').style.display=((tab=='feed'||tab=='me')&&sub==null)?'block':'none';
   ({feed:rFeed,social:rSocial,explore:rExplore,me:rMe})[tab]();
   carBind();
 }
-function likeBind(){v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>{const p=feed.find(x=>x.id==b.dataset.like);p.k=p.k?0:1;b.className='btn '+(p.k?'fill':'');b.textContent='♥ '+(p.l+p.k)})}
+function likeBind(){v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>{const p=feed.find(x=>x.id==b.dataset.like);p.k=p.k?0:1;persistLike(p);b.className='btn '+(p.k?'fill':'');b.textContent='♥ '+(p.l+p.k)})}
 function post(p){const r=rn(p.r);return `<article class="card"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div><div class="sc">${p.s}</div></div>${car(p,210,1)}
-<div class="pad"><button class="lnk" data-open="${p.id}"><b>${esc(p.title)}</b>${p.pr?` <span class="mute">· ${eur(p.pr)}</span>`:''}</button>${p.tg.length?`<div class="mute">con ${p.tg.map(esc).join(', ')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button><button class="btn" data-cm="${p.id}">💬 ${p.c.length}</button></div></div></article>`}
+<div class="pad"><button class="lnk" data-open="${p.id}"><b>${esc(p.title)}</b>${p.pr?` <span class="mute">· ${eur(p.pr)}</span>`:''}</button>${p.tg.length?`<div class="mute">con ${p.tg.map(esc).join(', ')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button><button class="btn" data-cm="${p.id}">💬 ${nc(p)}</button></div></div></article>`}
 function postDet(p,label){
   if(!p)return go(null);
+  if(REAL&&p.dbid&&!p._cl&&!p._cld){p._cld=1;loadComments(p).then(()=>{if(sub===p.id&&(tab=='feed'||tab=='me'))render()}).catch(()=>{})}
   const r=rn(p.r),own=p.u=='Tú';
   v.innerHTML=`<button class="btn" data-back>‹ ${label}</button><div class="card" style="margin-top:12px"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div>${own?`<button class="btn" id="pe">Editar</button><button class="btn" id="pd" aria-label="Eliminar reseña">🗑</button>`:`<button class="btn ${p.f?'':'fill'}" id="pf2">${p.f?'Siguiendo':'Seguir'}</button>`}</div>${car(p,280,0)}
   <div class="pad"><h2 style="margin:0 0 8px">${esc(p.title)}</h2><div class="row" style="flex-wrap:wrap;margin-bottom:10px"><span class="sc">${p.s}/10</span>${p.pr?`<span class="tag" style="margin:0">${eur(p.pr)} · ${PL[p.pr]}</span>`:`<span class="mute">Sin precio indicado</span>`}</div>
   ${p.tg.length?`<div style="margin-bottom:10px">${p.tg.map(x=>`<span class="tag">con ${esc(x)}</span>`).join('')}</div>`:''}<p style="margin:0 0 10px">${p.t?mt(p.t):'<span class="mute">Sin descripción.</span>'}</p><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button></div></div>
   <div class="row" style="margin-bottom:14px"><input id="ci" placeholder="Escribe un comentario" aria-label="Comentario" style="margin:0"><button class="btn fill" id="cs">Comentar</button></div>
-  <h2>Comentarios (${p.c.length})</h2>${p.c.map(c=>`<div class="card pad"><b>${esc(c.u)}</b> ${mt(c.t)}</div>`).join('')||'<p class="mute">Sé el primero en comentar.</p>'}`;
+  <h2>Comentarios (${nc(p)})</h2>${p.c.map(c=>`<div class="card pad"><b>${esc(c.u)}</b> ${mt(c.t)}</div>`).join('')||'<p class="mute">Sé el primero en comentar.</p>'}`;
   back();likeBind();
-  const send=()=>{const t=$('#ci').value.trim();if(!t)return toast('Escribe algo para comentar');p.c.push({u:'Tú',t});render();$('#ci').focus()};
+  const send=()=>{const t=$('#ci').value.trim();if(!t)return toast('Escribe algo para comentar');p.c.push({u:'Tú',t});if(p.nc!=null)p.nc++;persistComment(p,t);render();$('#ci').focus()};
   $('#cs').onclick=send;$('#ci').onkeydown=e=>{if(e.key=='Enter')send()};
   if(fc){fc=false;$('#ci').focus()}
   if(!own)$('#pf2').onclick=()=>{const f=p.f?0:1;feed.forEach(q=>{if(q.u==p.u)q.f=f});render()};
   if(own){
     $('#pd').onclick=()=>{sheet(`<h2>¿Eliminar esta reseña?</h2><p class="mute">Se borrará con sus likes y comentarios.</p><div class="row"><button class="btn fill" id="dy">Eliminar</button><button class="btn" id="dn">Cancelar</button></div>`);
-      $('#dn').onclick=hide;$('#dy').onclick=()=>{feed=feed.filter(x=>x!==p);Object.keys(cats).forEach(k=>cats[k]=cats[k].filter(i=>i!=p.id));hide();toast('Reseña eliminada');go(null)}};
+      $('#dn').onclick=hide;$('#dy').onclick=()=>{deleteReal(p);feed=feed.filter(x=>x!==p);Object.keys(cats).forEach(k=>cats[k]=cats[k].filter(i=>i!=p.id));hide();toast('Reseña eliminada');go(null)}};
     $('#pe').onclick=()=>{let pr=p.pr,imgs=[...p.imgs];
       sheet(`<h2>Editar reseña</h2>${photoHTML()}<input id="et" value="${esc(p.title)}" maxlength="60" aria-label="Título"><label class="mute" for="es">Valoración: <b id="ev">${p.s}</b>/10</label><input type="range" id="es" min="0" max="10" step="0.25" value="${p.s}"><div class="mute" style="margin-bottom:6px">Precio (opcional)</div>${priceHTML(pr)}<textarea id="ed" rows="3" aria-label="Descripción">${esc(p.t)}</textarea><button class="btn fill" id="eb" style="width:100%;padding:12px">Guardar cambios</button>`);
       photoBind(imgs);$('#es').oninput=e=>$('#ev').textContent=e.target.value;priceBind(()=>pr,n=>pr=n);
-      $('#eb').onclick=()=>{const t=$('#et').value.trim();if(!t)return toast('El título no puede estar vacío');if(!imgs.length)return toast('Añade al menos una foto');p.title=t;p.imgs=[...imgs];p.s=+$('#es').value;p.pr=pr;p.t=$('#ed').value.trim();hide();toast('Cambios guardados');render()}};
+      $('#eb').onclick=async()=>{const t=$('#et').value.trim();if(!t)return toast('El título no puede estar vacío');if(!imgs.length)return toast('Añade al menos una foto');
+        try{p.imgs=await savePhotos(p,imgs)}catch(e){return toast(e.message)}
+        p.title=t;p.s=+$('#es').value;p.pr=pr;p.t=$('#ed').value.trim();await updateReal(p);hide();toast('Cambios guardados');render()}};
   }
 }
 function rFeed(){
   if(sub!=null)return postDet(feed.find(x=>x.id==sub),'Inicio');
+  softRefresh('feed');
   const disc=feed.filter(p=>(PUB[p.u]&&p.u!='Tú')||(p.u=='Tú'&&me.pub));
   v.innerHTML=`<div class="seg"><button data-fm="fol" class="${fm=='fol'?'on':''}">Siguiendo</button><button data-fm="all" class="${fm=='all'?'on':''}">Descubrir</button></div>`+(fm=='all'?`<div class="row" style="margin-bottom:10px"><input id="us" placeholder="Buscar personas por nombre o @usuario" value="${esc(uq)}" aria-label="Buscar personas" autocomplete="off" style="margin:0"><button class="btn fill" id="ub">Buscar</button></div><div id="ur"></div><div id="dg">${disc.length?'<p class="mute" style="margin:0 2px 10px">Fotos de perfiles públicos. Toca una para verla completa.</p>':'<p class="mute">Aún no hay fotos de perfiles públicos.</p>'}<div class="grid">${disc.map(p=>`<button data-open="${p.id}" aria-label="Abrir reseña de ${esc(p.u)}: ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<b>${esc(p.u)}</b><i>${p.s}</i>${(p.imgs.length||p.np||2)>1?'<em>▣</em>':''}</button>`).join('')}</div></div>`:(feed.some(p=>p.f)?feed.filter(p=>p.f).map(post).join(''):'<p class="mute" style="margin:8px 2px">Aún no hay publicaciones. Pulsa + para subir tu primera reseña.</p>'))+'<div style="height:70px"></div>';
   v.querySelectorAll('[data-fm]').forEach(b=>b.onclick=()=>{fm=b.dataset.fm;render()});
@@ -240,9 +245,10 @@ function rFeed(){
 function addTo(sp,p){
   const id=p.r,e={u:'Tú',s:p.s,title:p.title,t:p.t,pr:p.pr,imgs:p.imgs},nw=!sp.v[id];
   const E=sp.v[id]=sp.v[id]||[],i=E.findIndex(x=>x.u=='Tú');i>=0?E[i]=e:E.push(e);
-  sp.msgs.push({u:'Tú',rv:{id,s:p.s,title:p.title,nw}});return nw}
+  sp.msgs.push({u:'Tú',rv:{id,s:p.s,title:p.title,nw}});persistShare(sp,p,nw);return nw}
 function rSocial(){
   if(sub!=null){const sp=cur();return sp?spDet(sp):go(null)}
+  softRefresh('spaces');
   v.innerHTML=`<div class="seg"><button data-sg="g" class="${sg=='g'?'on':''}">Grupos</button><button data-sg="c" class="${sg=='c'?'on':''}">Chats</button></div><div id="bx"></div>`;
   v.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{sg=b.dataset.sg;render()});
   const bx=$('#bx');
@@ -253,12 +259,12 @@ function rSocial(){
       sheet(`<h2>Nuevo grupo</h2><input id="gn" placeholder="Nombre (Pareja, Familia, Cuadrilla…)" aria-label="Nombre del grupo"><p class="mute">${FW.length?'Elige a quién invitas:':'Aún no sigues a nadie; podrás invitar gente más adelante.'}</p>${FW.map(x=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" value="${x}" style="width:auto;margin:0"> ${x}</label>`).join('')}<button class="btn fill" id="gs">Crear grupo</button>`);
       $('#gs').onclick=()=>{const n=$('#gn').value.trim();if(!n)return toast('Pon un nombre al grupo');
         const m=[...document.querySelectorAll('#sheet input[type=checkbox]:checked')].map(c=>c.value),ids=[...new Set(feed.filter(p=>p.u=='Tú').map(p=>p.r))];
-        groups.push(mk(n,m,ids,[],[{u:'Tú',t:'Grupo creado.'}]));hide();go(groups.length-1)}};
+        const sp=mk(n,m,ids,[],[{u:'Tú',t:'Grupo creado.'}]);sp.kind='group';groups.push(sp);newGroupReal(sp,m);hide();go(groups.length-1)}};
   }else{
     bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div></button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
     bx.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>go(b.dataset.u));
     $('#nc').onclick=()=>{sheet(`<h2>Nuevo chat</h2><p class="mute">${FW.length?'Elige a quién sigues:':'Aún no sigues a nadie.'}</p>${FW.map(x=>`<button class="card pad row" data-n="${x}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(x)}<b>${x}</b></button>`).join('')}`);
-      document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{const u=b.dataset.n;chats[u]=chats[u]||mk(u,[u],[],[],[]);hide();go(u)})};
+      document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{const u=b.dataset.n;ensureChat(u);hide();go(u)})};
   }
 }
 function spDet(sp){
@@ -267,7 +273,7 @@ function spDet(sp){
   v.innerHTML=`<div class="row" style="margin-bottom:10px"><button class="btn" data-back>‹ ${isG?'Grupos':'Chats'}</button>${isG?`<h2 style="margin:0">${esc(sp.n)}</h2>`:`${av(sp.n)}<b>${esc(sp.n)}</b>`}</div>${isG?`<div style="margin-bottom:10px">${us.map(m=>`<span class="tag">${esc(m)}</span>`).join('')}</div>`:''}${seg2(['Chat','Visitados','Por probar'])}<div id="bx"></div>`;
   back();segBind();const bx=$('#bx');
   if(st==1)return visitedUI(sp,bx);
-  if(st==2)return wishUI(sp.w,bx,'Por probar'+(isG?'':' con '+sp.n));
+  if(st==2)return wishUI(sp.w,bx,'Por probar'+(isG?'':' con '+sp.n),false,()=>persistSpaceWish(sp));
   chatUI(sp,bx);
 }
 function chatUI(sp,bx){
@@ -277,8 +283,9 @@ function chatUI(sp,bx){
     return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:6px">${lab}<div style="max-width:78%;padding:9px 13px;border-radius:16px;border:1px solid var(--line);background:${mine?'var(--ac)':'var(--card)'};color:${mine?'var(--acf)':'var(--ink)'}">${esc(m.t)}</div></div>`}).join(''):`<p class="mute">Empieza la conversación.</p>`)+
   `<div class="row" style="position:sticky;bottom:0;padding:8px 0;background:var(--bg)"><input id="mi" placeholder="Escribe un mensaje" aria-label="Mensaje" style="margin:0"><button class="btn fill" id="ms">Enviar</button></div>`;
   v.scrollTop=v.scrollHeight;
+  if(REAL&&sp.dbid&&!pollT)pollT=setInterval(()=>pollSpace(sp),5000);
   bx.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{st=1;sub2=+b.dataset.rv;render();v.scrollTop=0});
-  const send=()=>{const t=$('#mi').value.trim();if(!t)return;sp.msgs.push({u:'Tú',t});render();$('#mi').focus();};
+  const send=()=>{const t=$('#mi').value.trim();if(!t)return;const mg={u:'Tú',t};sp.msgs.push(mg);persistMsg(sp,mg);render();$('#mi').focus();};
   $('#ms').onclick=send;$('#mi').onkeydown=e=>{if(e.key=='Enter')send()};
 }
 function visitedUI(sp,bx){
@@ -289,7 +296,7 @@ function visitedUI(sp,bx){
     sheet(`<h2>Añadir a ${esc(sp.n)}</h2><div id="ph" style="margin-bottom:10px"></div><label class="mute" for="gv">Tu nota: <b id="gvv">8</b>/10</label><input type="range" id="gv" min="0" max="10" step="0.25" value="8"><button class="btn fill" id="gb">Añadir a la lista</button>`);
     let rid=0;placePick($('#ph'),r=>{rid=r.id});
     $('#gv').oninput=e=>$('#gvv').textContent=e.target.value;
-    $('#gb').onclick=()=>{const id=rid;if(!id)return toast('Elige un restaurante o bar');const nw=addTo(sp,{r:id,s:+$('#gv').value,title:rn(id).n,t:'',pr:0,imgs:[]});hide();toast(nw?'Nuevo restaurante en Visitados':'Valoración sumada a la media');render()}};
+    $('#gb').onclick=async()=>{const id=rid;if(!id)return toast('Elige un restaurante o bar');const pp={r:id,s:+$('#gv').value,title:rn(id).n,t:'',pr:0,imgs:[],tg:[]};try{if(REAL)await publishReal(pp,false)}catch(e){return toast(e.message)}const nw=addTo(sp,pp);hide();toast(nw?'Nuevo restaurante en Visitados':'Valoración sumada a la media');render()}};
 }
 function rDet(sp,id){
   const r=rn(id),E=sp.v[id]||[],prs=E.filter(e=>e.pr).map(e=>e.pr),mp=prs.length?Math.round(prs.reduce((a,b)=>a+b)/prs.length):0;
@@ -346,7 +353,7 @@ async function loadLeaflet(){
   await new Promise((res,rej)=>{const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';document.head.appendChild(l);
     const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';sc.onload=res;sc.onerror=()=>rej(new Error('No se pudo cargar el mapa. Revisa tu conexión.'));document.head.appendChild(sc)})}
 async function ensureVenue(r){
-  if(r.dbid||!r.osmk)return;const [t,i]=r.osmk.split('/');
+  if(r.dbid)return;if(!r.osmk)r.osmk='custom/'+(Date.now()*1000+Math.floor(Math.random()*1000));const [t,i]=r.osmk.split('/');
   await sbx(sb.from('venues').upsert({osm_type:t,osm_id:+i,name:r.n,kind:r.k,cuisine:r.cu||null,city:r.c||null,lat:r.lat,lng:r.lng,address:r.addr||null,created_by:ses.uid},{onConflict:'osm_type,osm_id',ignoreDuplicates:true}));
   const d=await sbx(sb.from('venues').select('id').eq('osm_type',t).eq('osm_id',+i).single());r.dbid=d.id}
 async function persistWish(id){
@@ -354,10 +361,10 @@ async function persistWish(id){
   try{
     for(const x of [...wsync]){if(!wish.includes(x)){const r=rn(x);if(r&&r.dbid)await sbx(sb.from('saved_venues').delete().eq('user_id',ses.uid).eq('venue_id',r.dbid));wsync.delete(x)}}
     if(id!=null){const r=rn(id);if(!r)return;await ensureVenue(r);if(!r.dbid)return;const n=wnotes[id]||{note:'',tags:[]};
-      await sbx(sb.from('saved_venues').upsert({user_id:ses.uid,venue_id:r.dbid,note:n.note,tags:n.tags},{onConflict:'user_id,venue_id'}));wsync.add(id)}
+      await sbx(sb.from('saved_venues').upsert({user_id:ses.uid,venue_id:r.dbid,note:n.note,tags:n.tags,position:Math.max(0,wish.indexOf(id))},{onConflict:'user_id,venue_id'}));wsync.add(id)}
   }catch(e){toast('No se pudo sincronizar tu catálogo')}}
 async function loadSaved(){
-  const rows=await sbx(sb.from('saved_venues').select('note,tags,venues(*)').eq('user_id',ses.uid).order('created_at'));
+  const rows=await sbx(sb.from('saved_venues').select('note,tags,venues(*)').eq('user_id',ses.uid).order('position').order('created_at'));
   wish.length=0;wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k]);
   rows.forEach(x=>{if(!x.venues)return;const r=regVenue(x.venues);wish.push(r.id);wsync.add(r.id);wnotes[r.id]={note:x.note||'',tags:x.tags||[]}})}
 function manualAdd(pl,k,chosen,onPick){
@@ -434,32 +441,34 @@ function wishScreen(){
   back();v.querySelectorAll('[data-wv]').forEach(b=>b.onclick=()=>{st=+b.dataset.wv;render()});
   const bx=$('#bx');
   if(st==0)return wishUI(wish,bx,'Mis restaurantes por probar');
-  const L=[...groups.map(g=>[g.n,g.w]),...Object.keys(chats).filter(u=>chats[u].w.length).map(u=>['Con '+u,chats[u].w])];
+  const L=[...groups.map(g=>[g.n,g.w,g]),...Object.keys(chats).filter(u=>chats[u].w.length).map(u=>['Con '+u,chats[u].w,chats[u]])];
   bx.innerHTML=L.map((_,i)=>`<div id="wg${i}" style="margin-bottom:18px"></div>`).join('');
-  L.forEach(([n,w],i)=>wishUI(w,$('#wg'+i),n));
+  L.forEach(([n,w,sp],i)=>wishUI(w,$('#wg'+i),n,false,()=>persistSpaceWish(sp)));
 }
 function catsScreen(){
   const ck=Object.keys(cats);
   v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Mis listas por tipo</h2>${ck.map((c,i)=>`<button class="card pad row sp" data-c="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(c)}</b><div class="mute">${cats[c].length} reseñas</div></div><span class="mute">›</span></button>`).join('')}<button class="btn fill" id="nl">+ Nueva lista</button>`;
   back();v.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>go(ck[b.dataset.c]));
   $('#nl').onclick=()=>{sheet(`<h2>Nueva lista</h2><input id="ln" placeholder="Italianos, Asiáticos, Brunch…" aria-label="Nombre de la lista"><button class="btn fill" id="lb">Crear y elegir publicaciones</button>`);
-    $('#lb').onclick=()=>{const q=$('#ln').value.trim();if(!q)return toast('Pon un nombre a la lista');if(cats[q])return toast('Esa lista ya existe');cats[q]=[];hide();go(q);$('#wa').click()}};
+    $('#lb').onclick=()=>{const q=$('#ln').value.trim();if(!q)return toast('Pon un nombre a la lista');if(cats[q])return toast('Esa lista ya existe');cats[q]=[];persistList(q);hide();go(q);$('#wa').click()}};
 }
 function rMe(){
   if(typeof sub=='number')return postDet(feed.find(x=>x.id==sub),'Perfil');
   if(sub=='#wish')return wishScreen();
   if(sub=='#cats')return catsScreen();
+  if(sub=='#notif')return notifScreen();
   if(sub!=null){
     v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><h2 style="margin-top:12px">${esc(sub)}</h2><div id="bx"></div>`;
-    $('[data-bk]').onclick=()=>go('#cats');return wishUI(cats[sub],$('#bx'),sub,true)}
+    $('[data-bk]').onclick=()=>go('#cats');return wishUI(cats[sub],$('#bx'),sub,true,()=>persistList(sub))}
   const mp=feed.filter(p=>p.u=='Tú'),n=new Set(mp.map(p=>p.r)).size,a=mp.length?+(mp.reduce((t,p)=>t+p.s,0)/mp.length).toFixed(2):'–';
   v.innerHTML=`<div class="row" style="margin:6px 2px"><div class="av" style="width:72px;height:72px;font-size:30px;background:#0E6F73">${esc(me.name[0])}</div><div><b style="font-size:20px">${esc(me.name)}</b><div class="mute">${esc(me.user)} · ${me.pub?'Perfil público':'Perfil privado'}</div></div></div><p style="margin:6px 2px">${me.bio?esc(me.bio):'<span class="mute">Añade una bio en Editar perfil.</span>'}</p>
   <div class="stats"><div><b>${n}</b><span class="mute">sitios</span></div><div><b>${me.fr||0}</b><span class="mute">seguidores</span></div><div><b>${me.fg||0}</b><span class="mute">siguiendo</span></div><div><b>${a}</b><span class="mute">media</span></div></div>
   <button class="btn" id="ed" style="width:100%;margin-bottom:10px">Editar perfil</button>
   <div class="row" style="margin-bottom:14px"><button class="btn fill" id="bw" style="flex:1;padding:12px">❤️ Lista de deseos</button><button class="btn fill" id="bc" style="flex:1;padding:12px">🗂️ Mis listas</button></div>
-  <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${p.c.length}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
+  ${REAL?`<button class="btn" id="bn" style="width:100%;margin-bottom:14px">🔔 Notificaciones${notifs.some(n=>!n.read)?` (${notifs.filter(n=>!n.read).length})`:''}</button>`:''}
+  <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(+b.dataset.p));
-  $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');
+  $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');if($('#bn'))$('#bn').onclick=()=>go('#notif');
   $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button>`);
     $('#lo').onclick=logout;if($('#lg'))$('#lg').onclick=()=>REAL?linkReal():googleSim(true);
     $('#es').onclick=()=>{me.name=$('#en').value||me.name;me.bio=$('#eb').value;me.pub=$('#ep').checked;saveProfile();hide();toast('Cambios guardados');render()}};
@@ -472,7 +481,7 @@ function shareSheet(p,tg){
   <div class="row" style="margin-top:12px"><button class="btn fill" id="sb" style="flex:1">Añadir y avisar en el chat</button><button class="btn" id="sn">Ahora no</button></div>`);
   $('#sn').onclick=()=>{hide();toast(tg.length?'Notificación enviada a '+tg.join(', '):'Reseña publicada')};
   $('#sb').onclick=()=>{let n=0,nw=0;document.querySelectorAll('#sheet [data-sh]:checked').forEach(c=>{const [k,x]=c.dataset.sh.split(':');
-    const sp=k=='g'?groups[+x]:(chats[x]=chats[x]||mk(x,[x],[],[],[]));if(addTo(sp,p))nw++;n++});
+    const sp=k=='g'?groups[+x]:ensureChat(x);if(addTo(sp,p))nw++;n++});
     hide();toast(n?`Añadido a ${n} ${n>1?'listas':'lista'} (${nw} nuevo${nw==1?'':'s'} en Visitados)`:'Reseña publicada');render()};
 }
 function newReview(pre){
@@ -500,12 +509,13 @@ function newReview(pre){
     sgb.innerHTML=L.map(x=>`<button class="sgi" data-n="${x}" role="option">${av(x,28)}<b>${x}</b><span class="mute" style="margin-left:auto">${esc(hint(x))}</span></button>`).join('');
     sgb.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const nm='@'+b.dataset.n+' ',np=txt.length-m[0].length+nm.length;rd.value=txt.slice(0,txt.length-m[0].length)+nm+rd.value.slice(pos);rd.focus();rd.setSelectionRange(np,np);sug()})};
   rd.oninput=sug;rd.onclick=sug;rd.onkeyup=e=>{if(e.key.startsWith('Arrow'))sug()};
-  $('#rp').onclick=()=>{const id=rid,n=+$('#rs').value,title=$('#rt').value.trim(),t=rd.value.trim();
+  $('#rp').onclick=async()=>{const id=rid,n=+$('#rs').value,title=$('#rt').value.trim(),t=rd.value.trim();
     if(!id)return toast('Elige el restaurante o bar');
     if(!imgs.length)return toast('Añade al menos una foto de tu galería');
     if(!title)return toast('Pon un título a tu reseña');
     const tg=FW.filter(x=>new RegExp('@'+x.replace(/\./g,'\\.')+'(?![\\w])').test(t));
     const p={id:nid++,u:'Tú',r:id,s:n,title,t,pr,imgs,tg,l:0,k:0,w:'ahora',f:1,c:[]};
+    if(REAL){const bt=$('#rp');bt.disabled=true;bt.textContent='Publicando…';try{await publishReal(p)}catch(e){bt.disabled=false;bt.textContent='Publicar';return toast(e.message||'No se pudo publicar')}}
     feed.unshift(p);tab='feed';fm='fol';go(null);shareSheet(p,tg)};
 }
 $('#fab').onclick=()=>newReview();
@@ -540,7 +550,131 @@ const here=()=>location.origin+location.pathname;
 async function afterSession(user){
   const p=await sbx(sb.from('profiles').select('*').eq('id',user.id).single());
   ses={uid:user.id,email:user.email,name:p.name,user:p.username,bio:p.bio||'',pub:p.pub!==false,g:(user.identities||[]).some(i=>i.provider=='google')};
-  enterApp();await loadSaved();await loadFollows();render()}
+  PC[ses.uid]={id:ses.uid,username:ses.user,name:ses.name,pub:ses.pub};enterApp();
+  const safe=fn=>fn().catch(()=>toast('No se pudieron cargar algunos datos'));
+  await Promise.all([safe(loadSaved),safe(loadFollows)]);
+  await Promise.all([safe(loadFeed),safe(loadSpaces),safe(loadLists),safe(loadNotifs)]);render()}
+/* ===== Persistencia en Supabase (solo modo real) ===== */
+const PC={},VC={},lastLoad={feed:0,spaces:0},chainQ=new Map();
+let notifs=[],ldb={},pollT=null;
+const ago=ts=>{const x=Math.max(0,(Date.now()-new Date(ts))/1000);return x<60?'ahora':x<3600?'hace '+Math.floor(x/60)+' min':x<86400?'hace '+Math.floor(x/3600)+' h':'hace '+Math.floor(x/86400)+' d'};
+const photoUrl=pth=>sb.storage.from('review-photos').getPublicUrl(pth).data.publicUrl;
+const pathOf=u=>u&&u.includes('/review-photos/')?decodeURIComponent(u.split('/review-photos/')[1].split('?')[0]):'';
+const nc=p=>p._cl?p.c.length:(p.nc!=null?p.nc:p.c.length);
+const chain=(k,fn)=>{const q=(chainQ.get(k)||Promise.resolve()).then(fn,fn);chainQ.set(k,q.catch(()=>{}));return q};
+const uname=id=>id==ses.uid?'Tú':(PC[id]?PC[id].username:'usuario');
+const entryOf=rw=>({u:uname(rw.user_id),s:+rw.rating,title:rw.title,t:rw.body||'',pr:rw.price||0,imgs:(rw.photos||[]).map(photoUrl)});
+async function profilesById(ids){const m=[...new Set(ids)].filter(i=>i&&!PC[i]);if(m.length){const ps=await sbx(sb.from('profiles').select('id,username,name,bio,pub').in('id',m));ps.forEach(p=>PC[p.id]=p)}}
+async function venuesById(ids){const m=[...new Set(ids)].filter(i=>i&&!VC[i]);if(m.length){const vs=await sbx(sb.from('venues').select('*').in('id',m));vs.forEach(x=>VC[x.id]=regVenue(x))}}
+function compress(u){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1280/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);c.toBlob(b=>b?res(b):rej(E('No se pudo procesar la foto.')),'image/jpeg',0.82)};im.onerror=()=>rej(E('No se pudo leer la foto.'));im.src=u})}
+async function uploadPhoto(u){
+  const blob=await compress(u),path=ses.uid+'/'+(window.crypto&&crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2))+'.jpg';
+  const {error}=await sb.storage.from('review-photos').upload(path,blob,{contentType:'image/jpeg',upsert:false});
+  if(error)throw E('No se pudo subir una foto. Revisa el bucket review-photos de Supabase.');return path}
+async function publishReal(p,inFeed=true){
+  const r=rn(p.r);await ensureVenue(r);if(!r.dbid)throw E('No se pudo guardar el local.');
+  const paths=[];for(const u of p.imgs)paths.push(u.startsWith('data:')?await uploadPhoto(u):pathOf(u));
+  const row=await sbx(sb.from('reviews').insert({user_id:ses.uid,venue_id:r.dbid,rating:p.s,title:p.title,body:p.t||'',price:p.pr||null,photos:paths,tagged:p.tg||[],in_feed:inFeed}).select('id').single());
+  p.id=row.id;p.dbid=row.id;p.uid=ses.uid;p._paths=paths;p.imgs=paths.map(photoUrl);
+  (p.tg||[]).forEach(x=>PROF[x]&&notify(PROF[x].id,'tag',row.id))}
+async function savePhotos(p,imgs){
+  if(!REAL)return [...imgs];
+  const paths=[];for(const u of imgs)paths.push(u.startsWith('data:')?await uploadPhoto(u):pathOf(u));
+  p._old=(p.imgs||[]).map(pathOf).filter(Boolean);p._paths=paths;return paths.map(photoUrl)}
+async function updateReal(p){
+  if(!REAL||!p.dbid)return;
+  try{await sbx(sb.from('reviews').update({title:p.title,rating:p.s,price:p.pr||null,body:p.t||'',photos:p._paths||[]}).eq('id',p.dbid));
+    const gone=(p._old||[]).filter(x=>!(p._paths||[]).includes(x));if(gone.length)sb.storage.from('review-photos').remove(gone)}
+  catch(e){toast('No se pudo guardar el cambio en la base de datos')}}
+function deleteReal(p){
+  if(!REAL||!p.dbid)return;
+  sb.from('reviews').delete().eq('id',p.dbid).then(r=>{if(r.error)toast('No se pudo eliminar en la base de datos');else{const ps=(p._paths||[]).filter(Boolean);if(ps.length)sb.storage.from('review-photos').remove(ps)}})}
+function toPost(rw,lk,cm){
+  const pr=PC[rw.user_id]||{username:'usuario',pub:true},me_=rw.user_id==ses.uid,r=VC[rw.venue_id],ls=lk.filter(x=>x.review_id==rw.id),mine=ls.some(x=>x.user_id==ses.uid);
+  PUB[pr.username]=pr.pub!==false;
+  return {id:rw.id,dbid:rw.id,uid:rw.user_id,u:me_?'Tú':pr.username,r:r.id,s:+rw.rating,title:rw.title,t:rw.body||'',pr:rw.price||0,imgs:(rw.photos||[]).map(photoUrl),tg:rw.tagged||[],l:ls.length-(mine?1:0),k:mine?1:0,w:ago(rw.created_at),f:FW.includes(pr.username)?1:0,c:[],nc:cm.filter(x=>x.review_id==rw.id).length,_paths:rw.photos||[]}}
+async function loadFeed(){
+  const [a,b]=await Promise.all([sbx(sb.from('reviews').select('*').eq('in_feed',true).order('created_at',{ascending:false}).limit(60)),sbx(sb.from('reviews').select('*').eq('user_id',ses.uid).eq('in_feed',true).order('created_at',{ascending:false}).limit(200))]);
+  const seen=new Set(),rows=[...a,...b].filter(r=>!seen.has(r.id)&&seen.add(r.id)).sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
+  await Promise.all([profilesById(rows.map(r=>r.user_id)),venuesById(rows.map(r=>r.venue_id))]);
+  const ids=rows.map(r=>r.id),[lk,cm]=ids.length?await Promise.all([sbx(sb.from('review_likes').select('review_id,user_id').in('review_id',ids)),sbx(sb.from('review_comments').select('review_id').in('review_id',ids))]):[[],[]];
+  const old=new Map(feed.map(p=>[p.id,p]));
+  feed=rows.map(rw=>{const p=toPost(rw,lk,cm),o=old.get(p.id);if(o&&o._cl){p.c=o.c;p._cl=1}return p});lastLoad.feed=Date.now()}
+async function loadComments(p){
+  const rows=await sbx(sb.from('review_comments').select('id,user_id,body').eq('review_id',p.dbid).order('id'));
+  await profilesById(rows.map(r=>r.user_id));p.c=rows.map(x=>({u:uname(x.user_id),t:x.body}));p._cl=1}
+function persistComment(p,t){if(!REAL||!p.dbid)return;sb.from('review_comments').insert({review_id:p.dbid,user_id:ses.uid,body:t.slice(0,500)}).then(r=>{if(r.error)toast('No se pudo guardar el comentario');else if(p.uid)notify(p.uid,'comment',p.dbid)})}
+function persistLike(p){
+  if(!REAL||!p.dbid)return;
+  const q=p.k?sb.from('review_likes').insert({review_id:p.dbid,user_id:ses.uid}):sb.from('review_likes').delete().eq('review_id',p.dbid).eq('user_id',ses.uid);
+  q.then(r=>{if(r.error)toast('No se pudo guardar el like')})}
+async function loadSpaces(){
+  const mm=await sbx(sb.from('space_members').select('space_id').eq('user_id',ses.uid)),ids=mm.map(x=>x.space_id);
+  groups=[];chats={};lastLoad.spaces=Date.now();if(!ids.length)return;
+  const [sps,mem,msgs,srv,swi]=await Promise.all([sbx(sb.from('spaces').select('*').in('id',ids)),sbx(sb.from('space_members').select('space_id,user_id').in('space_id',ids)),sbx(sb.from('space_messages').select('*').in('space_id',ids).order('id',{ascending:false}).limit(500)),sbx(sb.from('space_reviews').select('space_id,review_id').in('space_id',ids)),sbx(sb.from('space_wish').select('*').in('space_id',ids).order('position'))]);
+  const rids=[...new Set([...srv.map(x=>x.review_id),...msgs.map(m=>m.review_id).filter(Boolean)])];
+  const rvs=rids.length?await sbx(sb.from('reviews').select('*').in('id',rids)):[];
+  await Promise.all([profilesById([...mem.map(x=>x.user_id),...msgs.map(m=>m.user_id),...rvs.map(r=>r.user_id)]),venuesById([...rvs.map(r=>r.venue_id),...swi.map(w=>w.venue_id)])]);
+  const RV=Object.fromEntries(rvs.map(r=>[r.id,r]));
+  sps.sort((a,b)=>a.id-b.id).forEach(s=>{
+    const m=mem.filter(x=>x.space_id==s.id&&x.user_id!=ses.uid).map(x=>uname(x.user_id));
+    const sp={dbid:s.id,kind:s.kind,n:s.kind=='dm'?(m[0]||'usuario'):(s.name||'Grupo'),m,v:{},w:[],msgs:[],lastId:0};
+    srv.filter(x=>x.space_id==s.id).map(x=>RV[x.review_id]).filter(Boolean).sort((a,b)=>a.id-b.id).forEach(rw=>{
+      const r=VC[rw.venue_id],L=sp.v[r.id]=sp.v[r.id]||[],e=entryOf(rw),i=L.findIndex(x=>x.u==e.u);if(i>=0)L[i]=e;else L.push(e)});
+    swi.filter(x=>x.space_id==s.id).forEach(x=>{if(VC[x.venue_id])sp.w.push(VC[x.venue_id].id)});
+    msgs.filter(x=>x.space_id==s.id).sort((a,b)=>a.id-b.id).forEach(x=>{sp.lastId=Math.max(sp.lastId,x.id);
+      if(x.review_id){const rw=RV[x.review_id];if(rw)sp.msgs.push({id:x.id,u:uname(x.user_id),rv:{id:VC[rw.venue_id].id,s:+rw.rating,title:rw.title,nw:!!x.is_new}})}
+      else sp.msgs.push({id:x.id,u:uname(x.user_id),t:x.body})});
+    if(s.kind=='dm')chats[sp.n]=sp;else groups.push(sp)})}
+function createSpaceDB(sp,memberIds,kind){
+  sp.ready=(async()=>{const s=await sbx(sb.from('spaces').insert({kind,name:kind=='group'?sp.n:null,created_by:ses.uid}).select('id').single());sp.dbid=s.id;sp.lastId=0;
+    await sbx(sb.from('space_members').insert([ses.uid,...memberIds].map(u=>({space_id:s.id,user_id:u}))))})();
+  sp.ready.catch(()=>toast('No se pudo crear en la base de datos'));return sp.ready}
+function newGroupReal(sp,m){
+  if(!REAL)return;createSpaceDB(sp,m.map(x=>PROF[x]&&PROF[x].id).filter(Boolean),'group');
+  sp.ready.then(async()=>{const mine={};feed.filter(p=>p.u=='Tú'&&p.dbid).forEach(p=>{if(!mine[p.r]||p.id>mine[p.r].id)mine[p.r]=p});
+    const rows=Object.values(mine).map(p=>({space_id:sp.dbid,review_id:p.dbid,user_id:ses.uid}));if(rows.length)await sbx(sb.from('space_reviews').insert(rows));
+    persistMsg(sp,sp.msgs[0])}).catch(()=>{})}
+function ensureChat(u){if(!chats[u]){const sp=mk(u,[u],[],[],[]);sp.kind='dm';chats[u]=sp;if(REAL&&PROF[u])createSpaceDB(sp,[PROF[u].id],'dm')}return chats[u]}
+function persistMsg(sp,mg){if(!REAL)return;chain(sp,async()=>{try{await sp.ready;const r=await sbx(sb.from('space_messages').insert({space_id:sp.dbid,user_id:ses.uid,body:mg.t}).select('id').single());mg.id=r.id}catch(e){toast('No se pudo enviar el mensaje')}})}
+function persistShare(sp,p,nw){if(!REAL||!p.dbid)return;chain(sp,async()=>{try{await sp.ready;
+  await sbx(sb.from('space_reviews').upsert({space_id:sp.dbid,review_id:p.dbid,user_id:ses.uid},{onConflict:'space_id,review_id',ignoreDuplicates:true}));
+  await sbx(sb.from('space_messages').insert({space_id:sp.dbid,user_id:ses.uid,review_id:p.dbid,is_new:!!nw}))}catch(e){toast('No se pudo compartir en la base de datos')}})}
+function persistSpaceWish(sp){if(!REAL)return;chain(sp,async()=>{try{await sp.ready;await sbx(sb.from('space_wish').delete().eq('space_id',sp.dbid));
+  const rows=[];for(let i=0;i<sp.w.length;i++){const r=rn(sp.w[i]);if(!r)continue;await ensureVenue(r);if(r.dbid)rows.push({space_id:sp.dbid,venue_id:r.dbid,added_by:ses.uid,position:i})}
+  if(rows.length)await sbx(sb.from('space_wish').insert(rows))}catch(e){toast('No se pudo sincronizar la lista')}})}
+function persistWishOrder(){if(!REAL||!ses)return;chain('wo',async()=>{try{const rows=[];for(let i=0;i<wish.length;i++){const r=rn(wish[i]);if(r&&r.dbid){const n=wnotes[wish[i]]||{note:'',tags:[]};rows.push({user_id:ses.uid,venue_id:r.dbid,position:i,note:n.note,tags:n.tags})}}if(rows.length)await sbx(sb.from('saved_venues').upsert(rows,{onConflict:'user_id,venue_id'}))}catch(e){toast('No se pudo guardar el orden')}})}
+function persistList(name){if(!REAL||!ses)return;chain('l:'+name,async()=>{try{
+  if(!ldb[name]){const d=await sbx(sb.from('lists').upsert({user_id:ses.uid,name},{onConflict:'user_id,name'}).select('id').single());ldb[name]=d.id}
+  await sbx(sb.from('list_items').delete().eq('list_id',ldb[name]));
+  const rows=(cats[name]||[]).filter(id=>feed.some(p=>p.id==id)).map((id,i)=>({list_id:ldb[name],review_id:id,position:i}));
+  if(rows.length)await sbx(sb.from('list_items').insert(rows))}catch(e){toast('No se pudo guardar la lista')}})}
+async function loadLists(){
+  const ls=await sbx(sb.from('lists').select('*').eq('user_id',ses.uid));ldb={};
+  const its=ls.length?await sbx(sb.from('list_items').select('*').in('list_id',ls.map(l=>l.id)).order('position')):[];
+  ls.forEach(l=>{ldb[l.name]=l.id;cats[l.name]=its.filter(x=>x.list_id==l.id).map(x=>x.review_id)})}
+async function loadNotifs(){
+  const rows=await sbx(sb.from('notifications').select('*').eq('user_id',ses.uid).order('id',{ascending:false}).limit(40));
+  await profilesById(rows.map(r=>r.from_user));const rids=rows.map(r=>r.review_id).filter(Boolean);
+  const rv=rids.length?await sbx(sb.from('reviews').select('id,title').in('id',rids)):[];
+  notifs=rows.map(r=>({id:r.id,type:r.type,rid:r.review_id,read:r.read,w:ago(r.created_at),u:PC[r.from_user]?(PC[r.from_user].name||PC[r.from_user].username):'Alguien',title:(rv.find(x=>x.id==r.review_id)||{}).title||''}))}
+function notify(uid,type,rid){if(!REAL||!ses||!uid||uid==ses.uid)return;sb.from('notifications').insert({user_id:uid,from_user:ses.uid,type,review_id:rid||null}).then(()=>{})}
+function notifScreen(){
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Notificaciones</h2>`+(notifs.length?notifs.map(n=>`<button class="card pad lnk" data-n="${n.id}" style="background:var(--card)"><b>${esc(n.u)}</b> ${n.type=='tag'?'te etiquetó en':n.type=='comment'?'comentó en':'ha empezado a seguirte'}${n.type!='follow'?` «${esc(n.title)}»`:''}<div class="mute">${n.w}${n.read?'':' · nueva'}</div></button>`).join(''):'<p class="mute">No tienes notificaciones.</p>');
+  back();
+  v.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const n=notifs.find(x=>x.id==b.dataset.n);if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else toast('Esa reseña ya no está disponible')});
+  if(REAL&&notifs.some(n=>!n.read)){notifs.forEach(n=>n.read=true);sb.from('notifications').update({read:true}).eq('user_id',ses.uid).eq('read',false).then(()=>{})}}
+function softRefresh(k){
+  if(!REAL||!ses||Date.now()-lastLoad[k]<15000)return;lastLoad[k]=Date.now();
+  (k=='feed'?loadFeed():loadSpaces()).then(()=>{if((k=='feed'&&tab=='feed'&&sub==null)||(k=='spaces'&&tab=='social'&&sub==null))render()}).catch(()=>{})}
+async function pollSpace(sp){
+  if(!REAL||!sp.dbid||tab!='social'||cur()!==sp||st!=0||sub2!=null)return;
+  try{const rows=await sbx(sb.from('space_messages').select('*').eq('space_id',sp.dbid).gt('id',sp.lastId||0).order('id'));
+    if(!rows.length)return;sp.lastId=Math.max(...rows.map(r=>r.id));
+    const others=rows.filter(r=>r.user_id!==ses.uid);if(!others.length)return;
+    if(others.some(r=>r.review_id)){const id=sp.dbid,dm=sp.kind=='dm',nm=sp.n;await loadSpaces();const ns=dm?chats[nm]:groups.find(g=>g.dbid==id);if(ns)sub=dm?nm:groups.indexOf(ns)}
+    else{await profilesById(others.map(r=>r.user_id));others.forEach(r=>sp.msgs.push({id:r.id,u:uname(r.user_id),t:r.body}))}
+    const x=$('#mi')?$('#mi').value:'';render();if($('#mi'))$('#mi').value=x}catch(e){}}
 let uq='',ures=null,umsg='';
 async function findUsers(q){
   const t=q.replace(/[%,()*\\]/g,' ').trim().toLowerCase();
@@ -548,7 +682,7 @@ async function findUsers(q){
     return rows.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
   return Object.entries(accts).filter(([e,a])=>e!==ses.email&&((a.name||'').toLowerCase().includes(t)||(a.user||'').toLowerCase().includes(t))).slice(0,20).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:a.pub!==false}))}
 async function setFollow(p,on){
-  if(REAL){if(on)await sbx(sb.from('follows').insert({follower:ses.uid,followed:p.id}));else await sbx(sb.from('follows').delete().eq('follower',ses.uid).eq('followed',p.id))}
+  if(REAL){if(on){await sbx(sb.from('follows').insert({follower:ses.uid,followed:p.id}));notify(p.id,'follow')}else await sbx(sb.from('follows').delete().eq('follower',ses.uid).eq('followed',p.id))}
   else{const a=accts[ses.email];a.following=a.following||[];if(on){if(!a.following.includes(p.id))a.following.push(p.id)}else a.following=a.following.filter(x=>x!==p.id);store()}
   if(on){if(!FW.includes(p.user)){FW.push(p.user);me.fg++}PROF[p.user]=p}else{const i=FW.indexOf(p.user);if(i>=0){FW.splice(i,1);me.fg--}}}
 async function loadFollows(){
@@ -613,7 +747,7 @@ async function saveProfile(){
   if(!ses)return;ses.name=me.name;ses.bio=me.bio;ses.pub=me.pub;
   if(REAL){try{await sbx(sb.from('profiles').update({name:me.name,bio:me.bio,pub:me.pub}).eq('id',ses.uid))}catch(e){toast('No se pudo guardar en la base de datos')}}
   else if(accts[ses.email]){Object.assign(accts[ses.email],{name:me.name,bio:me.bio,pub:me.pub});store()}}
-function resetData(){FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
+function resetData(){notifs=[];ldb={};Object.keys(PC).forEach(k=>delete PC[k]);Object.keys(VC).forEach(k=>delete VC[k]);lastLoad.feed=0;lastLoad.spaces=0;clearInterval(pollT);pollT=null;FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
 async function logout(){hide();resetData();if(REAL){try{await sb.auth.signOut()}catch(e){}}else{try{localStorage.removeItem('nn_sess')}catch(e){}}showAuth()}
 function googleSim(link){
   sheet(`<h2>Continuar con Google</h2><p class="mute" style="margin-top:0">Simulación: con Firebase conectado se abre la ventana oficial de Google.</p><input id="ge" type="email" placeholder="tucuenta@gmail.com" autocomplete="email" aria-label="Cuenta de Google"><div id="gerr" role="alert" class="aerr"></div><button class="btn fill" id="gc" style="width:100%;padding:12px">${link?'Vincular cuenta':'Continuar'}</button>`);
