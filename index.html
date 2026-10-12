@@ -105,6 +105,11 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 .dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#E5484D;border:2px solid var(--bg)}
 .mk.bar{border-color:#C27A0E}
 .btn.danger{background:#D92D20;border-color:#D92D20;color:#fff}
+.lgb{background:none;border:0;padding:0;cursor:pointer;display:flex;border-radius:12px;justify-self:start}
+.ib{position:relative}
+.dr{filter:grayscale(1);opacity:.75}.dr.on,.btn.fill .dr{filter:none;opacity:1}
+.bdg{background:#E5484D;color:#fff;border-radius:999px;font-size:12px;font-weight:700;padding:1px 7px;margin:0 6px}
+nav button span{position:relative}.ndot{top:1px;right:12px}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0E6F73">
@@ -117,12 +122,12 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 </head>
 <body>
 <div id="app">
-  <header><svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg><h1>Ñam Ñam</h1><div class="hr"><button class="ib" id="th" aria-label="Cambiar tema">◐</button><button class="ib pf" id="hp" aria-label="Mi perfil"><span id="hpi">?</span><i class="dot" id="hdot" hidden></i></button></div></header>
+  <header><button class="lgb" id="logoBtn" aria-label="Ñam Ñam: ir al inicio y actualizar"><svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg></button><h1>Ñam Ñam</h1><div class="hr"><button class="ib" id="hn" aria-label="Notificaciones"><span>🍗</span><i class="dot" id="hdot" hidden></i></button><button class="ib pf" id="hp" aria-label="Mi perfil"><span id="hpi">?</span></button></div></header>
   <main id="view"></main>
   <button class="fab" id="fab" aria-label="Nueva valoración">+</button>
   <nav>
     <button data-t="feed"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5.5h4V20"/></svg></span>Inicio</button>
-    <button data-t="social"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 4.5"/></svg></span>Social</button>
+    <button data-t="social"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.9 4.5 4.5"/></svg><i class="dot ndot" id="sdot" hidden></i></span>Social</button>
     <button data-t="explore"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg></span>Explorar</button>
     <button data-t="me"><span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg></span>Perfil</button>
   </nav>
@@ -220,6 +225,7 @@ function wishUI(list,box,title,pm,onChange){
   };draw()}
 
 function render(){
+  updateDots();
   if(!(tab=='social'&&sub!=null&&st==0&&sub2==null)){clearInterval(pollT);pollT=null}
   const hpi=$('#hpi');if(hpi)hpi.textContent=((me&&me.name)||'?').trim().charAt(0).toUpperCase()||'?';const hd=$('#hdot');if(hd)hd.hidden=!(notifs.some(n=>!n.read)||INC.size>0);
   document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.t==tab);b.setAttribute('aria-current',b.dataset.t==tab?'page':'false')});
@@ -227,20 +233,22 @@ function render(){
   ({feed:rFeed,social:rSocial,explore:rExplore,me:rMe})[tab]();
   carBind();
 }
-function likeBind(){v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>{const p=feed.find(x=>x.id==b.dataset.like);p.k=p.k?0:1;persistLike(p);b.className='btn '+(p.k?'fill':'');b.textContent='♥ '+(p.l+p.k)})}
+const likeHTML=(on,n)=>`<span class="dr ${on?'on':''}">🍗</span> ${n}`;
+function likeBind(){v.querySelectorAll('[data-like]').forEach(b=>b.onclick=()=>{const p=feed.find(x=>x.id==b.dataset.like);p.k=p.k?0:1;persistLike(p);b.className='btn '+(p.k?'fill':'');b.innerHTML=likeHTML(p.k,p.l+p.k)})}
 function post(p){const r=rn(p.r);return `<article class="card"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div><div class="sc">${p.s}</div></div>${car(p,210,1)}
-<div class="pad"><button class="lnk" data-open="${p.id}"><b>${esc(p.title)}</b>${p.pr?` <span class="mute">· ${eur(p.pr)}</span>`:''}</button>${p.tg.length?`<div class="mute">con ${p.tg.map(esc).join(', ')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button><button class="btn" data-cm="${p.id}">💬 ${nc(p)}</button></div></div></article>`}
+<div class="pad"><button class="lnk" data-open="${p.id}"><b>${esc(p.title)}</b>${p.pr?` <span class="mute">· ${eur(p.pr)}</span>`:''}</button>${p.tg.length?`<div class="mute">con ${p.tg.map(esc).join(', ')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn ${p.k?'fill':''}" data-like="${p.id}">${likeHTML(p.k,p.l+p.k)}</button><button class="btn" data-cm="${p.id}">💬 ${nc(p)}</button></div></div></article>`}
 function postDet(p,label){
   if(!p)return go(null);
   if(REAL&&p.dbid&&!p._cl&&!p._cld){p._cld=1;loadComments(p).then(()=>{if(sub===p.id&&(tab=='feed'||tab=='me'))render()}).catch(()=>{})}
   const r=rn(p.r),own=p.u=='Tú';
   v.innerHTML=`<button class="btn" data-back>‹ ${label}</button><div class="card" style="margin-top:12px"><div class="pad row">${av(p.u)}<div style="flex:1"><b>${esc(p.u)}</b><div class="mute">${esc(r.n)} · ${esc(r.c)} · ${p.w}</div></div>${own?`<button class="btn" id="pe">Editar</button><button class="btn" id="pd" aria-label="Eliminar reseña">🗑</button>`:`<button class="btn ${p.f?'':'fill'}" id="pf2">${p.f?'Siguiendo':'Seguir'}</button>`}</div>${car(p,280,0)}
   <div class="pad"><h2 style="margin:0 0 8px">${esc(p.title)}</h2><div class="row" style="flex-wrap:wrap;margin-bottom:10px"><span class="sc">${p.s}/10</span>${p.pr?`<span class="tag" style="margin:0">${eur(p.pr)} · ${PL[p.pr]}</span>`:`<span class="mute">Sin precio indicado</span>`}</div>
-  ${p.tg.length?`<div style="margin-bottom:10px">${p.tg.map(x=>`<span class="tag">con ${esc(x)}</span>`).join('')}</div>`:''}<p style="margin:0 0 10px">${p.t?mt(p.t):'<span class="mute">Sin descripción.</span>'}</p><button class="btn ${p.k?'fill':''}" data-like="${p.id}">♥ ${p.l+p.k}</button></div></div>
+  ${p.tg.length?`<div style="margin-bottom:10px">${p.tg.map(x=>`<span class="tag">con ${esc(x)}</span>`).join('')}</div>`:''}<p style="margin:0 0 10px">${p.t?mt(p.t):'<span class="mute">Sin descripción.</span>'}</p><button class="btn ${p.k?'fill':''}" data-like="${p.id}">${likeHTML(p.k,p.l+p.k)}</button></div></div>
   <div class="row" style="margin-bottom:14px"><input id="ci" placeholder="Escribe un comentario" aria-label="Comentario" style="margin:0"><button class="btn fill" id="cs">Comentar</button></div>
-  <h2>Comentarios (${nc(p)})</h2>${p.c.map(c=>`<div class="card pad"><b>${esc(c.u)}</b> ${mt(c.t)}</div>`).join('')||'<p class="mute">Sé el primero en comentar.</p>'}`;
+  <h2>Comentarios (${nc(p)})</h2>${p.c.map((c,i)=>`<div class="card pad"><div class="row"><div style="flex:1;min-width:0"><b>${esc(c.u)}</b> ${mt(c.t)}</div><button class="btn ${c.k?'fill':''}" data-cl="${i}" aria-label="Dar un muslito al comentario">${likeHTML(c.k,c.l||0)}</button></div></div>`).join('')||'<p class="mute">Sé el primero en comentar.</p>'}`;
   back();likeBind();
-  const send=()=>{const t=$('#ci').value.trim();if(!t)return toast('Escribe algo para comentar');p.c.push({u:'Tú',t});if(p.nc!=null)p.nc++;persistComment(p,t);render();$('#ci').focus()};
+  v.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{const c=p.c[+b.dataset.cl];c.k=c.k?0:1;c.l=Math.max(0,(c.l||0)+(c.k?1:-1));persistCommentLike(c);b.className='btn '+(c.k?'fill':'');b.innerHTML=likeHTML(c.k,c.l)});
+  const send=()=>{const t=$('#ci').value.trim();if(!t)return toast('Escribe algo para comentar');const cm={u:'Tú',t,l:0,k:0};p.c.push(cm);if(p.nc!=null)p.nc++;persistComment(p,t,cm);render();$('#ci').focus()};
   $('#cs').onclick=send;$('#ci').onkeydown=e=>{if(e.key=='Enter')send()};
   if(fc){fc=false;$('#ci').focus()}
   if(!own)$('#pf2').onclick=()=>{const f=p.f?0:1;feed.forEach(q=>{if(q.u==p.u)q.f=f});render()};
@@ -277,7 +285,7 @@ function rSocial(){
   v.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{sg=b.dataset.sg;render()});
   const bx=$('#bx');
   if(sg=='g'){
-    bx.innerHTML=(groups.length?'':'<p class="mute">Aún no tienes grupos.</p>')+groups.map((g,i)=>`<button class="card pad row sp" data-g="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(g.n)}</b><div class="mute">${g.m.length+1} personas · ${Object.keys(g.v).length} visitados · ${g.w.length} por probar</div></div><span class="mute">›</span></button>`).join('')+`<button class="btn fill" id="ng">Crear grupo</button>`;
+    bx.innerHTML=(groups.length?'':'<p class="mute">Aún no tienes grupos.</p>')+groups.map((g,i)=>`<button class="card pad row sp" data-g="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(g.n)}</b><div class="mute">${g.m.length+1} personas · ${Object.keys(g.v).length} visitados · ${g.w.length} por probar</div></div>${g.unread?`<span class="bdg">${g.unread}</span>`:''}<span class="mute">›</span></button>`).join('')+`<button class="btn fill" id="ng">Crear grupo</button>`;
     bx.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>go(+b.dataset.g));
     $('#ng').onclick=()=>{
       sheet(`<h2>Nuevo grupo</h2><input id="gn" placeholder="Nombre (Pareja, Familia, Cuadrilla…)" aria-label="Nombre del grupo"><p class="mute">${FW.length?'Elige a quién invitas:':'Aún no sigues a nadie; podrás invitar gente más adelante.'}</p>${FW.map(x=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" value="${x}" style="width:auto;margin:0"> ${x}</label>`).join('')}<button class="btn fill" id="gs">Crear grupo</button>`);
@@ -285,7 +293,7 @@ function rSocial(){
         const m=[...document.querySelectorAll('#sheet input[type=checkbox]:checked')].map(c=>c.value),ids=[...new Set(feed.filter(p=>p.u=='Tú').map(p=>p.r))];
         const sp=mk(n,m,ids,[],[{u:'Tú',t:'Grupo creado.'}]);sp.kind='group';groups.push(sp);newGroupReal(sp,m);hide();go(groups.length-1)}};
   }else{
-    bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):l.pl?'📍 '+esc((rn(l.pl.id)||{}).n||'Local'):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div></button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
+    bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):l.pl?'📍 '+esc((rn(l.pl.id)||{}).n||'Local'):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div>${chats[u].unread?`<span class="bdg">${chats[u].unread}</span>`:''}</button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
     bx.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>go(b.dataset.u));
     $('#nc').onclick=()=>{sheet(`<h2>Nuevo chat</h2><p class="mute">${FW.length?'Elige a quién sigues:':'Aún no sigues a nadie.'}</p>${FW.map(x=>`<button class="card pad row" data-n="${x}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(x)}<b>${x}</b></button>`).join('')}`);
       document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{const u=b.dataset.n;ensureChat(u);hide();go(u)})};
@@ -301,6 +309,7 @@ function spDet(sp){
   chatUI(sp,bx);
 }
 function chatUI(sp,bx){
+  markRead(sp);
   const multi=sp.m.length>1;
   bx.innerHTML=(sp.msgs.length?sp.msgs.map(m=>{const mine=m.u=='Tú',al=mine?'flex-end':'flex-start',lab=!mine&&multi?`<div class="mute" style="margin:0 4px 2px">${esc(m.u)}</div>`:'';
     if(m.pl){const pr=rn(m.pl.id);if(pr)return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:8px">${lab}<button class="card pad lnk" data-pl="${pr.id}" style="width:auto;max-width:85%;background:var(--card)"><div class="mute">${mine?'Enviaste':esc(m.u)+' te recomienda'} un sitio</div><div class="row" style="margin-top:6px"><div class="av" style="background:${pr.bg};font-size:22px">${pr.e}</div><div style="min-width:0"><b>${esc(pr.n)}</b><div class="mute">${esc(pr.t)}${pr.c?' · '+esc(pr.c):''}</div></div></div></button></div>`}
@@ -578,7 +587,8 @@ function rMe(){
   if(sub=='#wish')return wishScreen();
   if(sub=='#cats')return catsScreen();
   if(sub=='#notif')return notifScreen();
-  if(typeof sub=='string'&&sub[0]=='@')return userProfile(getUser(sub.slice(1)),()=>go('#notif'),'Notificaciones');
+  if(sub=='#fol')return folScreen();
+  if(typeof sub=='string'&&sub[0]=='@')return userProfile(getUser(sub.slice(1)),()=>go(profBack),profBack=='#fol'?'Seguidores':'Notificaciones');
   if(sub!=null){
     if(!cats[sub])return go('#cats');
     v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><div class="row sp" style="margin:12px 0 4px"><h2 style="margin:0">${esc(sub)}</h2><div class="row"><button class="btn" id="lrn">Renombrar</button><button class="btn danger" id="ldl">Eliminar</button></div></div><div id="bx"></div>`;
@@ -588,14 +598,15 @@ function rMe(){
   softRefresh('notif');
   const mp=feed.filter(p=>p.u=='Tú'),n=new Set(mp.map(p=>p.r)).size,a=mp.length?+(mp.reduce((t,p)=>t+p.s,0)/mp.length).toFixed(2):'–';
   v.innerHTML=`<div class="row" style="margin:6px 2px"><div class="av" style="width:72px;height:72px;font-size:30px;background:#0E6F73">${esc(me.name[0])}</div><div><b style="font-size:20px">${esc(me.name)}</b><div class="mute">${esc(me.user)} · ${me.pub?'Perfil público':'Perfil privado'}</div></div></div><p style="margin:6px 2px">${me.bio?esc(me.bio):'<span class="mute">Añade una bio en Editar perfil.</span>'}</p>
-  <div class="stats"><div><b>${n}</b><span class="mute">sitios</span></div><div><b>${me.fr||0}</b><span class="mute">seguidores</span></div><div><b>${me.fg||0}</b><span class="mute">siguiendo</span></div><div><b>${a}</b><span class="mute">media</span></div></div>
+  <div class="stats"><div><b>${n}</b><span class="mute">sitios</span></div><div><button class="lnk" data-fl="0" style="text-align:center"><b>${me.fr||0}</b><span class="mute">seguidores</span></button></div><div><button class="lnk" data-fl="1" style="text-align:center"><b>${me.fg||0}</b><span class="mute">siguiendo</span></button></div><div><b>${a}</b><span class="mute">media</span></div></div>
   <button class="btn" id="ed" style="width:100%;margin-bottom:10px">Editar perfil</button>
   <div class="row" style="margin-bottom:14px"><button class="btn fill" id="bw" style="flex:1;padding:12px">❤️ Lista de deseos</button><button class="btn fill" id="bc" style="flex:1;padding:12px">🗂️ Mis listas</button></div>
-  <button class="btn" id="bn" style="width:100%;margin-bottom:14px">🔔 Notificaciones${Math.max(notifs.filter(n=>!n.read).length,INC.size)?` (${Math.max(notifs.filter(n=>!n.read).length,INC.size)})`:''}</button>
-  <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
+  <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>🍗 ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(+b.dataset.p));
-  $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');if($('#bn'))$('#bn').onclick=()=>go('#notif');
-  $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button><button class="btn danger" id="dp" style="width:100%;margin-top:14px">Borrar perfil</button>`);
+  v.querySelectorAll('[data-fl]').forEach(b=>b.onclick=()=>{go('#fol');if(b.dataset.fl=='1'){st=1;render()}});
+  $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');
+  $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="mute" style="margin:4px 0 6px">Tema de la app</div><div class="seg" style="margin-bottom:12px">${[['auto','Automático'],['light','Claro'],['dark','Oscuro']].map(([k,t])=>`<button type="button" data-th="${k}" class="${getTheme()==k?'on':''}">${t}</button>`).join('')}</div><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button><button class="btn danger" id="dp" style="width:100%;margin-top:14px">Borrar perfil</button>`);
+    document.querySelectorAll('#sheet [data-th]').forEach(b=>b.onclick=()=>{applyTheme(b.dataset.th);document.querySelectorAll('#sheet [data-th]').forEach(x=>x.classList.toggle('on',x===b))});
     $('#lo').onclick=logout;$('#dp').onclick=deleteProfileSheet;if($('#lg'))$('#lg').onclick=()=>REAL?linkReal():googleSim(true);
     $('#es').onclick=()=>{me.name=$('#en').value||me.name;me.bio=$('#eb').value;me.pub=$('#ep').checked;saveProfile();hide();toast('Cambios guardados');render()}};
 }
@@ -647,7 +658,9 @@ function newReview(pre){
 $('#fab').onclick=()=>newReview();
 $('#modal').onclick=e=>{if(e.target.id=='modal'&&!forceSheet)hide()};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;retTo=null;go(null)});
-$('#th').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()=='#0F1715';d.dataset.theme=dark?'light':'dark'};
+const getTheme=()=>{try{return localStorage.getItem('nn_theme')||'auto'}catch(e){return 'auto'}};
+function applyTheme(t){const d=document.documentElement;if(t=='light'||t=='dark')d.dataset.theme=t;else delete d.dataset.theme;try{localStorage.setItem('nn_theme',t)}catch(e){}}
+applyTheme(getTheme());
 
 const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg>`;
 const GICON='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
@@ -741,7 +754,7 @@ function deleteReal(p){
 function toPost(rw,lk,cm){
   const pr=PC[rw.user_id]||{username:'usuario',pub:true},me_=rw.user_id==ses.uid,r=VC[rw.venue_id],ls=lk.filter(x=>x.review_id==rw.id),mine=ls.some(x=>x.user_id==ses.uid);
   PUB[pr.username]=pr.pub!==false;
-  return {id:rw.id,dbid:rw.id,uid:rw.user_id,u:me_?'Tú':pr.username,r:r.id,s:+rw.rating,title:rw.title,t:rw.body||'',pr:rw.price||0,imgs:(rw.photos||[]).map(photoUrl),tg:rw.tagged||[],l:ls.length-(mine?1:0),k:mine?1:0,w:ago(rw.created_at),f:FW.includes(pr.username)?1:0,c:[],nc:cm.filter(x=>x.review_id==rw.id).length,_paths:rw.photos||[]}}
+  return {id:rw.id,dbid:rw.id,uid:rw.user_id,u:me_?'Tú':pr.username,r:r.id,s:+rw.rating,title:rw.title,t:rw.body||'',pr:rw.price||0,imgs:(rw.photos||[]).map(photoUrl),tg:rw.tagged||[],l:ls.length-(mine?1:0),k:mine?1:0,w:ago(rw.created_at),f:(me_||FW.includes(pr.username))?1:0,c:[],nc:cm.filter(x=>x.review_id==rw.id).length,_paths:rw.photos||[]}}
 async function loadFeed(){
   const [a,b]=await Promise.all([sbx(sb.from('reviews').select('*').eq('in_feed',true).order('created_at',{ascending:false}).limit(60)),sbx(sb.from('reviews').select('*').eq('user_id',ses.uid).eq('in_feed',true).order('created_at',{ascending:false}).limit(200))]);
   const seen=new Set(),rows=[...a,...b].filter(r=>!seen.has(r.id)&&seen.add(r.id)).sort((x,y)=>new Date(y.created_at)-new Date(x.created_at));
@@ -751,15 +764,31 @@ async function loadFeed(){
   feed=rows.map(rw=>{const p=toPost(rw,lk,cm),o=old.get(p.id);if(o&&o._cl){p.c=o.c;p._cl=1}return p});lastLoad.feed=Date.now()}
 async function loadComments(p){
   const rows=await sbx(sb.from('review_comments').select('id,user_id,body').eq('review_id',p.dbid).order('id'));
-  await profilesById(rows.map(r=>r.user_id));p.c=rows.map(x=>({u:uname(x.user_id),t:x.body}));p._cl=1}
-function persistComment(p,t){if(!REAL||!p.dbid)return;sb.from('review_comments').insert({review_id:p.dbid,user_id:ses.uid,body:t.slice(0,500)}).then(r=>{if(r.error)toast('No se pudo guardar el comentario');else if(p.uid)notify(p.uid,'comment',p.dbid)})}
+  await profilesById(rows.map(r=>r.user_id));
+  let lk=[];if(rows.length){try{lk=await sbx(sb.from('comment_likes').select('comment_id,user_id').in('comment_id',rows.map(r=>r.id)))}catch(e){lk=[]}}
+  p.c=rows.map(x=>{const ls=lk.filter(l=>l.comment_id==x.id);return {id:x.id,u:uname(x.user_id),t:x.body,l:ls.length,k:ls.some(l=>l.user_id==ses.uid)?1:0}});p._cl=1}
+function persistComment(p,t,cm){if(!REAL||!p.dbid)return;sb.from('review_comments').insert({review_id:p.dbid,user_id:ses.uid,body:t.slice(0,500)}).select('id').single().then(r=>{if(r.error)toast('No se pudo guardar el comentario');else{if(cm)cm.id=r.data.id;if(p.uid)notify(p.uid,'comment',p.dbid)}})}
+function persistCommentLike(c){if(!REAL||!c.id)return;const q=c.k?sb.from('comment_likes').insert({comment_id:c.id,user_id:ses.uid}):sb.from('comment_likes').delete().eq('comment_id',c.id).eq('user_id',ses.uid);q.then(r=>{if(r.error)toast('No se pudo guardar el muslito (¿falta el SQL parte 5?)')})}
 function persistLike(p){
   if(!REAL||!p.dbid)return;
   const q=p.k?sb.from('review_likes').insert({review_id:p.dbid,user_id:ses.uid}):sb.from('review_likes').delete().eq('review_id',p.dbid).eq('user_id',ses.uid);
   q.then(r=>{if(r.error)toast('No se pudo guardar el like')})}
-async function loadSpaces(){
-  const mm=await sbx(sb.from('space_members').select('space_id').eq('user_id',ses.uid)),ids=mm.map(x=>x.space_id);
-  groups=[];chats={};lastLoad.spaces=Date.now();if(!ids.length)return;
+let spacesP=null;
+function loadSpaces(){if(spacesP)return spacesP;spacesP=loadSpacesRaw().finally(()=>{spacesP=null});return spacesP}
+function updateDots(){const n=[...groups,...Object.values(chats)].reduce((a,x)=>a+(x.unread||0),0);const d=$('#sdot');if(d)d.hidden=!(n>0)}
+function markRead(sp){
+  if(!REAL||!sp.dbid||sp.noLR)return;
+  const last=Math.max(sp.lastId||0,...sp.msgs.map(m=>m.id||0));
+  if(last<=(sp.lastRead||0)&&!sp.unread)return;
+  sp.lastRead=Math.max(sp.lastRead||0,last);sp.unread=0;updateDots();
+  sb.from('space_members').update({last_read:sp.lastRead}).eq('space_id',sp.dbid).eq('user_id',ses.uid).then(()=>{})}
+async function loadSpacesRaw(){
+  const mm=await sbx(sb.from('space_members').select('*').eq('user_id',ses.uid)),ids=mm.map(x=>x.space_id);
+  const noLR=mm.length>0&&mm[0].last_read===undefined;
+  const pendG=groups.filter(g=>!g.dbid),pendC=Object.values(chats).filter(c=>!c.dbid);
+  const G=[],C={};lastLoad.spaces=Date.now();
+  const fin=()=>{pendG.forEach(g=>G.push(g));pendC.forEach(c=>{if(!C[c.n])C[c.n]=c});groups=G;chats=C;updateDots()};
+  if(!ids.length)return fin();
   const [sps,mem,msgs,srv,swi]=await Promise.all([sbx(sb.from('spaces').select('*').in('id',ids)),sbx(sb.from('space_members').select('space_id,user_id').in('space_id',ids)),sbx(sb.from('space_messages').select('*').in('space_id',ids).order('id',{ascending:false}).limit(500)),sbx(sb.from('space_reviews').select('space_id,review_id').in('space_id',ids)),sbx(sb.from('space_wish').select('*').in('space_id',ids).order('position'))]);
   const rids=[...new Set([...srv.map(x=>x.review_id),...msgs.map(m=>m.review_id).filter(Boolean)])];
   const rvs=rids.length?await sbx(sb.from('reviews').select('*').in('id',rids)):[];
@@ -767,15 +796,18 @@ async function loadSpaces(){
   const RV=Object.fromEntries(rvs.map(r=>[r.id,r]));
   sps.sort((a,b)=>a.id-b.id).forEach(s=>{
     const m=mem.filter(x=>x.space_id==s.id&&x.user_id!=ses.uid).map(x=>uname(x.user_id));
-    const sp={dbid:s.id,kind:s.kind,n:s.kind=='dm'?(m[0]||'usuario'):(s.name||'Grupo'),m,v:{},w:[],msgs:[],lastId:0};
+    const lr=noLR?Infinity:((mm.find(x=>x.space_id==s.id)||{}).last_read||0);
+    const sp={dbid:s.id,kind:s.kind,n:s.kind=='dm'?(m[0]||'usuario'):(s.name||'Grupo'),m,v:{},w:[],msgs:[],lastId:0,lastRead:noLR?0:lr,unread:0,noLR};
     srv.filter(x=>x.space_id==s.id).map(x=>RV[x.review_id]).filter(Boolean).sort((a,b)=>a.id-b.id).forEach(rw=>{
       const r=VC[rw.venue_id],L=sp.v[r.id]=sp.v[r.id]||[],e=entryOf(rw),i=L.findIndex(x=>x.u==e.u);if(i>=0)L[i]=e;else L.push(e)});
     swi.filter(x=>x.space_id==s.id).forEach(x=>{if(VC[x.venue_id])sp.w.push(VC[x.venue_id].id)});
     msgs.filter(x=>x.space_id==s.id).sort((a,b)=>a.id-b.id).forEach(x=>{sp.lastId=Math.max(sp.lastId,x.id);
+      if(x.user_id!==ses.uid&&x.id>lr)sp.unread++;
       if(x.review_id){const rw=RV[x.review_id];if(rw)sp.msgs.push({id:x.id,u:uname(x.user_id),rv:{id:VC[rw.venue_id].id,s:+rw.rating,title:rw.title,nw:!!x.is_new}})}
       else if(x.venue_id){if(VC[x.venue_id])sp.msgs.push({id:x.id,u:uname(x.user_id),pl:{id:VC[x.venue_id].id}})}
       else sp.msgs.push({id:x.id,u:uname(x.user_id),t:x.body})});
-    if(s.kind=='dm')chats[sp.n]=sp;else groups.push(sp)})}
+    if(s.kind=='dm')C[sp.n]=sp;else G.push(sp)});
+  fin()}
 function createSpaceDB(sp,memberIds,kind){
   sp.ready=(async()=>{const s=await sbx(sb.from('spaces').insert({kind,name:kind=='group'?sp.n:null,created_by:ses.uid}).select('id').single());sp.dbid=s.id;sp.lastId=0;
     await sbx(sb.from('space_members').insert([ses.uid,...memberIds].map(u=>({space_id:s.id,user_id:u}))))})();
@@ -826,7 +858,7 @@ function notifScreen(){
   v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Notificaciones</h2>`+(notifs.length?notifs.map(n=>`<div class="card pad" data-n="${esc(n.id)}" style="cursor:pointer"><div class="row">${av(n.fu||n.u)}<div style="flex:1;min-width:0"><b>${esc(n.u)}</b> ${esc(txt(n))}<div class="mute">${n.w}${n.read?'':' · nueva'}</div></div></div>${acts(n)?`<div class="row" style="margin-top:10px;justify-content:flex-end">${acts(n)}</div>`:''}</div>`).join(''):'<p class="mute">No tienes notificaciones.</p>');
   back();
   const nOf=id=>notifs.find(x=>String(x.id)==String(id));
-  v.querySelectorAll('.card[data-n]').forEach(c=>c.onclick=e=>{if(e.target.closest('button'))return;const n=nOf(c.dataset.n);if(!n)return;if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else if(n.fu){upReg(uOf(n));go('@'+n.fu)}});
+  v.querySelectorAll('.card[data-n]').forEach(c=>c.onclick=e=>{if(e.target.closest('button'))return;const n=nOf(c.dataset.n);if(!n)return;if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else if(n.fu){upReg(uOf(n));profBack='#notif';go('@'+n.fu)}});
   v.querySelectorAll('[data-ac]').forEach(b=>b.onclick=async()=>{try{await acceptReq(nOf(b.dataset.ac));toast('Solicitud aceptada')}catch(e){toast(e.message)}notifScreen()});
   v.querySelectorAll('[data-dc]').forEach(b=>b.onclick=async()=>{try{await declineReq(nOf(b.dataset.dc));toast('Solicitud rechazada')}catch(e){toast(e.message)}notifScreen()});
   v.querySelectorAll('[data-fb]').forEach(b=>b.onclick=async()=>{const n=nOf(b.dataset.fb),u=uOf(n);if(FW.includes(u.user)||PEND.has(u.user))return;try{await setFollow(u,true);toast(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name)}catch(e){toast(e.message)}notifScreen()});
@@ -851,7 +883,24 @@ async function findUsers(q){
   if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub').or(`username.ilike.*${t}*,name.ilike.*${t}*`).neq('id',ses.uid).limit(20));
     return rows.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
   return Object.entries(accts).filter(([e,a])=>e!==ses.email&&((a.name||'').toLowerCase().includes(t)||(a.user||'').toLowerCase().includes(t))).slice(0,20).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:a.pub!==false}))}
-const UP={};let upData={},retTo=null;
+const UP={};let upData={},retTo=null,profBack='#notif';
+async function loadFollowers(){
+  if(REAL){const rows=await sbx(sb.from('follows').select('follower').eq('followed',ses.uid).eq('status','accepted'));
+    if(!rows.length)return [];const ps=await sbx(sb.from('profiles').select('id,username,name,bio,pub').in('id',rows.map(r=>r.follower)));
+    return ps.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
+  return Object.entries(accts).filter(([e,x])=>(x.following||[]).includes(ses.email)).map(([e,x])=>({id:e,user:x.user,name:x.name,bio:x.bio||'',pub:x.pub!==false}))}
+const ucard=u=>{const f=FW.includes(u.user),pe=PEND.has(u.user);return `<div class="card pad row">${av(u.user)}<button class="lnk" data-pu="${esc(u.user)}" style="flex:1;min-width:0"><b>${esc(u.name)}</b><div class="mute">@${esc(u.user)}${u.pub===false?' · perfil privado':''}</div></button><button class="btn ${f||pe?'':'fill'}" data-fo="${esc(u.user)}">${f?'Siguiendo':pe?'Solicitado':u.pub===false?'Solicitar':'Seguir'}</button></div>`};
+function folScreen(){
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Seguidores y seguidos</h2>${seg2(['Seguidores','Siguiendo'])}<div id="bx"><p class="mute">Cargando…</p></div>`;
+  back();segBind();
+  const bx=$('#bx'),stNow=st;
+  const show=list=>{if(!bx.isConnected)return;list.forEach(upReg);
+    bx.innerHTML=list.length?list.map(ucard).join(''):`<p class="mute">${stNow==0?'Todavía no te sigue nadie.':'Todavía no sigues a nadie.'}</p>`;
+    bx.querySelectorAll('[data-fo]').forEach(b=>b.onclick=async()=>{const u=list.find(x=>x.user==b.dataset.fo),on=!(FW.includes(u.user)||PEND.has(u.user));b.disabled=true;
+      try{await setFollow(u,on);toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Has dejado de seguir a '+u.name)}catch(e){toast(e.message)}show(list)});
+    bx.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{profBack='#fol';go('@'+b.dataset.pu)})};
+  if(stNow==0)loadFollowers().then(show).catch(()=>{if(bx.isConnected)bx.innerHTML='<p class="mute">No se pudo cargar la lista.</p>'});
+  else show([...FW.map(n=>PROF[n]),...[...PEND].map(n=>PROF[n])].filter(Boolean))}
 const upReg=u=>{UP[u.user]=u;return u},getUser=n=>UP[n]||PROF[n];
 async function loadUserPosts(u){
   const rows=await sbx(sb.from('reviews').select('*').eq('user_id',u.id).eq('in_feed',true).order('created_at',{ascending:false}).limit(60));
@@ -874,7 +923,7 @@ function userProfile(u,backFn,backLabel){
   <p style="margin:6px 2px">${u.bio?esc(u.bio):'<span class="mute">Sin bio.</span>'}</p>
   <div class="stats"><div><b>${canSee?posts.length:'–'}</b><span class="mute">reseñas</span></div><div><b>${d.fr!=null?d.fr:'–'}</b><span class="mute">seguidores</span></div><div><b>${d.fg!=null?d.fg:'–'}</b><span class="mute">siguiendo</span></div></div>
   <div class="row" style="margin-bottom:14px"><button class="btn ${f||pe?'':'fill'}" id="upf" style="flex:1;padding:12px">${f?'Siguiendo':pe?'Solicitado':u.pub===false?'Solicitar seguir':'Seguir'}</button>${f?'<button class="btn" id="upm" style="flex:1;padding:12px">Mensaje</button>':''}</div>`+
-  (canSee?`<h2>Reseñas</h2>${posts.length?`<div class="grid">${posts.map(p=>`<button data-up="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:(d.done||!REAL?'<p class="mute">Todavía no ha publicado reseñas.</p>':'<p class="mute">Cargando reseñas…</p>')}`:`<div class="card pad" style="text-align:center"><div style="font-size:30px">🔒</div><b>Esta cuenta es privada</b><p class="mute" style="margin:6px 0 0">Sigue a ${esc(u.name)} y espera a que acepte tu solicitud para ver sus reseñas y fotos.</p></div>`)+'<div style="height:60px"></div>';
+  (canSee?`<h2>Reseñas</h2>${posts.length?`<div class="grid">${posts.map(p=>`<button data-up="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>🍗 ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:(d.done||!REAL?'<p class="mute">Todavía no ha publicado reseñas.</p>':'<p class="mute">Cargando reseñas…</p>')}`:`<div class="card pad" style="text-align:center"><div style="font-size:30px">🔒</div><b>Esta cuenta es privada</b><p class="mute" style="margin:6px 0 0">Sigue a ${esc(u.name)} y espera a que acepte tu solicitud para ver sus reseñas y fotos.</p></div>`)+'<div style="height:60px"></div>';
   v.querySelector('[data-back]').onclick=()=>{retTo=null;backFn()};
   $('#upf').onclick=async()=>{const on=!(FW.includes(u.user)||PEND.has(u.user));try{await setFollow(u,on);toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Listo')}catch(e){toast(e.message)}if(on&&u.pub!==false)d.started=false;render()};
   if($('#upm'))$('#upm').onclick=()=>{ensureChat(u.user);tab='social';sg='c';go(u.user)};
@@ -952,7 +1001,9 @@ function enterApp(){
   me.name=ses.name;me.user='@'+ses.user;me.bio=ses.bio||'';me.pub=ses.pub!==false;me.fr=0;me.fg=0;
   $('#auth').style.display='none';lock(false);tab='feed';go(null);
   if(!locTimer){locTimer=setInterval(locSample,120000);locSample()}
-  if(!notifTimer)notifTimer=setInterval(()=>{if(REAL&&ses&&document.visibilityState=='visible')Promise.all([loadNotifs(),loadFollows()]).then(()=>{const hd=$('#hdot');if(hd)hd.hidden=!(notifs.some(n=>!n.read)||INC.size>0)}).catch(()=>{})},60000)}
+  if(!notifTimer)notifTimer=setInterval(()=>{if(!(REAL&&ses&&document.visibilityState=='visible'))return;
+    Promise.all([loadNotifs(),loadFollows()]).then(()=>{const hd=$('#hdot');if(hd)hd.hidden=!(notifs.some(n=>!n.read)||INC.size>0)}).catch(()=>{});
+    if(!(tab=='social'&&sub!=null))loadSpaces().then(()=>{updateDots();if(tab=='social'&&sub==null)render()}).catch(()=>{})},60000)}
 function demoEnter(email){ses={...accts[email],email};try{localStorage.setItem('nn_sess',email)}catch(e){}enterApp();if(ses.pubSet===false)askPrivacy();loadFollows().then(render)}
 function showAuth(){ses=null;amode='in';apub=null;authView();$('#auth').style.display='flex';lock(true)}
 async function authRegister(d){
@@ -1095,6 +1146,9 @@ async function boot(){
   let e=null;try{e=localStorage.getItem('nn_sess')}catch(x){}
   if(e&&accts[e])demoEnter(e)}
 $('#hp').onclick=()=>{if(ses){tab='me';retTo=null;go(null)}};
+$('#hn').onclick=()=>{if(ses){tab='me';retTo=null;go('#notif')}};
+$('#logoBtn').onclick=async()=>{if(!ses)return;tab='feed';fm='fol';retTo=null;go(null);
+  if(REAL){toast('Actualizando…');try{await Promise.all([loadFeed(),loadSpaces(),loadNotifs(),loadFollows()])}catch(e){}lastLoad.feed=Date.now();render()}};
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')locSample()});
 render();boot();
 

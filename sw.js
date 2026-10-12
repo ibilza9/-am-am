@@ -1,6 +1,6 @@
 // Service worker de Ñam Ñam: guarda la app para abrirla rápido y sin pantalla en blanco sin red.
 // Los datos (Supabase, mapa, búsquedas) no se guardan: siempre se piden a internet.
-const V = 'nam-nam-v7';
+const V = 'nam-nam-v8';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
