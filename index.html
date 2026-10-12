@@ -130,7 +130,12 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
    Déjalo así para el modo demostración, o rellénalo para el modo real (mira README.md). */
 const CONFIG={
   OSM:true,      // true = mapa de OpenStreetMap (Leaflet) + bares y restaurantes reales (Overpass)
-  SUPABASE:{url:'https://lpegejsiwisuqbrkhprb.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwZWdlanNpd2lzdXFicmtocHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NTE1OTMsImV4cCI6MjEwNzMyNzU5M30.wiw3kk-cOwHU2qEDKZ_KUdnQ-yQ9MztRmLHUzWkmXGY!'} //= cuentas y base de datos
+  SUPABASE:{
+    url:'https://lpegejsiwisuqbrkhprb.supabase.co',
+    key:'sb_publishable_d5VOX5EgxLSqQkHTJImicg_puZOuJft' // clave publishable (pública por diseño)
+    // Alternativa si hiciera falta (clave anon antigua, también pública):
+    // key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxwZWdlanNpd2lzdXFicmtocHJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3NTE1OTMsImV4cCI6MjEwNzMyNzU5M30.wiw3kk-cOwHU2qEDKZ_KUdnQ-yQ9MztRmLHUzWkmXGY'
+  }
 };
 const R=[];
 const me={name:'',user:'',bio:'',pub:true,fr:0,fg:0};
@@ -534,6 +539,8 @@ $('#th').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).
 const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><path d="M8 20h24a12 12 0 0 1-24 0z" fill="var(--acf)"/><path d="M15 15q-2-3 0-5M21 15q-2-3 0-5M27 15q-2-3 0-5" stroke="var(--acf)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
 const GICON='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 const REAL=!!CONFIG.SUPABASE;
+if(REAL){const cl=x=>String(x||'').replace(/[\s\u200B-\u200D\uFEFF]/g,'');CONFIG.SUPABASE.url=cl(CONFIG.SUPABASE.url).replace(/^(https:\/\/[a-z0-9-]+\.supabase\.co)[\s\S]*$/,'$1').replace(/\/+$/,'');CONFIG.SUPABASE.key=cl(CONFIG.SUPABASE.key)}
+const keyHint=()=>{const k=(CONFIG.SUPABASE&&CONFIG.SUPABASE.key)||'';return k?' La app está usando una clave que empieza por «'+k.slice(0,15)+'…» y tiene '+k.length+' caracteres.':' No hay ninguna clave en CONFIG.'};
 let accts={},ses=null,amode='in',sb=null,stripped=false;
 try{accts=JSON.parse(localStorage.getItem('nn_accts')||'{}')}catch(e){}
 const store=()=>{try{localStorage.setItem('nn_accts',JSON.stringify(accts))}catch(e){}};
@@ -550,7 +557,7 @@ const SERR=e=>{const m=((e&&e.message)||'').toLowerCase(),c=(e&&(e.code||e.error
   if(m.includes('not confirmed'))return 'Confirma tu correo antes de iniciar sesión. Te hemos enviado un enlace.';
   if(m.includes('database error saving new user'))return 'Supabase no pudo crear tu perfil. Ejecuta el SQL parte 1 completo (tabla profiles y trigger on_auth_user_created) y vuelve a probar.';
   if(c=='PGRST202'||m.includes('could not find the function'))return 'Falta el SQL parte 1 en Supabase (función username_available).';
-  if(m.includes('invalid api key')||m.includes('invalid jwt')||m.includes('no api key'))return 'La clave de Supabase no es válida. Copia otra vez la clave publishable/anon del mismo proyecto.';
+  if(m.includes('invalid api key')||m.includes('invalid jwt')||m.includes('no api key'))return 'La clave de Supabase no es válida. Copia otra vez la clave publishable/anon del mismo proyecto.'+keyHint();
   if(m.includes('signups not allowed')||m.includes('signup is disabled'))return 'Los registros nuevos están desactivados en Supabase («Allow new users to sign up»).';
   if(m.includes('error sending'))return 'Supabase no pudo enviar el correo de confirmación. Para la beta desactiva «Confirm email» (Authentication → Sign In / Providers → Email).';
   if(m.includes('rate limit')||m.includes('too many')||m.includes('over_email'))return 'Se ha superado el límite de correos o de intentos. Desactiva «Confirm email» en Supabase para la beta, o espera unos minutos.';
@@ -776,10 +783,17 @@ async function diagnose(){
   const L=[],ok=t=>L.push(['✅',t]),warn=t=>L.push(['⚠️',t]),bad=t=>L.push(['❌',t]);
   const u=(CONFIG.SUPABASE.url||'').trim(),k=(CONFIG.SUPABASE.key||'').trim();
   if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u))warn('La URL «'+u+'» no tiene el formato https://TU-PROYECTO.supabase.co (sin barra final ni rutas). Si usas un dominio propio, ignora este aviso.');else ok('La URL del proyecto tiene buen formato.');
+  const ref=(u.match(/^https:\/\/([a-z0-9-]+)\.supabase\.co$/)||[])[1]||'';
   if(!k)bad('Falta la clave pública en CONFIG.SUPABASE.key.');
-  else if(/^sb_secret_/.test(k))bad('Estás usando una clave SECRETA. Cámbiala ya por la clave publishable/anon y regenérala en Supabase (Project Settings → API).');
-  else{let role='';try{if(k.startsWith('eyJ'))role=JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role}catch(e){}
-    if(role=='service_role')bad('Estás usando la clave service_role (secreta). Cámbiala por la anon/publishable y regenérala.');else ok('La clave es de tipo público.')}
+  else if(/[^\x21-\x7E]/.test(k))bad('La clave contiene caracteres no válidos (¿está recortada con «…» o con comillas curvas?). Cópiala con el botón Copy de Supabase.');
+  else if(/^sb_secret_/.test(k))bad('Estás usando una clave SECRETA. Cámbiala ya por la publishable/anon y regenérala en Supabase (Project Settings → API Keys).');
+  else if(k.startsWith('sb_publishable_')){if(k.length<30)bad('La clave publishable parece incompleta ('+k.length+' caracteres).');else ok('Es una clave publishable ('+k.length+' caracteres).')}
+  else if(k.startsWith('eyJ')){let pl=null;try{pl=JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))}catch(e){}
+    if(!pl||k.split('.').length!=3)bad('La clave anon parece incompleta o dañada ('+k.length+' caracteres). Cópiala entera con el botón Copy.');
+    else if(pl.role=='service_role')bad('Estás usando la clave service_role (secreta). Cámbiala por la anon/publishable y regenérala.');
+    else if(ref&&pl.ref&&pl.ref!==ref)bad('La clave es de OTRO proyecto ('+pl.ref+') distinto al de la URL ('+ref+').');
+    else ok('Es una clave anon correcta para este proyecto.')}
+  else warn('La clave no empieza por sb_publishable_ ni por eyJ, así que no parece una clave de Supabase. Empieza por «'+k.slice(0,12)+'…».');
   let st=null;
   try{sbSettings=null;st=await sbGetSettings();ok('Se conecta con tu proyecto y la clave es válida.')}
   catch(e){if(e.status==401||e.status==403)bad('Supabase rechaza la clave (error '+e.status+'). Copia otra vez la clave publishable/anon del MISMO proyecto.');else if(e.status)bad('Supabase respondió con el error '+e.status+'. Revisa la URL del proyecto.');else bad('No se puede conectar con '+u+'. Revisa la URL y tu conexión.')}
