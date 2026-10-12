@@ -104,6 +104,7 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 .ib.pf{position:relative;background:var(--ac);color:var(--acf);border:0;font-weight:800;font-size:16px}
 .dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#E5484D;border:2px solid var(--bg)}
 .mk.bar{border-color:#C27A0E}
+.btn.danger{background:#D92D20;border-color:#D92D20;color:#fff}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0E6F73">
@@ -153,7 +154,7 @@ const av=(u,z)=>`<div class="av" style="background:${ucol(u)}${z?`;width:${z}px;
 const rn=id=>R.find(r=>r.id==id);
 const mk=(n,m,ids,w,msgs)=>{const sp={n,m,v:{},w,msgs};ids.forEach(id=>{const y=feed.find(p=>p.u=='Tú'&&p.r==id);sp.v[id]=y?[{u:'Tú',s:y.s,title:y.title,t:y.t,pr:y.pr,imgs:y.imgs}]:[]});return sp};
 let groups=[],chats={};
-let wish=[],cats={'Italianos':[],'Asiáticos':[]};
+let wish=[],cats={};
 const RESP=['Genial, me apunto 😋','Buena idea, lo miro y te digo','Apúntalo para la próxima','Jajaja eso quiero probarlo'];
 let tab='feed',mode='list',city='',sel=null,sub=null,sub2=null,st=0,sg='g',fm='fol',wedit=false,nid=20,fc=false;
 const $=s=>document.querySelector(s),v=$('#view');
@@ -166,7 +167,7 @@ const avgE=E=>+(E.reduce((t,e)=>t+e.s,0)/E.length).toFixed(2);
 const go=x=>{sub=x;sub2=null;st=0;wedit=false;render();v.scrollTop=0};
 const cur=()=>sub==null?null:(sg=='g'?groups[sub]:chats[sub]);
 const sheet=h=>{$('#sheet').innerHTML=h;$('#modal').classList.add('show')},hide=()=>$('#modal').classList.remove('show');
-const back=()=>v.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>go(null));
+const back=()=>v.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>{const r=retTo;retTo=null;go(r)});
 const seg2=a=>`<div class="seg">${a.map((t,i)=>`<button data-st="${i}" class="${i==st?'on':''}">${t}</button>`).join('')}</div>`;
 const segBind=()=>v.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{st=+b.dataset.st;wedit=false;render()});
 const opts=ids=>R.filter(r=>!ids.includes(r.id)).map(r=>`<option value="${r.id}">${esc(r.n)} · ${esc(r.c)}</option>`).join('');
@@ -192,24 +193,28 @@ function photoBind(imgs){
 }
 function wishUI(list,box,title,pm,onChange){
   let ed=false;
-  const row=(x,i)=>{let ic,nm,sb,rt,ex='';
-    if(pm){const p=feed.find(q=>q.id==x);if(!p)return '';const r=rn(p.r);ic=`<div style="width:48px;height:48px;border-radius:10px;overflow:hidden;display:grid;place-items:center;font-size:24px;background:${r.bg};flex:none">${p.imgs.length?`<img src="${p.imgs[0]}" alt="" style="width:100%;height:100%;object-fit:cover">`:r.e}</div>`;nm=r.n;sb=p.title;rt=p.s}
-    else{const r=rn(x);ic=`<div class="av" style="background:${r.bg};font-size:22px">${r.e}</div>`;nm=r.n;sb=r.c+' · '+r.t;rt=avg(x);const w=list===wish&&wnotes[x];if(w)ex=(w.note?`<div class="mute">📝 ${esc(w.note)}</div>`:'')+(w.tags&&w.tags.length?`<div>${w.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:'')}
-    return `<div class="card pad row"><b class="mute" style="width:20px">${i+1}</b>${ic}<div style="flex:1;min-width:0"><b>${esc(nm)}</b><div class="mute">${esc(sb)}</div>${ex}</div>${ed?`<button class="btn" data-m="${i},-1" aria-label="Subir" ${i?'':'disabled'}>▲</button><button class="btn" data-m="${i},1" aria-label="Bajar" ${i<list.length-1?'':'disabled'}>▼</button><button class="btn" data-x="${i}" aria-label="Quitar">✕</button>`:`<div class="sc">${rt}</div>`}</div>`};
+  const photoOf=id=>{const p=feed.find(q=>q.u=='Tú'&&q.r==id&&q.imgs&&q.imgs.length);return p?p.imgs[0]:''};
+  const row=(x,i)=>{const r=rn(x);if(!r)return '';
+    const ph=pm?photoOf(x):'';
+    const ic=ph?`<div style="width:48px;height:48px;border-radius:10px;overflow:hidden;flex:none"><img src="${ph}" alt="" style="width:100%;height:100%;object-fit:cover"></div>`:`<div class="av" style="background:${r.bg};font-size:22px">${r.e}</div>`;
+    const w=list===wish&&wnotes[x];let ex='';
+    if(w)ex=(w.note?`<div class="mute">📝 ${esc(w.note)}</div>`:'')+(w.tags&&w.tags.length?`<div>${w.tags.map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`:'');
+    return `<div class="card pad row"><b class="mute" style="width:20px">${i+1}</b>${ic}<div style="flex:1;min-width:0"><button class="lnk" data-od="${x}"><b>${esc(r.n)}</b></button><div class="mute">${esc(r.c)} · ${esc(r.t)}</div>${ex}</div>${ed?`<button class="btn" data-m="${i},-1" aria-label="Subir" ${i?'':'disabled'}>▲</button><button class="btn" data-m="${i},1" aria-label="Bajar" ${i<list.length-1?'':'disabled'}>▼</button><button class="btn" data-x="${i}" aria-label="Quitar">✕</button>`:`<div class="sc">${avg(x)}</div>`}</div>`};
   const draw=()=>{
-    box.innerHTML=`<div class="row sp" style="margin-bottom:10px"><b>${esc(title)} (${list.length})</b><div class="row"><button class="btn" id="we">${ed?'Listo':'Editar'}</button><button class="btn fill" id="wa">+ Añadir</button></div></div>`+(list.length?list.map(row).join(''):`<p class="mute">${pm?'Esta lista está vacía. Pulsa Añadir y elige tus publicaciones.':'Aún no hay restaurantes. Pulsa Añadir para guardar los que quieras probar.'}</p>`);
+    box.innerHTML=`<div class="row sp" style="margin-bottom:10px"><b>${esc(title)} (${list.length})</b><div class="row"><button class="btn" id="we">${ed?'Listo':'Editar'}</button><button class="btn fill" id="wa">+ Añadir</button></div></div>`+(list.length?list.map(row).join(''):`<p class="mute">Aún no hay locales. Pulsa Añadir para guardar los que quieras.</p>`);
     box.querySelector('#we').onclick=()=>{ed=!ed;draw()};
+    box.querySelectorAll('[data-od]').forEach(b=>b.onclick=()=>{tab='explore';go(+b.dataset.od)});
     box.querySelector('#wa').onclick=()=>{
-      if(pm){
-        const pk=feed.filter(p=>p.u=='Tú'&&!list.includes(p.id));
-        if(!pk.length)return toast(feed.some(p=>p.u=='Tú')?'Ya has añadido todas tus reseñas':'Aún no tienes reseñas. Publica una con +');
-        const sel=new Set();
-        sheet(`<h2>Añadir a ${esc(title)}</h2><p class="mute" style="margin-top:0">Elige entre tus publicaciones:</p><div class="pgrid">${pk.map(p=>{const r=rn(p.r);return `<button class="pk" data-k="${p.id}" aria-pressed="false"><div class="th" style="background:${r.bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:r.e}</div><span>${esc(r.n)}</span></button>`}).join('')}</div><button class="btn fill" id="wb" style="width:100%">Añadir a la lista</button>`);
-        document.querySelectorAll('#sheet [data-k]').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle('sel',sel.has(k));b.setAttribute('aria-pressed',sel.has(k))});
-        $('#wb').onclick=()=>{if(!sel.size)return toast('Elige al menos una publicación');list.push(...sel);if(onChange)onChange();hide();draw();toast('Añadido a '+title)};
-        return}
-      sheet(`<h2>Añadir a ${esc(title)}</h2><div id="ph"></div>`);
-      placePick($('#ph'),r=>{if(list.includes(r.id))return toast('Ya está en la lista');list.push(r.id);if(list===wish)persistWish(r.id);if(onChange)onChange();hide();draw()})};
+      const addId=id=>{if(list.includes(id))return toast('Ya está en la lista');list.push(id);if(list===wish)persistWish(id);if(onChange)onChange();hide();draw();toast('Añadido a '+title)};
+      const searchUI=()=>{sheet(`<h2>Añadir a ${esc(title)}</h2><div id="ph"></div>`);placePick($('#ph'),r=>addId(r.id))};
+      if(!pm)return searchUI();
+      const seen=new Set(),mineR=feed.filter(p=>p.u=='Tú').map(p=>p.r).filter(id=>!list.includes(id)&&!seen.has(id)&&seen.add(id));
+      if(!mineR.length)return searchUI();
+      const sel=new Set();
+      sheet(`<h2>Añadir a ${esc(title)}</h2><p class="mute" style="margin-top:0">Elige entre los sitios que ya has valorado:</p><div class="pgrid">${mineR.map(id=>{const r=rn(id),ph=photoOf(id);return `<button class="pk" data-k="${id}" aria-pressed="false"><div class="th" style="background:${r.bg}">${ph?`<img src="${ph}" alt="">`:r.e}</div><span>${esc(r.n)}</span></button>`}).join('')}</div><button class="btn fill" id="wb" style="width:100%;margin-bottom:8px">Añadir a la lista</button><button class="btn" id="wsr" style="width:100%">Buscar otro local</button>`);
+      document.querySelectorAll('#sheet [data-k]').forEach(b=>b.onclick=()=>{const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle('sel',sel.has(k));b.setAttribute('aria-pressed',sel.has(k))});
+      $('#wb').onclick=()=>{if(!sel.size)return toast('Elige al menos un local');sel.forEach(id=>{if(!list.includes(id))list.push(id)});if(onChange)onChange();hide();draw();toast('Añadido a '+title)};
+      $('#wsr').onclick=searchUI};
     box.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const [i,d]=b.dataset.m.split(',').map(Number);[list[i],list[i+d]]=[list[i+d],list[i]];if(list===wish)persistWishOrder();if(onChange)onChange();draw()});
     box.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{list.splice(+b.dataset.x,1);if(list===wish)persistWish();if(onChange)onChange();draw()});
   };draw()}
@@ -241,7 +246,7 @@ function postDet(p,label){
   if(!own)$('#pf2').onclick=()=>{const f=p.f?0:1;feed.forEach(q=>{if(q.u==p.u)q.f=f});render()};
   if(own){
     $('#pd').onclick=()=>{sheet(`<h2>¿Eliminar esta reseña?</h2><p class="mute">Se borrará con sus likes y comentarios.</p><div class="row"><button class="btn fill" id="dy">Eliminar</button><button class="btn" id="dn">Cancelar</button></div>`);
-      $('#dn').onclick=hide;$('#dy').onclick=()=>{deleteReal(p);feed=feed.filter(x=>x!==p);Object.keys(cats).forEach(k=>cats[k]=cats[k].filter(i=>i!=p.id));hide();toast('Reseña eliminada');go(null)}};
+      $('#dn').onclick=hide;$('#dy').onclick=()=>{deleteReal(p);feed=feed.filter(x=>x!==p);hide();toast('Reseña eliminada');go(null)}};
     $('#pe').onclick=()=>{let pr=p.pr,imgs=[...p.imgs];
       sheet(`<h2>Editar reseña</h2>${photoHTML()}<input id="et" value="${esc(p.title)}" maxlength="60" aria-label="Título"><label class="mute" for="es">Valoración: <b id="ev">${p.s}</b>/10</label><input type="range" id="es" min="0" max="10" step="0.25" value="${p.s}"><div class="mute" style="margin-bottom:6px">Precio (opcional)</div>${priceHTML(pr)}<textarea id="ed" rows="3" aria-label="Descripción">${esc(p.t)}</textarea><button class="btn fill" id="eb" style="width:100%;padding:12px">Guardar cambios</button>`);
       photoBind(imgs);$('#es').oninput=e=>$('#ev').textContent=e.target.value;priceBind(()=>pr,n=>pr=n);
@@ -251,7 +256,8 @@ function postDet(p,label){
   }
 }
 function rFeed(){
-  if(sub!=null)return postDet(feed.find(x=>x.id==sub),'Inicio');
+  if(typeof sub=='string'&&sub[0]=='@')return userProfile(getUser(sub.slice(1)),()=>go(null),'Descubrir');
+  if(sub!=null)return postDet(feed.find(x=>x.id==sub),retTo?'Perfil':'Inicio');
   softRefresh('feed');
   const disc=feed.filter(p=>(PUB[p.u]&&p.u!='Tú')||(p.u=='Tú'&&me.pub));
   v.innerHTML=`<div class="seg"><button data-fm="fol" class="${fm=='fol'?'on':''}">Siguiendo</button><button data-fm="all" class="${fm=='all'?'on':''}">Descubrir</button></div>`+(fm=='all'?`<div class="row" style="margin-bottom:10px"><input id="us" placeholder="Buscar personas por nombre o @usuario" value="${esc(uq)}" aria-label="Buscar personas" autocomplete="off" style="margin:0"><button class="btn fill" id="ub">Buscar</button></div><div id="ur"></div><div id="dg">${disc.length?'<p class="mute" style="margin:0 2px 10px">Fotos de perfiles públicos. Toca una para verla completa.</p>':'<p class="mute">Aún no hay fotos de perfiles públicos.</p>'}<div class="grid">${disc.map(p=>`<button data-open="${p.id}" aria-label="Abrir reseña de ${esc(p.u)}: ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<b>${esc(p.u)}</b><i>${p.s}</i>${(p.imgs.length||p.np||2)>1?'<em>▣</em>':''}</button>`).join('')}</div></div>`:(feed.some(p=>p.f)?feed.filter(p=>p.f).map(post).join(''):'<p class="mute" style="margin:8px 2px">Aún no hay publicaciones. Pulsa + para subir tu primera reseña.</p>'))+'<div style="height:70px"></div>';
@@ -279,7 +285,7 @@ function rSocial(){
         const m=[...document.querySelectorAll('#sheet input[type=checkbox]:checked')].map(c=>c.value),ids=[...new Set(feed.filter(p=>p.u=='Tú').map(p=>p.r))];
         const sp=mk(n,m,ids,[],[{u:'Tú',t:'Grupo creado.'}]);sp.kind='group';groups.push(sp);newGroupReal(sp,m);hide();go(groups.length-1)}};
   }else{
-    bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div></button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
+    bx.innerHTML=(Object.keys(chats).length?'':'<p class="mute">Aún no tienes conversaciones.</p>')+Object.keys(chats).map(u=>{const l=chats[u].msgs[chats[u].msgs.length-1],tx=l?(l.rv?'⭐ Reseña: '+esc(l.rv.title):l.pl?'📍 '+esc((rn(l.pl.id)||{}).n||'Local'):esc(l.t)):'Sin mensajes';return `<button class="card pad row" data-u="${u}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(u)}<div style="flex:1;min-width:0"><b>${esc(u)}</b><div class="mute" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l&&l.u=='Tú'?'Tú: ':''}${tx}</div></div></button>`}).join('')+`<button class="btn fill" id="nc">Nuevo chat</button>`;
     bx.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>go(b.dataset.u));
     $('#nc').onclick=()=>{sheet(`<h2>Nuevo chat</h2><p class="mute">${FW.length?'Elige a quién sigues:':'Aún no sigues a nadie.'}</p>${FW.map(x=>`<button class="card pad row" data-n="${x}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer">${av(x)}<b>${x}</b></button>`).join('')}`);
       document.querySelectorAll('#sheet [data-n]').forEach(b=>b.onclick=()=>{const u=b.dataset.n;ensureChat(u);hide();go(u)})};
@@ -297,11 +303,13 @@ function spDet(sp){
 function chatUI(sp,bx){
   const multi=sp.m.length>1;
   bx.innerHTML=(sp.msgs.length?sp.msgs.map(m=>{const mine=m.u=='Tú',al=mine?'flex-end':'flex-start',lab=!mine&&multi?`<div class="mute" style="margin:0 4px 2px">${esc(m.u)}</div>`:'';
+    if(m.pl){const pr=rn(m.pl.id);if(pr)return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:8px">${lab}<button class="card pad lnk" data-pl="${pr.id}" style="width:auto;max-width:85%;background:var(--card)"><div class="mute">${mine?'Enviaste':esc(m.u)+' te recomienda'} un sitio</div><div class="row" style="margin-top:6px"><div class="av" style="background:${pr.bg};font-size:22px">${pr.e}</div><div style="min-width:0"><b>${esc(pr.n)}</b><div class="mute">${esc(pr.t)}${pr.c?' · '+esc(pr.c):''}</div></div></div></button></div>`}
     if(m.rv)return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:8px">${lab}<button class="card pad lnk" data-rv="${m.rv.id}" style="width:auto;max-width:85%;background:var(--card)"><div class="mute">${mine?'Añadiste':esc(m.u)+' añadió'} una reseña</div><b>${esc(m.rv.title)}</b><div class="row" style="margin:6px 0"><span class="sc">${m.rv.s}</span><span class="mute">${esc(rn(m.rv.id).n)}</span></div><div class="mute">${m.rv.nw?'🆕 Nuevo en Visitados':'📊 Media ahora: '+avgE(sp.v[m.rv.id])}</div></button></div>`;
     return `<div style="display:flex;flex-direction:column;align-items:${al};margin-bottom:6px">${lab}<div style="max-width:78%;padding:9px 13px;border-radius:16px;border:1px solid var(--line);background:${mine?'var(--ac)':'var(--card)'};color:${mine?'var(--acf)':'var(--ink)'}">${esc(m.t)}</div></div>`}).join(''):`<p class="mute">Empieza la conversación.</p>`)+
   `<div class="row" style="position:sticky;bottom:0;padding:8px 0;background:var(--bg)"><input id="mi" placeholder="Escribe un mensaje" aria-label="Mensaje" style="margin:0"><button class="btn fill" id="ms">Enviar</button></div>`;
   v.scrollTop=v.scrollHeight;
   if(REAL&&sp.dbid&&!pollT)pollT=setInterval(()=>pollSpace(sp),5000);
+  bx.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{tab='explore';go(+b.dataset.pl)});
   bx.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{st=1;sub2=+b.dataset.rv;render();v.scrollTop=0});
   const send=()=>{const t=$('#mi').value.trim();if(!t)return;const mg={u:'Tú',t};sp.msgs.push(mg);persistMsg(sp,mg);render();$('#mi').focus();};
   $('#ms').onclick=send;$('#mi').onkeydown=e=>{if(e.key=='Enter')send()};
@@ -414,13 +422,35 @@ function placePick(host,onPick,pre){
   pre?chosen(pre):start();
 }
 function saveSheet(r){
-  const cur=wnotes[r.id]||{note:'',tags:[]},has=wish.includes(r.id);
-  sheet(`<h2>${has?'Actualizar':'Guardar'} ${esc(r.n)}</h2><input id="sn" placeholder="Nota (ej. probar el pulpo)" value="${esc(cur.note)}" maxlength="140" aria-label="Nota"><input id="st" placeholder="Etiquetas separadas por comas (ej. cena, pareja)" value="${esc(cur.tags.join(', '))}" aria-label="Etiquetas"><button class="btn fill" id="sv" style="width:100%;padding:12px">${has?'Guardar cambios':'Guardar en mi catálogo'}</button>`);
-  $('#sv').onclick=()=>{wnotes[r.id]={note:$('#sn').value.trim(),tags:$('#st').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean).slice(0,8)};if(!has)wish.push(r.id);persistWish(r.id);hide();toast(has?'Actualizado':'Guardado en tu catálogo')};
+  const cur=wnotes[r.id]||{note:'',tags:[]};
+  const opts=[{k:'w',l:'❤️ Mi lista de deseos',on:true},...Object.keys(cats).map(n=>({k:'l:'+n,l:'🗂️ '+n,on:cats[n].includes(r.id)})),...groups.map((g,i)=>({k:'g:'+i,l:'👥 Por probar en '+g.n,on:g.w.includes(r.id)})),...Object.keys(chats).map(u=>({k:'c:'+u,l:'💬 Por probar con '+u,on:chats[u].w.includes(r.id)}))];
+  sheet(`<h2>Guardar ${esc(r.n)}</h2><p class="mute" style="margin-top:0">Elige dónde guardarlo:</p>${opts.map((o,i)=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" data-sv="${i}" style="width:auto;margin:0" ${o.on?'checked':''}> ${esc(o.l)}</label>`).join('')}<input id="nl2" placeholder="+ Crear lista nueva (ej. Italianos)" maxlength="40" aria-label="Crear lista nueva"><input id="sn" placeholder="Nota (opcional)" value="${esc(cur.note)}" maxlength="140" aria-label="Nota"><input id="st" placeholder="Etiquetas separadas por comas (opcional)" value="${esc(cur.tags.join(', '))}" aria-label="Etiquetas"><button class="btn fill" id="sv" style="width:100%;padding:12px">Guardar</button>`);
+  $('#sv').onclick=()=>{
+    const chk=[...document.querySelectorAll('#sheet [data-sv]')].map(c=>c.checked);
+    const ch=(list,want)=>{const has=list.includes(r.id);if(want&&!has){list.push(r.id);return 1}if(!want&&has){list.splice(list.indexOf(r.id),1);return -1}return 0};
+    wnotes[r.id]={note:$('#sn').value.trim(),tags:$('#st').value.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean).slice(0,8)};
+    opts.forEach((o,i)=>{const want=chk[i];
+      if(o.k=='w'){const d=ch(wish,want);if(d==1)persistWish(r.id);else if(d==-1)persistWish()}
+      else if(o.k[0]=='l'){const n=o.k.slice(2);if(ch(cats[n],want))persistList(n)}
+      else if(o.k[0]=='g'){const g=groups[+o.k.slice(2)];if(g&&ch(g.w,want))persistSpaceWish(g)}
+      else{const sp=chats[o.k.slice(2)];if(sp&&ch(sp.w,want))persistSpaceWish(sp)}});
+    const nn=$('#nl2').value.trim();if(nn){if(!cats[nn])cats[nn]=[];if(!cats[nn].includes(r.id))cats[nn].push(r.id);persistList(nn)}
+    hide();toast('Guardado');render()};
+}
+function persistPlace(sp,r,mg){if(!REAL)return;chain(sp,async()=>{try{await sp.ready;await ensureVenue(r);if(!r.dbid)return;const x=await sbx(sb.from('space_messages').insert({space_id:sp.dbid,user_id:ses.uid,body:'📍 '+r.n,venue_id:r.dbid}).select('id').single());mg.id=x.id}catch(e){toast('No se pudo enviar el local')}})}
+function sendSheet(r){
+  const rows=[...groups.map((g,i)=>({k:'g:'+i,l:'👥 '+g.n})),...Object.keys(chats).map(u=>({k:'c:'+u,l:'💬 '+u}))];
+  sheet(`<h2>Enviar ${esc(r.n)}</h2>${rows.length?`<p class="mute" style="margin-top:0">Elige a quién se lo mandas:</p>${rows.map((o,i)=>`<label class="row" style="margin-bottom:8px"><input type="checkbox" data-sd="${i}" style="width:auto;margin:0"> ${esc(o.l)}</label>`).join('')}<input id="sm" placeholder="Mensaje (opcional)" maxlength="140" aria-label="Mensaje"><button class="btn fill" id="sdb" style="width:100%;padding:12px">Enviar</button>`:'<p class="mute">Todavía no tienes grupos ni chats. Crea un grupo o abre un chat en la pestaña Social.</p>'}`);
+  if(!rows.length)return;
+  $('#sdb').onclick=()=>{const sel=[...document.querySelectorAll('#sheet [data-sd]:checked')].map(c=>rows[+c.dataset.sd]);if(!sel.length)return toast('Elige al menos un destino');
+    const txt=$('#sm').value.trim();
+    sel.forEach(o=>{const sp=o.k[0]=='g'?groups[+o.k.slice(2)]:chats[o.k.slice(2)];if(!sp)return;const mg={u:'Tú',pl:{id:r.id}};sp.msgs.push(mg);persistPlace(sp,r,mg);if(txt){const tm={u:'Tú',t:txt};sp.msgs.push(tm);persistMsg(sp,tm)}});
+    hide();toast('Enviado a '+sel.length+(sel.length>1?' chats':' chat'))};
 }
 function bindActs(root){
   root.querySelectorAll('[data-val]').forEach(b=>b.onclick=()=>newReview(rn(b.dataset.val)));
   root.querySelectorAll('[data-want]').forEach(b=>b.onclick=()=>saveSheet(rn(b.dataset.want)));
+  root.querySelectorAll('[data-snd]').forEach(b=>b.onclick=()=>sendSheet(rn(b.dataset.snd)));
   root.querySelectorAll('[data-det]').forEach(b=>b.onclick=()=>go(+b.dataset.det));
   root.querySelectorAll('.card[data-cd]').forEach(c=>c.onclick=e=>{if(e.target.closest('button,a'))return;go(+c.dataset.cd)});
 }
@@ -479,7 +509,7 @@ function placeDet(r){
   v.innerHTML=`<button class="btn" data-back>‹ Explorar</button>
   <div class="card" style="margin-top:12px"><div class="pad"><div class="row"><div class="av" style="background:${r.bg};width:58px;height:58px;font-size:30px">${r.e}</div><div style="flex:1;min-width:0"><h2 style="margin:0">${esc(r.n)}</h2><div class="mute">${esc(r.t)}${cu.length?' · '+esc(cu.join(', ')):''}</div></div></div>
   <div class="row" style="margin-top:10px;flex-wrap:wrap">${a!='–'?`<span class="sc">${a}</span><span class="mute">${posts.length} reseña${posts.length==1?'':'s'} en Ñam Ñam</span>`:'<span class="mute">Aún sin reseñas en Ñam Ñam</span>'}${stt?`<span class="tag" style="margin:0">${stt.open?'🟢':'🔴'} ${esc(stt.txt)}</span>`:''}</div></div>
-  <div class="pad row" style="flex-wrap:wrap;gap:8px;padding-top:0"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button>${have?`<a class="btn" href="${gm}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`:''}${ph?`<a class="btn" href="tel:${esc(ph.replace(/[^+\d]/g,''))}">Llamar</a>`:''}${web?`<a class="btn" href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener noreferrer">Web</a>`:''}<button class="btn" id="shr">Compartir</button></div></div>
+  <div class="pad row" style="flex-wrap:wrap;gap:8px;padding-top:0"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button><button class="btn" data-snd="${r.id}">Enviar</button>${have?`<a class="btn" href="${gm}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`:''}${ph?`<a class="btn" href="tel:${esc(ph.replace(/[^+\d]/g,''))}">Llamar</a>`:''}${web?`<a class="btn" href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener noreferrer">Web</a>`:''}<button class="btn" id="shr">Compartir</button></div></div>
   ${imgs.length?`<div class="card" style="overflow:hidden">${car({id:0,r:r.id,title:r.n,imgs},220,0)}</div>`:''}
   <div class="card pad">${line('📍',esc(r.addr||r.c||'Sin dirección registrada'))}${hrs?line('🕒',hoursHTML(h,hrs)):line('🕒','<span class="mute">Sin horario registrado</span>')}${ph?line('📞',esc(ph)):''}${web?line('🌐',esc(web.replace(/^https?:\/\//,''))):''}${mail?line('✉️',esc(mail)):''}${svc.length?line('✨',svc.map(x=>`<span class="tag">${esc(x)}</span>`).join('')):''}</div>
   ${have&&OSM?`<div id="dmap" style="height:200px;border-radius:16px;margin-bottom:12px;border:1px solid var(--line);isolation:isolate"></div>`:''}
@@ -495,7 +525,7 @@ function rExploreOSM(){
   <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn" id="near">Cerca de mí</button>${[['all','Todos'],['restaurant','Restaurantes'],['bar','Bares']].map(([k,t])=>`<button class="btn ${gfilter==k?'fill':''}" data-f="${k}" aria-pressed="${gfilter==k}">${t}</button>`).join('')}</div>
   <input id="gn" placeholder="Filtrar por nombre" value="${esc(gname)}" aria-label="Filtrar por nombre"><div class="seg"><button data-m="list" class="${mode=='list'?'on':''}">Lista</button><button data-m="map" class="${mode=='map'?'on':''}">Mapa</button></div><p class="mute" id="gnt" style="font-size:12px;margin:0 2px 8px"></p><div id="res"></div>
   <p class="mute" style="font-size:12px;margin-top:14px">Datos © colaboradores de OpenStreetMap (ODbL).</p>`;
-  const item=r=>`<div class="card pad" data-cd="${r.id}" style="cursor:pointer"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><button class="lnk" data-det="${r.id}"><b>${esc(r.n)}</b></button><div class="mute">${esc(r.addr||r.c||'Sin dirección registrada')}</div><div class="mute">${esc(r.t)}</div></div>${avg(r.id)!='–'?`<div class="sc">${avg(r.id)}</div>`:''}</div><div class="row" style="margin-top:10px"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button></div></div>`;
+  const item=r=>`<div class="card pad" data-cd="${r.id}" style="cursor:pointer"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><button class="lnk" data-det="${r.id}"><b>${esc(r.n)}</b></button><div class="mute">${esc(r.addr||r.c||'Sin dirección registrada')}</div><div class="mute">${esc(r.t)}</div></div>${avg(r.id)!='–'?`<div class="sc">${avg(r.id)}</div>`:''}</div><div class="row" style="margin-top:10px"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button><button class="btn" data-snd="${r.id}">Enviar</button></div></div>`;
   const run=async fn=>{$('#res').innerHTML='<p class="mute">Buscando bares y restaurantes…</p>';
     try{gres=await fn();gmsg=gres.length?'':'No hay bares ni restaurantes registrados en OpenStreetMap en esta zona.'}catch(e){gres=[];gmsg=e.message||'No se pudo buscar.'}draw()};
   const draw=async()=>{
@@ -538,18 +568,22 @@ function wishScreen(){
 }
 function catsScreen(){
   const ck=Object.keys(cats);
-  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Mis listas por tipo</h2>${ck.map((c,i)=>`<button class="card pad row sp" data-c="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(c)}</b><div class="mute">${cats[c].length} reseñas</div></div><span class="mute">›</span></button>`).join('')}<button class="btn fill" id="nl">+ Nueva lista</button>`;
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Mis listas</h2>${ck.length?ck.map((c,i)=>`<button class="card pad row sp" data-c="${i}" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer"><div><b>${esc(c)}</b><div class="mute">${cats[c].length} local${cats[c].length==1?'':'es'}</div></div><span class="mute">›</span></button>`).join(''):'<p class="mute">Aún no tienes listas. Crea la primera, por ejemplo «Italianos», y guarda en ella tus sitios.</p>'}<button class="btn fill" id="nl">+ Nueva lista</button>`;
   back();v.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>go(ck[b.dataset.c]));
-  $('#nl').onclick=()=>{sheet(`<h2>Nueva lista</h2><input id="ln" placeholder="Italianos, Asiáticos, Brunch…" aria-label="Nombre de la lista"><button class="btn fill" id="lb">Crear y elegir publicaciones</button>`);
+  $('#nl').onclick=()=>{sheet(`<h2>Nueva lista</h2><input id="ln" placeholder="Por ejemplo: Italianos" maxlength="40" aria-label="Nombre de la lista"><button class="btn fill" id="lb" style="width:100%;padding:12px">Crear lista</button>`);
     $('#lb').onclick=()=>{const q=$('#ln').value.trim();if(!q)return toast('Pon un nombre a la lista');if(cats[q])return toast('Esa lista ya existe');cats[q]=[];persistList(q);hide();go(q);$('#wa').click()}};
 }
 function rMe(){
-  if(typeof sub=='number')return postDet(feed.find(x=>x.id==sub),'Perfil');
+  if(typeof sub=='number')return postDet(feed.find(x=>x.id==sub),retTo?'Perfil de usuario':'Perfil');
   if(sub=='#wish')return wishScreen();
   if(sub=='#cats')return catsScreen();
   if(sub=='#notif')return notifScreen();
+  if(typeof sub=='string'&&sub[0]=='@')return userProfile(getUser(sub.slice(1)),()=>go('#notif'),'Notificaciones');
   if(sub!=null){
-    v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><h2 style="margin-top:12px">${esc(sub)}</h2><div id="bx"></div>`;
+    if(!cats[sub])return go('#cats');
+    v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><div class="row sp" style="margin:12px 0 4px"><h2 style="margin:0">${esc(sub)}</h2><div class="row"><button class="btn" id="lrn">Renombrar</button><button class="btn danger" id="ldl">Eliminar</button></div></div><div id="bx"></div>`;
+    $('#lrn').onclick=()=>{sheet(`<h2>Renombrar lista</h2><input id="lnn" value="${esc(sub)}" maxlength="40" aria-label="Nuevo nombre"><button class="btn fill" id="lnb" style="width:100%;padding:12px">Guardar nombre</button>`);$('#lnb').onclick=()=>{const nn=$('#lnn').value.trim();if(!nn)return toast('Pon un nombre');if(nn===sub)return hide();if(cats[nn])return toast('Ya tienes una lista con ese nombre');cats[nn]=cats[sub];delete cats[sub];renameListDb(sub,nn);hide();go(nn)}};
+    $('#ldl').onclick=()=>{sheet(`<h2>¿Eliminar la lista «${esc(sub)}»?</h2><p class="mute">Se borra la lista, no los locales ni tus reseñas.</p><div class="row"><button class="btn danger" id="ldy" style="flex:1">Eliminar</button><button class="btn" id="ldn" style="flex:1">Cancelar</button></div>`);$('#ldn').onclick=hide;$('#ldy').onclick=()=>{const nm=sub;deleteListDb(nm);delete cats[nm];hide();toast('Lista eliminada');go('#cats')}};
     $('[data-bk]').onclick=()=>go('#cats');return wishUI(cats[sub],$('#bx'),sub,true,()=>persistList(sub))}
   softRefresh('notif');
   const mp=feed.filter(p=>p.u=='Tú'),n=new Set(mp.map(p=>p.r)).size,a=mp.length?+(mp.reduce((t,p)=>t+p.s,0)/mp.length).toFixed(2):'–';
@@ -561,8 +595,8 @@ function rMe(){
   <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(+b.dataset.p));
   $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');if($('#bn'))$('#bn').onclick=()=>go('#notif');
-  $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button>`);
-    $('#lo').onclick=logout;if($('#lg'))$('#lg').onclick=()=>REAL?linkReal():googleSim(true);
+  $('#ed').onclick=()=>{sheet(`<h2>Editar perfil</h2><input id="en" value="${esc(me.name)}" aria-label="Nombre"><textarea id="eb" rows="3" aria-label="Bio">${esc(me.bio)}</textarea><label class="row" style="margin-bottom:12px"><input type="checkbox" id="ep" ${me.pub?'checked':''} style="width:auto;margin:0"> Perfil público (tus reseñas salen en Descubrir)</label><div class="card pad" style="margin-bottom:12px"><div class="mute">Cuenta</div><b>${ses?esc(ses.email):''}</b><div class="row sp" style="margin-top:8px"><span class="mute">Google: ${ses&&ses.g?'vinculada ✓':'sin vincular'}</span>${ses&&ses.g?'':'<button class="btn" id="lg">Vincular Google</button>'}</div></div><button class="btn fill" id="es" style="width:100%;padding:12px;margin-bottom:10px">Guardar cambios</button><button class="btn" id="lo" style="width:100%">Cerrar sesión</button><button class="btn danger" id="dp" style="width:100%;margin-top:14px">Borrar perfil</button>`);
+    $('#lo').onclick=logout;$('#dp').onclick=deleteProfileSheet;if($('#lg'))$('#lg').onclick=()=>REAL?linkReal():googleSim(true);
     $('#es').onclick=()=>{me.name=$('#en').value||me.name;me.bio=$('#eb').value;me.pub=$('#ep').checked;saveProfile();hide();toast('Cambios guardados');render()}};
 }
 function shareSheet(p,tg){
@@ -612,7 +646,7 @@ function newReview(pre){
 }
 $('#fab').onclick=()=>newReview();
 $('#modal').onclick=e=>{if(e.target.id=='modal'&&!forceSheet)hide()};
-document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;go(null)});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;retTo=null;go(null)});
 $('#th').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()=='#0F1715';d.dataset.theme=dark?'light':'dark'};
 
 const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg>`;
@@ -636,6 +670,7 @@ const SERR=e=>{const m=((e&&e.message)||'').toLowerCase(),c=(e&&(e.code||e.error
   if(m.includes('not confirmed'))return 'Confirma tu correo antes de iniciar sesión. Te hemos enviado un enlace.';
   if(m.includes('database error saving new user'))return 'Supabase no pudo crear tu perfil. Ejecuta el SQL parte 1 completo (tabla profiles y trigger on_auth_user_created) y vuelve a probar.';
   if(c=='PGRST202'||m.includes('could not find the function'))return 'Falta el SQL parte 1 en Supabase (función username_available).';
+  if(m.includes('schema cache'))return 'Falta actualizar la base de datos: ejecuta el SQL parte 3 y parte 4 del README (archivo supabase_parte3_y_4.sql) en Supabase y vuelve a probar.';
   if(m.includes('invalid api key')||m.includes('invalid jwt')||m.includes('no api key'))return 'La clave de Supabase no es válida. Copia otra vez la clave publishable/anon del mismo proyecto.'+keyHint();
   if(m.includes('signups not allowed')||m.includes('signup is disabled'))return 'Los registros nuevos están desactivados en Supabase («Allow new users to sign up»).';
   if(m.includes('error sending'))return 'Supabase no pudo enviar el correo de confirmación. Para la beta desactiva «Confirm email» (Authentication → Sign In / Providers → Email).';
@@ -728,7 +763,7 @@ async function loadSpaces(){
   const [sps,mem,msgs,srv,swi]=await Promise.all([sbx(sb.from('spaces').select('*').in('id',ids)),sbx(sb.from('space_members').select('space_id,user_id').in('space_id',ids)),sbx(sb.from('space_messages').select('*').in('space_id',ids).order('id',{ascending:false}).limit(500)),sbx(sb.from('space_reviews').select('space_id,review_id').in('space_id',ids)),sbx(sb.from('space_wish').select('*').in('space_id',ids).order('position'))]);
   const rids=[...new Set([...srv.map(x=>x.review_id),...msgs.map(m=>m.review_id).filter(Boolean)])];
   const rvs=rids.length?await sbx(sb.from('reviews').select('*').in('id',rids)):[];
-  await Promise.all([profilesById([...mem.map(x=>x.user_id),...msgs.map(m=>m.user_id),...rvs.map(r=>r.user_id)]),venuesById([...rvs.map(r=>r.venue_id),...swi.map(w=>w.venue_id)])]);
+  await Promise.all([profilesById([...mem.map(x=>x.user_id),...msgs.map(m=>m.user_id),...rvs.map(r=>r.user_id)]),venuesById([...rvs.map(r=>r.venue_id),...swi.map(w=>w.venue_id),...msgs.map(m=>m.venue_id).filter(Boolean)])]);
   const RV=Object.fromEntries(rvs.map(r=>[r.id,r]));
   sps.sort((a,b)=>a.id-b.id).forEach(s=>{
     const m=mem.filter(x=>x.space_id==s.id&&x.user_id!=ses.uid).map(x=>uname(x.user_id));
@@ -738,6 +773,7 @@ async function loadSpaces(){
     swi.filter(x=>x.space_id==s.id).forEach(x=>{if(VC[x.venue_id])sp.w.push(VC[x.venue_id].id)});
     msgs.filter(x=>x.space_id==s.id).sort((a,b)=>a.id-b.id).forEach(x=>{sp.lastId=Math.max(sp.lastId,x.id);
       if(x.review_id){const rw=RV[x.review_id];if(rw)sp.msgs.push({id:x.id,u:uname(x.user_id),rv:{id:VC[rw.venue_id].id,s:+rw.rating,title:rw.title,nw:!!x.is_new}})}
+      else if(x.venue_id){if(VC[x.venue_id])sp.msgs.push({id:x.id,u:uname(x.user_id),pl:{id:VC[x.venue_id].id}})}
       else sp.msgs.push({id:x.id,u:uname(x.user_id),t:x.body})});
     if(s.kind=='dm')chats[sp.n]=sp;else groups.push(sp)})}
 function createSpaceDB(sp,memberIds,kind){
@@ -761,12 +797,16 @@ function persistWishOrder(){if(!REAL||!ses)return;chain('wo',async()=>{try{const
 function persistList(name){if(!REAL||!ses)return;chain('l:'+name,async()=>{try{
   if(!ldb[name]){const d=await sbx(sb.from('lists').upsert({user_id:ses.uid,name},{onConflict:'user_id,name'}).select('id').single());ldb[name]=d.id}
   await sbx(sb.from('list_items').delete().eq('list_id',ldb[name]));
-  const rows=(cats[name]||[]).filter(id=>feed.some(p=>p.id==id)).map((id,i)=>({list_id:ldb[name],review_id:id,position:i}));
+  const rows=[],L=cats[name]||[];for(let i=0;i<L.length;i++){const r=rn(L[i]);if(!r)continue;await ensureVenue(r);if(r.dbid)rows.push({list_id:ldb[name],venue_id:r.dbid,position:i})}
   if(rows.length)await sbx(sb.from('list_items').insert(rows))}catch(e){toast('No se pudo guardar la lista')}})}
+function deleteListDb(name){if(!REAL||!ses||!ldb[name])return;const id=ldb[name];delete ldb[name];sb.from('lists').delete().eq('id',id).then(r=>{if(r.error)toast('No se pudo borrar la lista')})}
+function renameListDb(old,nw){if(!REAL||!ses||!ldb[old])return;ldb[nw]=ldb[old];delete ldb[old];sb.from('lists').update({name:nw}).eq('id',ldb[nw]).then(r=>{if(r.error)toast('No se pudo renombrar la lista')})}
 async function loadLists(){
   const ls=await sbx(sb.from('lists').select('*').eq('user_id',ses.uid));ldb={};
+  Object.keys(cats).forEach(k=>delete cats[k]);
   const its=ls.length?await sbx(sb.from('list_items').select('*').in('list_id',ls.map(l=>l.id)).order('position')):[];
-  ls.forEach(l=>{ldb[l.name]=l.id;cats[l.name]=its.filter(x=>x.list_id==l.id).map(x=>x.review_id)})}
+  await venuesById(its.map(x=>x.venue_id).filter(Boolean));
+  ls.forEach(l=>{ldb[l.name]=l.id;cats[l.name]=its.filter(x=>x.list_id==l.id&&x.venue_id&&VC[x.venue_id]).map(x=>VC[x.venue_id].id)})}
 async function loadNotifs(){
   const rows=await sbx(sb.from('notifications').select('*').eq('user_id',ses.uid).order('id',{ascending:false}).limit(40));
   await profilesById(rows.map(r=>r.from_user));const rids=rows.map(r=>r.review_id).filter(Boolean);
@@ -786,7 +826,7 @@ function notifScreen(){
   v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Notificaciones</h2>`+(notifs.length?notifs.map(n=>`<div class="card pad" data-n="${esc(n.id)}" style="cursor:pointer"><div class="row">${av(n.fu||n.u)}<div style="flex:1;min-width:0"><b>${esc(n.u)}</b> ${esc(txt(n))}<div class="mute">${n.w}${n.read?'':' · nueva'}</div></div></div>${acts(n)?`<div class="row" style="margin-top:10px;justify-content:flex-end">${acts(n)}</div>`:''}</div>`).join(''):'<p class="mute">No tienes notificaciones.</p>');
   back();
   const nOf=id=>notifs.find(x=>String(x.id)==String(id));
-  v.querySelectorAll('.card[data-n]').forEach(c=>c.onclick=e=>{if(e.target.closest('button'))return;const n=nOf(c.dataset.n);if(!n)return;if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else if(n.fu)sheetUser(uOf(n))});
+  v.querySelectorAll('.card[data-n]').forEach(c=>c.onclick=e=>{if(e.target.closest('button'))return;const n=nOf(c.dataset.n);if(!n)return;if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else if(n.fu){upReg(uOf(n));go('@'+n.fu)}});
   v.querySelectorAll('[data-ac]').forEach(b=>b.onclick=async()=>{try{await acceptReq(nOf(b.dataset.ac));toast('Solicitud aceptada')}catch(e){toast(e.message)}notifScreen()});
   v.querySelectorAll('[data-dc]').forEach(b=>b.onclick=async()=>{try{await declineReq(nOf(b.dataset.dc));toast('Solicitud rechazada')}catch(e){toast(e.message)}notifScreen()});
   v.querySelectorAll('[data-fb]').forEach(b=>b.onclick=async()=>{const n=nOf(b.dataset.fb),u=uOf(n);if(FW.includes(u.user)||PEND.has(u.user))return;try{await setFollow(u,true);toast(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name)}catch(e){toast(e.message)}notifScreen()});
@@ -802,7 +842,7 @@ async function pollSpace(sp){
   try{const rows=await sbx(sb.from('space_messages').select('*').eq('space_id',sp.dbid).gt('id',sp.lastId||0).order('id'));
     if(!rows.length)return;sp.lastId=Math.max(...rows.map(r=>r.id));
     const others=rows.filter(r=>r.user_id!==ses.uid);if(!others.length)return;
-    if(others.some(r=>r.review_id)){const id=sp.dbid,dm=sp.kind=='dm',nm=sp.n;await loadSpaces();const ns=dm?chats[nm]:groups.find(g=>g.dbid==id);if(ns)sub=dm?nm:groups.indexOf(ns)}
+    if(others.some(r=>r.review_id||r.venue_id)){const id=sp.dbid,dm=sp.kind=='dm',nm=sp.n;await loadSpaces();const ns=dm?chats[nm]:groups.find(g=>g.dbid==id);if(ns)sub=dm?nm:groups.indexOf(ns)}
     else{await profilesById(others.map(r=>r.user_id));others.forEach(r=>sp.msgs.push({id:r.id,u:uname(r.user_id),t:r.body}))}
     const x=$('#mi')?$('#mi').value:'';render();if($('#mi'))$('#mi').value=x}catch(e){}}
 let uq='',ures=null,umsg='';
@@ -811,6 +851,34 @@ async function findUsers(q){
   if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub').or(`username.ilike.*${t}*,name.ilike.*${t}*`).neq('id',ses.uid).limit(20));
     return rows.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
   return Object.entries(accts).filter(([e,a])=>e!==ses.email&&((a.name||'').toLowerCase().includes(t)||(a.user||'').toLowerCase().includes(t))).slice(0,20).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:a.pub!==false}))}
+const UP={};let upData={},retTo=null;
+const upReg=u=>{UP[u.user]=u;return u},getUser=n=>UP[n]||PROF[n];
+async function loadUserPosts(u){
+  const rows=await sbx(sb.from('reviews').select('*').eq('user_id',u.id).eq('in_feed',true).order('created_at',{ascending:false}).limit(60));
+  if(!rows.length)return;
+  await Promise.all([profilesById(rows.map(r=>r.user_id)),venuesById(rows.map(r=>r.venue_id))]);
+  const ids=rows.map(r=>r.id),[lk,cm]=await Promise.all([sbx(sb.from('review_likes').select('review_id,user_id').in('review_id',ids)),sbx(sb.from('review_comments').select('review_id').in('review_id',ids))]);
+  rows.forEach(rw=>{if(!feed.some(p=>p.id==rw.id))feed.push(toPost(rw,lk,cm))})}
+async function userProfileLoad(u){
+  const d=upData[u.user]=upData[u.user]||{};
+  try{if(u.pub!==false||FW.includes(u.user))await loadUserPosts(u);
+    const r=await sb.rpc('follow_counts',{uid:u.id});if(!r.error&&r.data){const x=Array.isArray(r.data)?r.data[0]:r.data;if(x){d.fr=+x.followers;d.fg=+x.following}}}catch(e){}
+  d.done=true}
+function userProfile(u,backFn,backLabel){
+  if(!u)return go(null);
+  const d=upData[u.user]=upData[u.user]||{},canSee=u.pub!==false||FW.includes(u.user);
+  if(REAL&&!d.started){d.started=true;userProfileLoad(u).then(()=>{if(sub=='@'+u.user)render()})}
+  const posts=feed.filter(p=>p.u==u.user),f=FW.includes(u.user),pe=PEND.has(u.user);
+  v.innerHTML=`<button class="btn" data-back>‹ ${esc(backLabel)}</button>
+  <div class="row" style="margin:12px 2px">${av(u.user,72)}<div><b style="font-size:20px">${esc(u.name)}</b><div class="mute">@${esc(u.user)} · ${u.pub===false?'Perfil privado':'Perfil público'}</div></div></div>
+  <p style="margin:6px 2px">${u.bio?esc(u.bio):'<span class="mute">Sin bio.</span>'}</p>
+  <div class="stats"><div><b>${canSee?posts.length:'–'}</b><span class="mute">reseñas</span></div><div><b>${d.fr!=null?d.fr:'–'}</b><span class="mute">seguidores</span></div><div><b>${d.fg!=null?d.fg:'–'}</b><span class="mute">siguiendo</span></div></div>
+  <div class="row" style="margin-bottom:14px"><button class="btn ${f||pe?'':'fill'}" id="upf" style="flex:1;padding:12px">${f?'Siguiendo':pe?'Solicitado':u.pub===false?'Solicitar seguir':'Seguir'}</button>${f?'<button class="btn" id="upm" style="flex:1;padding:12px">Mensaje</button>':''}</div>`+
+  (canSee?`<h2>Reseñas</h2>${posts.length?`<div class="grid">${posts.map(p=>`<button data-up="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:(d.done||!REAL?'<p class="mute">Todavía no ha publicado reseñas.</p>':'<p class="mute">Cargando reseñas…</p>')}`:`<div class="card pad" style="text-align:center"><div style="font-size:30px">🔒</div><b>Esta cuenta es privada</b><p class="mute" style="margin:6px 0 0">Sigue a ${esc(u.name)} y espera a que acepte tu solicitud para ver sus reseñas y fotos.</p></div>`)+'<div style="height:60px"></div>';
+  v.querySelector('[data-back]').onclick=()=>{retTo=null;backFn()};
+  $('#upf').onclick=async()=>{const on=!(FW.includes(u.user)||PEND.has(u.user));try{await setFollow(u,on);toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Listo')}catch(e){toast(e.message)}if(on&&u.pub!==false)d.started=false;render()};
+  if($('#upm'))$('#upm').onclick=()=>{ensureChat(u.user);tab='social';sg='c';go(u.user)};
+  v.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{retTo='@'+u.user;go(+b.dataset.up)})}
 let sugg=null;
 async function findSuggested(){
   if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub,created_at').eq('pub',true).neq('id',ses.uid).order('created_at',{ascending:false}).limit(30));
@@ -864,7 +932,7 @@ function usersUI(){
   const bind=()=>{
     box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=async()=>{const u=pool().find(x=>x.user==b.dataset.fo),on=!(FW.includes(u.user)||PEND.has(u.user));b.disabled=true;
       try{await setFollow(u,on);toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Listo')}catch(e){toast(e.message)}draw()});
-    box.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>sheetUser(pool().find(x=>x.user==b.dataset.pu)))};
+    box.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{const u=pool().find(x=>x.user==b.dataset.pu);upReg(u);go('@'+u.user)})};
   const draw=()=>{
     if(ures===null&&!umsg){
       box.innerHTML=sugg===null?'<p class="mute">Cargando personas…</p>':sugg.length?`<h2 style="margin:4px 2px 10px;font-size:17px">Personas para seguir</h2>${sugg.map(card).join('')}`:'<p class="mute">Todavía no hay otras personas con perfil público.</p>';
@@ -947,7 +1015,27 @@ async function saveProfile(){
   if(!ses)return;ses.name=me.name;ses.bio=me.bio;ses.pub=me.pub;
   if(REAL){try{await sbx(sb.from('profiles').update({name:me.name,bio:me.bio,pub:me.pub}).eq('id',ses.uid))}catch(e){toast('No se pudo guardar en la base de datos')}}
   else if(accts[ses.email]){Object.assign(accts[ses.email],{name:me.name,bio:me.bio,pub:me.pub});store()}}
-function resetData(){PEND.clear();INC.clear();sugg=null;gres=[];gmsg='';gnote='';autoTried=false;notifs=[];ldb={};Object.keys(PC).forEach(k=>delete PC[k]);Object.keys(VC).forEach(k=>delete VC[k]);lastLoad.feed=0;lastLoad.spaces=0;clearInterval(pollT);pollT=null;FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
+function resetData(){Object.keys(UP).forEach(k=>delete UP[k]);upData={};retTo=null;PEND.clear();INC.clear();sugg=null;gres=[];gmsg='';gnote='';autoTried=false;notifs=[];ldb={};Object.keys(PC).forEach(k=>delete PC[k]);Object.keys(VC).forEach(k=>delete VC[k]);lastLoad.feed=0;lastLoad.spaces=0;clearInterval(pollT);pollT=null;FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
+const clearLocal=()=>{['nn_loc','nn_loc_ok','nn_pub_pending'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}})};
+async function deleteAccount(){
+  if(REAL){
+    const chk=await sb.rpc('follow_counts',{uid:ses.uid});
+    if(chk.error&&/could not find the function/i.test(chk.error.message||''))throw E('Falta ejecutar el SQL parte 4 en Supabase (archivo supabase_parte3_y_4.sql). No se ha borrado nada.');
+    const rows=await sbx(sb.from('reviews').select('photos').eq('user_id',ses.uid));
+    const paths=[...new Set(rows.flatMap(r=>r.photos||[]))];
+    for(let i=0;i<paths.length;i+=50){try{await sb.storage.from('review-photos').remove(paths.slice(i,i+50))}catch(e){}}
+    const {error}=await sb.rpc('delete_my_account');
+    if(error){console.error('Supabase:',error);throw E(SERR(error))}
+    try{await sb.auth.signOut()}catch(e){}}
+  else{const em=ses.email;delete accts[em];Object.values(accts).forEach(a=>{a.following=(a.following||[]).filter(x=>x!==em);a.seenF=(a.seenF||[]).filter(x=>x!==em)});store();try{localStorage.removeItem('nn_sess')}catch(e){}}}
+function deleteProfileSheet(){
+  const un=ses.user;
+  sheet(`<h2 style="color:#D92D20">Borrar perfil</h2><p>Se eliminarán <b>para siempre</b> tu cuenta, tus reseñas y fotos, comentarios, likes, listas, mensajes, seguidores y tu nombre de usuario <b>@${esc(un)}</b>. Esta acción no se puede deshacer.</p><p class="mute" style="margin-bottom:6px">Escribe tu nombre de usuario para confirmar:</p><input id="dpu" placeholder="${esc(un)}" autocomplete="off" aria-label="Nombre de usuario para confirmar"><div id="dperr" role="alert" class="aerr"></div><button class="btn danger" id="dpb" style="width:100%;padding:12px" disabled>Borrar definitivamente</button><button class="btn" id="dpc" style="width:100%;margin-top:8px">Cancelar</button>`);
+  $('#dpu').oninput=()=>{$('#dpb').disabled=$('#dpu').value.trim().toLowerCase().replace(/^@/,'')!==un};
+  $('#dpc').onclick=hide;
+  $('#dpb').onclick=async()=>{$('#dpb').disabled=true;$('#dpb').textContent='Borrando…';
+    try{await deleteAccount();hide();resetData();clearLocal();showAuth();$('#aerr').textContent='✓ Tu perfil y todos tus datos se han eliminado.'}
+    catch(e){$('#dperr').textContent='⚠ '+e.message;$('#dpb').disabled=false;$('#dpb').textContent='Borrar definitivamente'}}}
 async function logout(){hide();resetData();if(REAL){try{await sb.auth.signOut()}catch(e){}}else{try{localStorage.removeItem('nn_sess')}catch(e){}}showAuth()}
 function googleSim(link){
   sheet(`<h2>Continuar con Google</h2><p class="mute" style="margin-top:0">Simulación: con Firebase conectado se abre la ventana oficial de Google.</p><input id="ge" type="email" placeholder="tucuenta@gmail.com" autocomplete="email" aria-label="Cuenta de Google"><div id="gerr" role="alert" class="aerr"></div><button class="btn fill" id="gc" style="width:100%;padding:12px">${link?'Vincular cuenta':'Continuar'}</button>`);
@@ -1006,7 +1094,7 @@ async function boot(){
     return}
   let e=null;try{e=localStorage.getItem('nn_sess')}catch(x){}
   if(e&&accts[e])demoEnter(e)}
-$('#hp').onclick=()=>{if(ses){tab='me';go(null)}};
+$('#hp').onclick=()=>{if(ses){tab='me';retTo=null;go(null)}};
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')locSample()});
 render();boot();
 
