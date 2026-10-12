@@ -101,6 +101,14 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 .lk.sm{font-weight:500;font-size:13px}
 .mk{font-size:18px;background:#fff;border:2px solid #0E6F73;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.35)}
 </style>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#0E6F73">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ñam Ñam">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="./icons/icon-192.png">
 </head>
 <body>
 <div id="app">
@@ -122,7 +130,7 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
    Déjalo así para el modo demostración, o rellénalo para el modo real (mira README.md). */
 const CONFIG={
   OSM:true,      // true = mapa de OpenStreetMap (Leaflet) + bares y restaurantes reales (Overpass)
-  SUPABASE:{url:'https://lpegejsiwisuqbrkhprb.supabase.co', key:'sb_publishable_d5VOX5EgxLSqQkHTJImicg_puZOuJft!'} //= cuentas y base de datos
+  SUPABASE:null   // {url:'https://xxxx.supabase.co', key:'tu_clave_publicable'} = cuentas y base de datos
 };
 const R=[];
 const me={name:'',user:'',bio:'',pub:true,fr:0,fg:0};
@@ -532,23 +540,35 @@ const store=()=>{try{localStorage.setItem('nn_accts',JSON.stringify(accts))}catc
 const sha=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent(t)))}};
 const lock=on=>document.querySelectorAll('#app>header,#app>main,#app>nav,#fab').forEach(e=>e.inert=on);
 const E=m=>new Error(m);
-const SBU='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js';
+const SBU='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.1';
 async function sbInit(){
   if(!window.supabase)await new Promise((res,rej)=>{const sc=document.createElement('script');sc.src=SBU;sc.onload=res;sc.onerror=()=>rej(new Error('supabase'));document.head.appendChild(sc)});
   sb=window.supabase.createClient(CONFIG.SUPABASE.url,CONFIG.SUPABASE.key)}
-const SERR=e=>{const m=((e&&e.message)||'').toLowerCase();
+const SERR=e=>{const m=((e&&e.message)||'').toLowerCase(),c=(e&&(e.code||e.error_code))||'';
   if(m.includes('invalid login'))return 'Correo o contraseña incorrectos.';
   if(m.includes('already registered')||m.includes('already been registered'))return 'Ya existe una cuenta con ese correo.';
   if(m.includes('not confirmed'))return 'Confirma tu correo antes de iniciar sesión. Te hemos enviado un enlace.';
-  if(m.includes('password'))return 'La contraseña no es válida (mínimo 6 caracteres).';
-  if(m.includes('rate limit')||m.includes('too many'))return 'Demasiados intentos. Prueba en unos minutos.';
-  if(m.includes('fetch')||m.includes('network'))return 'Sin conexión. Revisa tu red.';
+  if(m.includes('database error saving new user'))return 'Supabase no pudo crear tu perfil. Ejecuta el SQL parte 1 completo (tabla profiles y trigger on_auth_user_created) y vuelve a probar.';
+  if(c=='PGRST202'||m.includes('could not find the function'))return 'Falta el SQL parte 1 en Supabase (función username_available).';
+  if(m.includes('invalid api key')||m.includes('invalid jwt')||m.includes('no api key'))return 'La clave de Supabase no es válida. Copia otra vez la clave publishable/anon del mismo proyecto.';
+  if(m.includes('signups not allowed')||m.includes('signup is disabled'))return 'Los registros nuevos están desactivados en Supabase («Allow new users to sign up»).';
+  if(m.includes('error sending'))return 'Supabase no pudo enviar el correo de confirmación. Para la beta desactiva «Confirm email» (Authentication → Sign In / Providers → Email).';
+  if(m.includes('rate limit')||m.includes('too many')||m.includes('over_email'))return 'Se ha superado el límite de correos o de intentos. Desactiva «Confirm email» en Supabase para la beta, o espera unos minutos.';
+  if(m.includes('permission denied for function'))return 'Falta un permiso en Supabase. Ejecuta en el SQL Editor: grant execute on function public.username_available(text) to anon, authenticated;';
+  if(c=='42501'||m.includes('row-level security')||m.includes('permission denied'))return 'Faltan permisos en la base de datos (reglas RLS). Comprueba que ejecutaste todo el SQL.';
+  if(m.includes('password')&&(m.includes('least')||m.includes('weak')||m.includes('short')))return 'La contraseña es demasiado corta o débil (mínimo 6 caracteres).';
+  if(m.includes('failed to fetch')||m.includes('networkerror')||m.includes('network request'))return 'No se pudo conectar con Supabase. Revisa la URL del proyecto y tu conexión.';
   if(m.includes('identity')&&m.includes('already'))return 'Esa cuenta de Google ya está vinculada a otro usuario.';
-  return 'Ha ocurrido un error. Inténtalo de nuevo.'};
-const sbx=async p=>{const {data,error}=await p;if(error)throw E(SERR(error));return data};
+  if(m.includes('provider is not enabled')||m.includes('unsupported provider'))return 'Google no está activado en Supabase (Authentication → Sign In / Providers → Google).';
+  return 'No se pudo completar la acción'+(e&&e.message?' ('+e.message+')':'')+'.'};
+const sbx=async p=>{const {data,error}=await p;if(error){console.error('Supabase:',error);throw E(SERR(error))}return data};
 const here=()=>location.origin+location.pathname;
 async function afterSession(user){
-  const p=await sbx(sb.from('profiles').select('*').eq('id',user.id).single());
+  let p;
+  try{p=await sbx(sb.from('profiles').select('*').eq('id',user.id).single())}
+  catch(e){const md=user.user_metadata||{},base=String(md.username||(user.email||'usuario').split('@')[0]).toLowerCase().replace(/[^a-z0-9._]/g,'').slice(0,16)||'usuario';
+    let un=base.length<3?base+'user':base;for(let i=1;i<6;i++){const x=await sb.rpc('username_available',{u:un});if(x.error||x.data)break;un=base+i}
+    p=await sbx(sb.from('profiles').insert({id:user.id,username:un,name:md.name||md.full_name||base}).select('*').single())}
   ses={uid:user.id,email:user.email,name:p.name,user:p.username,bio:p.bio||'',pub:p.pub!==false,g:(user.identities||[]).some(i=>i.provider=='google')};
   PC[ses.uid]={id:ses.uid,username:ses.user,name:ses.name,pub:ses.pub};enterApp();
   const safe=fn=>fn().catch(()=>toast('No se pudieron cargar algunos datos'));
@@ -725,7 +745,8 @@ function demoEnter(email){ses={...accts[email],email};try{localStorage.setItem('
 function showAuth(){ses=null;amode='in';authView();$('#auth').style.display='flex';lock(true)}
 async function authRegister(d){
   if(REAL){
-    if(!(await sbx(sb.rpc('username_available',{u:d.user}))))throw E('Ese nombre de usuario no está disponible.');
+    let free=true;try{const x=await sb.rpc('username_available',{u:d.user});if(!x.error&&x.data===false)free=false}catch(e){}
+    if(!free)throw E('Ese nombre de usuario no está disponible.');
     const r=await sbx(sb.auth.signUp({email:d.email,password:d.pw,options:{data:{name:d.name,username:d.user},emailRedirectTo:here()}}));
     if(r.user&&r.user.identities&&!r.user.identities.length)throw E('Ya existe una cuenta con ese correo.');
     if(!r.session){amode='in';authView();$('#aerr').textContent='✉ Te hemos enviado un correo para confirmar tu cuenta. Después podrás iniciar sesión.'}
@@ -741,7 +762,35 @@ async function authLogin(email,pw){
 async function authReset(email){
   if(!REAL)throw E('El envío de correos se activa al conectar Supabase.');
   await sbx(sb.auth.resetPasswordForEmail(email,{redirectTo:here()}))}
-async function authGoogleReal(err){try{await sbx(sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:here()}}))}catch(e){err(e.message)}}
+let sbSettings=null;
+async function sbGetSettings(){
+  if(sbSettings)return sbSettings;
+  const r=await fetch(CONFIG.SUPABASE.url.trim().replace(/\/+$/,'')+'/auth/v1/settings',{headers:{apikey:CONFIG.SUPABASE.key}});
+  if(!r.ok){const e=new Error('http '+r.status);e.status=r.status;throw e}
+  sbSettings=await r.json();return sbSettings}
+async function authGoogleReal(err){
+  try{const st=await sbGetSettings().catch(()=>null);
+    if(st&&st.external&&st.external.google===false)return err('Google no está activado en tu Supabase: ve a Authentication → Sign In / Providers → Google, actívalo y pega el Client ID y el Secret.');
+    await sbx(sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:here()}}))}catch(e){err(e.message)}}
+async function diagnose(){
+  const L=[],ok=t=>L.push(['✅',t]),warn=t=>L.push(['⚠️',t]),bad=t=>L.push(['❌',t]);
+  const u=(CONFIG.SUPABASE.url||'').trim(),k=(CONFIG.SUPABASE.key||'').trim();
+  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(u))warn('La URL «'+u+'» no tiene el formato https://TU-PROYECTO.supabase.co (sin barra final ni rutas). Si usas un dominio propio, ignora este aviso.');else ok('La URL del proyecto tiene buen formato.');
+  if(!k)bad('Falta la clave pública en CONFIG.SUPABASE.key.');
+  else if(/^sb_secret_/.test(k))bad('Estás usando una clave SECRETA. Cámbiala ya por la clave publishable/anon y regenérala en Supabase (Project Settings → API).');
+  else{let role='';try{if(k.startsWith('eyJ'))role=JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role}catch(e){}
+    if(role=='service_role')bad('Estás usando la clave service_role (secreta). Cámbiala por la anon/publishable y regenérala.');else ok('La clave es de tipo público.')}
+  let st=null;
+  try{sbSettings=null;st=await sbGetSettings();ok('Se conecta con tu proyecto y la clave es válida.')}
+  catch(e){if(e.status==401||e.status==403)bad('Supabase rechaza la clave (error '+e.status+'). Copia otra vez la clave publishable/anon del MISMO proyecto.');else if(e.status)bad('Supabase respondió con el error '+e.status+'. Revisa la URL del proyecto.');else bad('No se puede conectar con '+u+'. Revisa la URL y tu conexión.')}
+  if(st){
+    if(st.external&&st.external.email)ok('El registro con correo está activado.');else bad('El registro con correo está desactivado (Authentication → Sign In / Providers → Email).');
+    if(st.disable_signup)bad('Los registros nuevos están desactivados en Supabase («Allow new users to sign up»).');
+    if(st.mailer_autoconfirm)ok('No hace falta confirmar el correo.');else warn('«Confirm email» está activado: hay que confirmar el correo tras registrarse y el plan gratuito envía muy pocos. Para la beta, desactívalo (Authentication → Sign In / Providers → Email).');
+    if(st.external&&st.external.google)ok('Google está activado.');else warn('Google NO está activado (Authentication → Sign In / Providers → Google).')}
+  if(sb){try{const r=await sb.rpc('username_available',{u:'diagnostico_zz'});if(r.error){const em=r.error.message||'';if(r.status==401||r.error.code=='42501'||/permission denied/i.test(em))bad('La función username_available existe pero el acceso sin sesión está bloqueado (error '+(r.status||401)+'). Ejecuta en el SQL Editor: grant execute on function public.username_available(text) to anon, authenticated;');else bad('Falta el SQL parte 1 o no se ejecutó entero: '+em)}else ok('El SQL parte 1 está instalado.')}catch(e){bad('No se pudo comprobar el SQL.')}}
+  ok('Dirección de esta página: '+location.origin+location.pathname+' (debe figurar en Site URL y Redirect URLs de Supabase).');
+  sheet(`<h2>Comprobación de conexión</h2>${L.map(([i,t])=>`<p style="margin:0 0 10px">${i} ${esc(t)}</p>`).join('')}<button class="btn" id="dc" style="width:100%">Cerrar</button>`);$('#dc').onclick=hide}
 async function linkReal(){try{await sbx(sb.auth.linkIdentity({provider:'google',options:{redirectTo:here()}}))}catch(e){toast(e.message)}}
 async function saveProfile(){
   if(!ses)return;ses.name=me.name;ses.bio=me.bio;ses.pub=me.pub;
@@ -771,7 +820,7 @@ function authView(){
   <div id="aerr" role="alert" class="aerr" style="margin-top:10px"></div>
   ${up?'':`<div class="or"><span>O</span></div><button class="btn gbtn" id="gg">${GICON} Iniciar sesión con Google</button><div style="margin-top:14px"><button class="lk sm" id="fp">¿Has olvidado tu contraseña?</button></div>`}
   </div><div class="igc s">${up?'¿Tienes una cuenta?':'¿No tienes una cuenta?'} <button class="lk" data-am="${up?'in':'up'}">${up?'Inicia sesión':'Regístrate'}</button></div>
-  ${REAL?'':'<p class="mute" style="text-align:center;font-size:12px">Modo demostración: las cuentas se guardan solo en este navegador. Conecta Firebase para guardarlas en una base de datos real.</p>'}</div>`;
+  ${REAL?'<p style="text-align:center;margin:6px 0"><button class="lk sm" id="dg0">¿Problemas para entrar? Comprobar conexión</button></p>':'<p class="mute" style="text-align:center;font-size:12px">Modo demostración: las cuentas se guardan solo en este navegador. Conecta Supabase para guardarlas en una base de datos real.</p>'}</div>`;
   const val=()=>({email:$('#ae').value.trim().toLowerCase(),pw:$('#ap').value,name:up?$('#an').value.trim():'',user:up?$('#au').value.trim():''});
   const ok=()=>{const d=val();return /^\S+@\S+\.\S+$/.test(d.email)&&d.pw.length>=6&&(!up||(d.name&&/^[a-z0-9._]{3,20}$/.test(d.user)))};
   const chk=()=>{$('#as').disabled=!ok()};
@@ -787,21 +836,26 @@ function authView(){
   if(!up)$('#fp').onclick=async()=>{const m=$('#ae').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(m))return err('Escribe tu correo arriba y vuelve a pulsar.');
     try{await authReset(m);err('');$('#aerr').textContent='✉ Si existe una cuenta con ese correo, te hemos enviado un enlace para restablecerla.'}catch(e){err(e.message)}};
   document.querySelectorAll('#auth [data-am]').forEach(b=>b.onclick=()=>{amode=b.dataset.am;authView()});
+  if($('#dg0'))$('#dg0').onclick=diagnose;
 }
 async function boot(){
   showAuth();
   if(REAL){
+    const ue=new URLSearchParams(location.search+'&'+location.hash.replace(/^#/,'')).get('error_description');
+    if(ue){history.replaceState(null,'',location.pathname);$('#aerr').textContent='⚠ '+SERR({message:ue})}
     try{await sbInit()}catch(e){$('#aerr').textContent='⚠ No se pudo conectar con Supabase. Revisa la configuración.';return}
     sb.auth.onAuthStateChange((ev,session)=>{
       if(ev=='PASSWORD_RECOVERY')setTimeout(()=>{sheet(`<h2>Nueva contraseña</h2><input id="np" type="password" placeholder="Nueva contraseña (mínimo 6)" autocomplete="new-password" aria-label="Nueva contraseña"><div id="nperr" class="aerr"></div><button class="btn fill" id="npb" style="width:100%;padding:12px">Guardar contraseña</button>`);
         $('#npb').onclick=async()=>{const p=$('#np').value;if(p.length<6)return $('#nperr').textContent='⚠ Mínimo 6 caracteres';try{await sbx(sb.auth.updateUser({password:p}));hide();toast('Contraseña actualizada')}catch(e){$('#nperr').textContent='⚠ '+e.message}}},300);
       if(session){if(ses&&ses.uid==session.user.id)return;
-        setTimeout(()=>afterSession(session.user).catch(()=>{showAuth();$('#aerr').textContent='⚠ No se pudo cargar tu perfil. Revisa la configuración de la base de datos.'}),0)}
+        setTimeout(()=>afterSession(session.user).catch(e=>{showAuth();$('#aerr').textContent='⚠ No se pudo cargar tu perfil: '+((e&&e.message)||'revisa la configuración de la base de datos')}),0)}
       else if(ev=='SIGNED_OUT')showAuth()});
     return}
   let e=null;try{e=localStorage.getItem('nn_sess')}catch(x){}
   if(e&&accts[e])demoEnter(e)}
 render();boot();
+
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
 </script>
 </body>
 </html>
