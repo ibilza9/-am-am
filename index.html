@@ -13,7 +13,7 @@
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif;display:flex;justify-content:center}
 #app{width:100%;max-width:480px;height:100%;display:flex;flex-direction:column;background:var(--bg);position:relative}
-header{padding:12px 16px 6px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center}
+header{padding:12px 16px 6px;display:grid;grid-template-columns:88px 1fr 88px;align-items:center}
 header h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.5px;text-align:center}.ib{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:17px;cursor:pointer;justify-self:end}
 #view{flex:1;overflow-y:auto;padding:8px 14px 24px}
 nav{display:flex;border-top:1px solid var(--line);background:var(--card)}
@@ -100,6 +100,10 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 .lk{background:none;border:0;color:var(--ac);font:inherit;font-weight:700;cursor:pointer;padding:0}
 .lk.sm{font-weight:500;font-size:13px}
 .mk{font-size:18px;background:#fff;border:2px solid #0E6F73;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.hr{justify-self:end;display:flex;gap:8px}
+.ib.pf{position:relative;background:var(--ac);color:var(--acf);border:0;font-weight:800;font-size:16px}
+.dot{position:absolute;top:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:#E5484D;border:2px solid var(--bg)}
+.mk.bar{border-color:#C27A0E}
 </style>
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#0E6F73">
@@ -112,7 +116,7 @@ html{-webkit-text-size-adjust:100%}button{-webkit-tap-highlight-color:transparen
 </head>
 <body>
 <div id="app">
-  <header><svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><path d="M8 20h24a12 12 0 0 1-24 0z" fill="var(--acf)"/><path d="M15 15q-2-3 0-5M21 15q-2-3 0-5M27 15q-2-3 0-5" stroke="var(--acf)" stroke-width="2" fill="none" stroke-linecap="round"/></svg><h1>Ñam Ñam</h1><button class="ib" id="th" aria-label="Cambiar tema">◐</button></header>
+  <header><svg width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg><h1>Ñam Ñam</h1><div class="hr"><button class="ib" id="th" aria-label="Cambiar tema">◐</button><button class="ib pf" id="hp" aria-label="Mi perfil"><span id="hpi">?</span><i class="dot" id="hdot" hidden></i></button></div></header>
   <main id="view"></main>
   <button class="fab" id="fab" aria-label="Nueva valoración">+</button>
   <nav>
@@ -212,6 +216,7 @@ function wishUI(list,box,title,pm,onChange){
 
 function render(){
   if(!(tab=='social'&&sub!=null&&st==0&&sub2==null)){clearInterval(pollT);pollT=null}
+  const hpi=$('#hpi');if(hpi)hpi.textContent=((me&&me.name)||'?').trim().charAt(0).toUpperCase()||'?';const hd=$('#hdot');if(hd)hd.hidden=!(notifs.some(n=>!n.read)||INC.size>0);
   document.querySelectorAll('nav button').forEach(b=>{b.classList.toggle('on',b.dataset.t==tab);b.setAttribute('aria-current',b.dataset.t==tab?'page':'false')});
   $('#fab').style.display=((tab=='feed'||tab=='me')&&sub==null)?'block':'none';
   ({feed:rFeed,social:rSocial,explore:rExplore,me:rMe})[tab]();
@@ -318,9 +323,13 @@ function rDet(sp,id){
   $('[data-bk]').onclick=()=>{sub2=null;render();v.scrollTop=0};
 }
 const OSM=!!CONFIG.OSM;
-let gcenter=null,gres=[],gmsg='',gview=null,gfilter='all',gname='',nrid=1000,wsync=new Set();const wnotes={};
+let gcenter=null,gres=[],gmsg='',gview=null,gfilter='all',gname='',nrid=1000,gnote='',autoTried=false,locTimer=null,notifTimer=null,wsync=new Set();const wnotes={};
 const BGS=['#F0C987','#E3A6A1','#C9A27E','#A9D6D3','#EAB48F','#B7CBE8','#E8D5A8'];
 const CU={italian:'Italiano',pizza:'Pizzería',japanese:'Japonés',sushi:'Sushi',chinese:'Chino',spanish:'Español',regional:'Regional',basque:'Vasco',tapas:'Tapas',burger:'Hamburguesería',mexican:'Mexicano',indian:'Indio',seafood:'Marisquería',steak_house:'Asador',kebab:'Kebab',thai:'Tailandés',coffee_shop:'Cafetería',wine:'Bar de vinos',mediterranean:'Mediterráneo',vegetarian:'Vegetariano',international:'Internacional'};
+Object.assign(CU,{ramen:'Ramen',korean:'Coreano',vietnamese:'Vietnamita',greek:'Griego',turkish:'Turco',american:'Americano',barbecue:'Barbacoa',chicken:'Pollo',fish:'Pescado',sandwich:'Bocadillos',breakfast:'Desayunos',cake:'Pastelería',ice_cream:'Heladería',crepe:'Crepería',french:'Francés',portuguese:'Portugués',lebanese:'Libanés',arab:'Árabe',peruvian:'Peruano',argentinian:'Argentino',moroccan:'Marroquí',german:'Alemán',fusion:'Fusión',pasta:'Pasta',noodle:'Fideos',dumpling:'Dumplings',pincho:'Pintxos',pinchos:'Pintxos',bar:'Bar',cocktail:'Cócteles',beer:'Cervecería'});
+const IC={italian:'🍝',pasta:'🍝',pizza:'🍕',japanese:'🍱',sushi:'🍣',ramen:'🍜',noodle:'🍜',thai:'🍜',vietnamese:'🍜',chinese:'🥡',dumpling:'🥟',korean:'🍲',indian:'🍛',kebab:'🥙',turkish:'🥙',greek:'🥙',lebanese:'🥙',arab:'🥙',mexican:'🌮',burger:'🍔',american:'🍔',steak_house:'🥩',barbecue:'🍖',chicken:'🍗',seafood:'🦐',fish:'🐟',spanish:'🥘',regional:'🥘',basque:'🥘',tapas:'🍤',pincho:'🍤',pinchos:'🍤',mediterranean:'🥗',vegetarian:'🥗',vegan:'🥗',sandwich:'🥪',breakfast:'🥞',crepe:'🥞',coffee_shop:'☕',cake:'🍰',ice_cream:'🍨',french:'🥖',wine:'🍷',cocktail:'🍸',beer:'🍺'};
+const iconFor=(cu,am)=>IC[cu]||(am=='pub'?'🍻':am=='bar'?'🍺':'🍽️');
+const SV=[['outdoor_seating','yes','Terraza'],['wheelchair','yes','Accesible'],['takeaway','yes','Para llevar'],['delivery','yes','A domicilio'],['reservation','yes','Admite reserva'],['internet_access','wlan','Wifi'],['diet:vegetarian','yes','Opción vegetariana'],['diet:vegan','yes','Opción vegana'],['diet:gluten_free','yes','Sin gluten'],['payment:cards','yes','Pago con tarjeta'],['air_conditioning','yes','Aire acondicionado'],['dog','yes','Admite perros'],['smoking','no','Sin humo']];
 const OVP='https://overpass-api.de/api/interpreter',AM='["amenity"~"^(restaurant|bar|pub)$"]["name"]',ocache=new Map();
 const qArea=(la,ln,rad)=>`[out:json][timeout:25];nwr${AM}(around:${rad},${la},${ln});out center tags 200;`;
 const qName=(rx,la,ln)=>`[out:json][timeout:25];nwr${AM}["name"~"${rx}",i](around:15000,${la},${ln});out center tags 20;`;
@@ -338,15 +347,15 @@ async function geocode(q){
 function regOSM(o){
   const t=o.tags||{},am=t.amenity,isBar=am=='bar'||am=='pub',cu=(t.cuisine||'').split(';')[0].trim();
   const addr=[[t['addr:street'],t['addr:housenumber']].filter(Boolean).join(' '),t['addr:city']].filter(Boolean).join(', '),key=o.type+'/'+o.id;
-  const d={n:t.name||'Sin nombre',c:t['addr:city']||o.hint||'',t:CU[cu]||(am=='pub'?'Pub':isBar?'Bar':'Restaurante'),k:isBar?'bar':'restaurant',e:isBar?'🍺':'🍽️',lat:o.lat,lng:o.lng,addr,osmk:key,cu};
-  let r=R.find(x=>x.osmk==key);if(r){Object.assign(r,d);return r}
+  const d={n:t.name||'Sin nombre',c:t['addr:city']||o.hint||'',t:CU[cu]||(am=='pub'?'Pub':isBar?'Bar':'Restaurante'),k:isBar?'bar':'restaurant',e:iconFor(cu,am),am,tags:t,full:!!o.full,lat:o.lat,lng:o.lng,addr,osmk:key,cu};
+  let r=R.find(x=>x.osmk==key);if(r){const sv=r.full&&!o.full?{tags:r.tags,full:true}:null;Object.assign(r,d);if(sv)Object.assign(r,sv);return r}
   r={id:nrid++,bg:BGS[nrid%BGS.length],...d};R.push(r);return r}
 function regVenue(v){
-  const k=v.kind=='bar'?'bar':'restaurant',key=v.osm_type+'/'+v.osm_id;
-  const d={n:v.name,c:v.city||'',t:CU[v.cuisine]||(k=='bar'?'Bar':'Restaurante'),k,e:k=='bar'?'🍺':'🍽️',lat:v.lat,lng:v.lng,addr:v.address||'',osmk:key,cu:v.cuisine||'',dbid:v.id};
+  const k=(v.kind=='bar'||v.kind=='pub')?'bar':'restaurant',key=v.osm_type+'/'+v.osm_id;
+  const d={n:v.name,c:v.city||'',t:CU[v.cuisine]||(v.kind=='pub'?'Pub':k=='bar'?'Bar':'Restaurante'),k,e:iconFor(v.cuisine,v.kind),am:v.kind,lat:v.lat,lng:v.lng,addr:v.address||'',osmk:key,cu:v.cuisine||'',dbid:v.id};
   let r=R.find(x=>x.osmk==key);if(r){Object.assign(r,d);return r}
   r={id:nrid++,bg:BGS[nrid%BGS.length],...d};R.push(r);return r}
-const toR=(e,hint)=>{const la=e.lat!=null?e.lat:(e.center&&e.center.lat),ln=e.lon!=null?e.lon:(e.center&&e.center.lon);return la==null?null:regOSM({type:e.type,id:e.id,lat:la,lng:ln,tags:e.tags,hint})};
+const toR=(e,hint)=>{const la=e.lat!=null?e.lat:(e.center&&e.center.lat),ln=e.lon!=null?e.lon:(e.center&&e.center.lon);return la==null?null:regOSM({type:e.type,id:e.id,lat:la,lng:ln,tags:e.tags,hint,full:true})};
 async function areaSearch(la,ln,rad,hint){
   gcenter={lat:la,lng:ln};
   const els=await overpass(qArea(la,ln,rad)),dd=r=>(r.lat-la)**2+((r.lng-ln)*Math.cos(la*Math.PI/180))**2;
@@ -367,7 +376,7 @@ async function loadLeaflet(){
     const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';sc.onload=res;sc.onerror=()=>rej(new Error('No se pudo cargar el mapa. Revisa tu conexión.'));document.head.appendChild(sc)})}
 async function ensureVenue(r){
   if(r.dbid)return;if(!r.osmk)r.osmk='custom/'+(Date.now()*1000+Math.floor(Math.random()*1000));const [t,i]=r.osmk.split('/');
-  await sbx(sb.from('venues').upsert({osm_type:t,osm_id:+i,name:r.n,kind:r.k,cuisine:r.cu||null,city:r.c||null,lat:r.lat,lng:r.lng,address:r.addr||null,created_by:ses.uid},{onConflict:'osm_type,osm_id',ignoreDuplicates:true}));
+  await sbx(sb.from('venues').upsert({osm_type:t,osm_id:+i,name:r.n,kind:r.am||r.k,cuisine:r.cu||null,city:r.c||null,lat:r.lat,lng:r.lng,address:r.addr||null,created_by:ses.uid},{onConflict:'osm_type,osm_id',ignoreDuplicates:true}));
   const d=await sbx(sb.from('venues').select('id').eq('osm_type',t).eq('osm_id',+i).single());r.dbid=d.id}
 async function persistWish(id){
   if(!REAL||!ses||!sb)return;
@@ -412,18 +421,86 @@ function saveSheet(r){
 function bindActs(root){
   root.querySelectorAll('[data-val]').forEach(b=>b.onclick=()=>newReview(rn(b.dataset.val)));
   root.querySelectorAll('[data-want]').forEach(b=>b.onclick=()=>saveSheet(rn(b.dataset.want)));
+  root.querySelectorAll('[data-det]').forEach(b=>b.onclick=()=>go(+b.dataset.det));
+  root.querySelectorAll('.card[data-cd]').forEach(c=>c.onclick=e=>{if(e.target.closest('button,a'))return;go(+c.dataset.cd)});
 }
+const LOCK='nn_loc';
+const locLoad=()=>{try{return JSON.parse(localStorage.getItem(LOCK)||'{}')}catch(e){return {}}};
+const locSave=o=>{try{localStorage.setItem(LOCK,JSON.stringify(o))}catch(e){}};
+let lastTick=0;
+function locTick(pos){
+  const la=pos.coords.latitude,ln=pos.coords.longitude,k=la.toFixed(2)+','+ln.toFixed(2),o=locLoad(),now=Date.now(),dt=lastTick?Math.min(now-lastTick,10*60000):60000;lastTick=now;
+  const c=o[k]||{ms:0,n:0,la:0,ln:0};c.n++;c.ms+=dt;c.la+=(la-c.la)/c.n;c.ln+=(ln-c.ln)/c.n;o[k]=c;locSave(o);try{localStorage.setItem('nn_loc_ok','1')}catch(e){}}
+const topPlace=()=>{const o=locLoad();let b=null;Object.values(o).forEach(c=>{if(c&&c.ms&&(!b||c.ms>b.ms))b=c});return b?{lat:b.la,lng:b.ln,ms:b.ms}:null};
+const getPos=()=>new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('Tu navegador no permite ubicación.'));navigator.geolocation.getCurrentPosition(res,()=>rej(new Error('Para ver locales sin buscar, permite la ubicación en tu navegador (o busca un pueblo).')),{timeout:10000,maximumAge:60000})});
+function locSample(){let ok=false;try{ok=localStorage.getItem('nn_loc_ok')=='1'}catch(e){}if(!ok||!navigator.geolocation||document.visibilityState!='visible')return;navigator.geolocation.getCurrentPosition(locTick,()=>{},{maximumAge:120000,timeout:10000})}
+async function defaultArea(){const t=topPlace();if(t)return {lat:t.lat,lng:t.lng,why:'tu zona habitual'};const p=await getPos();locTick(p);return {lat:p.coords.latitude,lng:p.coords.longitude,why:'tu ubicación actual'}}
+const DOW=['Mo','Tu','We','Th','Fr','Sa','Su'],DNAME=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const fmtM=m=>m===1440?'24:00':(m%=1440,String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));
+function parseHours(str){
+  if(!str)return null;const s0=String(str).trim();if(s0=='24/7')return {all:true};
+  const days=Array.from({length:7},()=>null);
+  for(const raw of s0.split(';')){
+    const rule=raw.trim();if(!rule)continue;
+    if(/\b(PH|SH|week|sunrise|sunset|easter)\b|\d{4}|Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec/i.test(rule))return null;
+    const m=rule.match(/^((?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?(?:,\s*(?:Mo|Tu|We|Th|Fr|Sa|Su)(?:-(?:Mo|Tu|We|Th|Fr|Sa|Su))?)*)\s+(.+)$/);
+    const dsel=m?m[1]:'Mo-Su',rest=m?m[2]:rule,idx=new Set();
+    for(const part of dsel.split(',')){const [a,b]=part.trim().split('-'),i=DOW.indexOf(a);if(b===undefined)idx.add(i);else{const j=DOW.indexOf(b);let k=i;for(let c=0;c<8;c++){idx.add(k);if(k==j)break;k=(k+1)%7}}}
+    let iv=[];
+    if(!/^(off|closed)$/i.test(rest.trim())){for(const t of rest.split(',')){const mm=t.trim().match(/^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/);if(!mm)return null;const a=+mm[1]*60+(+mm[2]);let b2=+mm[3]*60+(+mm[4]);if(b2<=a)b2+=1440;iv.push([a,b2])}}
+    idx.forEach(i=>{days[i]=iv})}
+  if(days.every(d=>d&&d.length==1&&d[0][0]==0&&d[0][1]==1440))return {all:true};
+  return {days}}
+function openNow(h,d=new Date()){
+  if(!h)return null;if(h.all)return {open:true,txt:'Abierto 24 horas'};
+  const di=(d.getDay()+6)%7,min=d.getHours()*60+d.getMinutes(),today=h.days[di]||[],prev=h.days[(di+6)%7]||[];
+  for(const [a,b] of today)if(min>=a&&min<b)return {open:true,txt:'Abierto · cierra a las '+fmtM(b)};
+  for(const [a,b] of prev)if(b>1440&&min<b-1440)return {open:true,txt:'Abierto · cierra a las '+fmtM(b)};
+  const nx=today.map(x=>x[0]).filter(a=>a>min).sort((x,y)=>x-y)[0];
+  if(nx!=null)return {open:false,txt:'Cerrado · abre a las '+fmtM(nx)};
+  for(let k=1;k<=7;k++){const dd=h.days[(di+k)%7];if(dd&&dd.length)return {open:false,txt:'Cerrado · abre '+(k==1?'mañana':'el '+DNAME[(di+k)%7].toLowerCase())+' a las '+fmtM(Math.min(...dd.map(x=>x[0])))}}
+  return {open:false,txt:'Cerrado'}}
+const hoursHTML=(h,raw)=>{if(!h)return esc(raw);if(h.all)return 'Abierto 24 horas';const td=(new Date().getDay()+6)%7;return DNAME.map((n,i)=>{const dd=h.days[i];return `<div class="row sp" style="${i==td?'font-weight:700':''}"><span>${n}</span><span>${dd===null?'—':dd.length?dd.map(([a,b])=>fmtM(a)+'–'+fmtM(b)).join(', '):'Cerrado'}</span></div>`}).join('')};
+const tg0=(t,...ks)=>{for(const k of ks)if(t[k])return String(t[k]).split(';')[0].trim();return ''};
+async function fetchTags(r){
+  if(r.full||!r.osmk||r.osmk.startsWith('custom/'))return;
+  const [ty,id]=r.osmk.split('/'),els=await overpass(`[out:json][timeout:25];${ty}(${id});out center tags;`);
+  r.tags=(els[0]&&els[0].tags)||r.tags||{};r.full=true;
+  if(els[0]&&els[0].center&&r.lat==null){r.lat=els[0].center.lat;r.lng=els[0].center.lon}}
+function placeDet(r){
+  if(!r)return go(null);
+  if(!r.full&&!r._tf){r._tf=1;fetchTags(r).then(()=>{if(tab=='explore'&&sub===r.id)render()}).catch(()=>{})}
+  const t=r.tags||{},hrs=t.opening_hours,ph=tg0(t,'phone','contact:phone'),web=tg0(t,'website','contact:website','url'),mail=tg0(t,'email','contact:email');
+  const h=parseHours(hrs),stt=openNow(h),posts=feed.filter(p=>p.r==r.id),imgs=posts.flatMap(p=>p.imgs||[]).slice(0,10);
+  const a=avg(r.id),have=r.lat!=null&&r.lng!=null,gm=have?`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`:'';
+  const svc=SV.filter(([k,val])=>t[k]==val||(val=='yes'&&t[k]=='only')).map(x=>x[2]);
+  const cu=(t.cuisine||'').split(';').map(x=>x.trim()).filter(Boolean).map(x=>CU[x]||x.replace(/_/g,' ')).filter(x=>x!==r.t);
+  const line=(i,x)=>`<div class="row" style="align-items:flex-start;margin-bottom:10px"><span style="width:22px">${i}</span><div style="flex:1;min-width:0">${x}</div></div>`;
+  v.innerHTML=`<button class="btn" data-back>‹ Explorar</button>
+  <div class="card" style="margin-top:12px"><div class="pad"><div class="row"><div class="av" style="background:${r.bg};width:58px;height:58px;font-size:30px">${r.e}</div><div style="flex:1;min-width:0"><h2 style="margin:0">${esc(r.n)}</h2><div class="mute">${esc(r.t)}${cu.length?' · '+esc(cu.join(', ')):''}</div></div></div>
+  <div class="row" style="margin-top:10px;flex-wrap:wrap">${a!='–'?`<span class="sc">${a}</span><span class="mute">${posts.length} reseña${posts.length==1?'':'s'} en Ñam Ñam</span>`:'<span class="mute">Aún sin reseñas en Ñam Ñam</span>'}${stt?`<span class="tag" style="margin:0">${stt.open?'🟢':'🔴'} ${esc(stt.txt)}</span>`:''}</div></div>
+  <div class="pad row" style="flex-wrap:wrap;gap:8px;padding-top:0"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button>${have?`<a class="btn" href="${gm}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`:''}${ph?`<a class="btn" href="tel:${esc(ph.replace(/[^+\d]/g,''))}">Llamar</a>`:''}${web?`<a class="btn" href="${esc(/^https?:/.test(web)?web:'https://'+web)}" target="_blank" rel="noopener noreferrer">Web</a>`:''}<button class="btn" id="shr">Compartir</button></div></div>
+  ${imgs.length?`<div class="card" style="overflow:hidden">${car({id:0,r:r.id,title:r.n,imgs},220,0)}</div>`:''}
+  <div class="card pad">${line('📍',esc(r.addr||r.c||'Sin dirección registrada'))}${hrs?line('🕒',hoursHTML(h,hrs)):line('🕒','<span class="mute">Sin horario registrado</span>')}${ph?line('📞',esc(ph)):''}${web?line('🌐',esc(web.replace(/^https?:\/\//,''))):''}${mail?line('✉️',esc(mail)):''}${svc.length?line('✨',svc.map(x=>`<span class="tag">${esc(x)}</span>`).join('')):''}</div>
+  ${have&&OSM?`<div id="dmap" style="height:200px;border-radius:16px;margin-bottom:12px;border:1px solid var(--line);isolation:isolate"></div>`:''}
+  <h2>Reseñas de la comunidad</h2>${posts.length?posts.map(p=>`<button class="card pad lnk" data-op="${p.id}" style="background:var(--card)"><div class="row">${av(p.u)}<div style="flex:1;min-width:0"><b>${esc(p.title)}</b><div class="mute">${esc(p.u)} · ${p.w}</div></div><span class="sc">${p.s}</span></div></button>`).join(''):'<p class="mute">Todavía nadie ha valorado este sitio. ¡Sé el primero!</p>'}
+  <p class="mute" style="font-size:12px;margin-top:14px">Información de colaboradores de OpenStreetMap (ODbL); puede estar incompleta. ${r.osmk&&!r.osmk.startsWith('custom/')?`<a href="https://www.openstreetmap.org/${esc(r.osmk)}" target="_blank" rel="noopener noreferrer" style="color:var(--ac)">Corrígela o complétala en OpenStreetMap</a>`:''}</p>`;
+  back();bindActs(v);
+  v.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{tab='feed';go(+b.dataset.op)});
+  $('#shr').onclick=async()=>{const url=have?`https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}`:location.href;try{if(navigator.share)await navigator.share({title:r.n,text:r.n+(r.addr?' · '+r.addr:''),url});else{await navigator.clipboard.writeText(url);toast('Enlace copiado')}}catch(e){}};
+  if(have&&OSM)loadLeaflet().then(()=>{const el=$('#dmap');if(!el)return;const m=L.map(el,{scrollWheelZoom:false}).setView([r.lat,r.lng],17);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(m);L.marker([r.lat,r.lng],{icon:L.divIcon({html:`<div class="mk ${r.k}">${r.e}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17]})}).addTo(m)}).catch(()=>{})}
 function rExploreOSM(){
   const flt=r=>(gfilter=='all'||r.k==gfilter)&&(!gname||r.n.toLowerCase().includes(gname.toLowerCase()));
   v.innerHTML=`<div class="row" style="margin-bottom:10px"><input id="q" placeholder="Ciudad o pueblo (Bilbao, Getxo…)" value="${esc(city)}" aria-label="Buscar ciudad o pueblo" style="margin:0"><button class="btn fill" id="qs">Buscar</button></div>
   <div class="row" style="margin-bottom:10px;flex-wrap:wrap"><button class="btn" id="near">Cerca de mí</button>${[['all','Todos'],['restaurant','Restaurantes'],['bar','Bares']].map(([k,t])=>`<button class="btn ${gfilter==k?'fill':''}" data-f="${k}" aria-pressed="${gfilter==k}">${t}</button>`).join('')}</div>
-  <input id="gn" placeholder="Filtrar por nombre" value="${esc(gname)}" aria-label="Filtrar por nombre"><div class="seg"><button data-m="list" class="${mode=='list'?'on':''}">Lista</button><button data-m="map" class="${mode=='map'?'on':''}">Mapa</button></div><div id="res"></div>
+  <input id="gn" placeholder="Filtrar por nombre" value="${esc(gname)}" aria-label="Filtrar por nombre"><div class="seg"><button data-m="list" class="${mode=='list'?'on':''}">Lista</button><button data-m="map" class="${mode=='map'?'on':''}">Mapa</button></div><p class="mute" id="gnt" style="font-size:12px;margin:0 2px 8px"></p><div id="res"></div>
   <p class="mute" style="font-size:12px;margin-top:14px">Datos © colaboradores de OpenStreetMap (ODbL).</p>`;
-  const item=r=>`<div class="card pad"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><b>${esc(r.n)}</b><div class="mute">${esc(r.addr||r.c||'Sin dirección registrada')}</div><div class="mute">${esc(r.t)}</div></div>${avg(r.id)!='–'?`<div class="sc">${avg(r.id)}</div>`:''}</div><div class="row" style="margin-top:10px"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button></div></div>`;
+  const item=r=>`<div class="card pad" data-cd="${r.id}" style="cursor:pointer"><div class="row"><div class="av" style="background:${r.bg};font-size:22px">${r.e}</div><div style="flex:1;min-width:0"><button class="lnk" data-det="${r.id}"><b>${esc(r.n)}</b></button><div class="mute">${esc(r.addr||r.c||'Sin dirección registrada')}</div><div class="mute">${esc(r.t)}</div></div>${avg(r.id)!='–'?`<div class="sc">${avg(r.id)}</div>`:''}</div><div class="row" style="margin-top:10px"><button class="btn fill" data-val="${r.id}">Valorar</button><button class="btn" data-want="${r.id}">${wish.includes(r.id)?'Guardado ✓':'Guardar'}</button></div></div>`;
   const run=async fn=>{$('#res').innerHTML='<p class="mute">Buscando bares y restaurantes…</p>';
     try{gres=await fn();gmsg=gres.length?'':'No hay bares ni restaurantes registrados en OpenStreetMap en esta zona.'}catch(e){gres=[];gmsg=e.message||'No se pudo buscar.'}draw()};
   const draw=async()=>{
-    const box=$('#res'),L2=gres.filter(flt);
+    const box=$('#res'),L2=gres.filter(flt),nt=$('#gnt');
+    if(nt){nt.innerHTML=gnote?esc(gnote)+(topPlace()?' · <button class="lk sm" id="fgt">Olvidar mis zonas</button>':''):'';const fg=$('#fgt');if(fg)fg.onclick=()=>{locSave({});try{localStorage.removeItem('nn_loc_ok')}catch(e){}gnote='';toast('Zonas olvidadas');draw()}}
     if(!gres.length){box.innerHTML=`<p class="mute">${esc(gmsg||'Busca una ciudad o un pueblo, o pulsa «Cerca de mí», para ver bares y restaurantes del mapa de OpenStreetMap.')}</p>`;return}
     if(!L2.length){box.innerHTML='<p class="mute">Ningún local coincide con el filtro.</p>';return}
     if(mode=='list'){box.innerHTML=`<p class="mute" style="margin:0 2px 8px">${L2.length} locales</p>`+L2.map(item).join('');bindActs(box);return}
@@ -432,23 +509,24 @@ function rExploreOSM(){
     try{await loadLeaflet();
       const map=L.map($('#gmap')).setView(gview?[gview.lat,gview.lng]:[L2[0].lat,L2[0].lng],gview?gview.z:15),pts=[];
       L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-      L2.forEach(r=>{pts.push([r.lat,r.lng]);L.marker([r.lat,r.lng],{icon:L.divIcon({html:`<div class="mk">${r.e}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17]}),title:r.n}).addTo(map).on('click',()=>{sel=r.id;card()})});
+      L2.forEach(r=>{pts.push([r.lat,r.lng]);L.marker([r.lat,r.lng],{icon:L.divIcon({html:`<div class="mk ${r.k}">${r.e}</div>`,className:'',iconSize:[34,34],iconAnchor:[17,17]}),title:r.n}).addTo(map).on('click',()=>{sel=r.id;card()})});
       if(!gview)map.fitBounds(L.latLngBounds(pts),{padding:[30,30],maxZoom:17});
       map.on('moveend',()=>{const c=map.getCenter();gview={lat:c.lat,lng:c.lng,z:map.getZoom()}});
       $('#here').onclick=()=>{if(map.getZoom()<14)return toast('Acerca el mapa para buscar en esta zona');
-        const c=map.getCenter(),rad=Math.min(3000,Math.round(map.distance(c,map.getBounds().getNorthEast())));gview={lat:c.lat,lng:c.lng,z:map.getZoom()};run(()=>areaSearch(c.lat,c.lng,rad,city))};
+        const c=map.getCenter(),rad=Math.min(3000,Math.round(map.distance(c,map.getBounds().getNorthEast())));gview={lat:c.lat,lng:c.lng,z:map.getZoom()};gnote='';run(()=>areaSearch(c.lat,c.lng,rad,city))};
     }catch(e){$('#gmap').innerHTML=`<p class="pad mute">${esc(e.message||'No se pudo cargar el mapa.')}</p>`}
   };
-  $('#qs').onclick=()=>{city=$('#q').value.trim();if(!city)return;gview=null;run(async()=>{const g=await geocode(city);return areaSearch(g.lat,g.lng,2500,g.name)})};
+  $('#qs').onclick=()=>{city=$('#q').value.trim();if(!city)return;gview=null;gnote='';run(async()=>{const g=await geocode(city);return areaSearch(g.lat,g.lng,2500,g.name)})};
   $('#q').onkeydown=e=>{if(e.key=='Enter')$('#qs').click()};
-  $('#near').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{gview=null;run(()=>areaSearch(p.coords.latitude,p.coords.longitude,1500,''))},()=>toast('No pudimos acceder a tu ubicación'),{timeout:8000}):toast('Tu navegador no permite ubicación');
+  $('#near').onclick=()=>navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>{gview=null;gnote='Mostrando locales cerca de tu ubicación actual';locTick(p);run(()=>areaSearch(p.coords.latitude,p.coords.longitude,1500,''))},()=>toast('No pudimos acceder a tu ubicación'),{timeout:8000}):toast('Tu navegador no permite ubicación');
   v.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{gfilter=b.dataset.f;rExploreOSM()});
   v.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;rExploreOSM()});
   let tm=null;$('#gn').oninput=e=>{gname=e.target.value;clearTimeout(tm);tm=setTimeout(draw,mode=='map'?400:120)};
   draw();
+  if(!gres.length&&!gmsg&&!autoTried){autoTried=true;gview=null;run(async()=>{const a=await defaultArea();gnote='Mostrando locales de '+a.why+' (se calcula con tu uso de la app y se guarda solo en este dispositivo)';return areaSearch(a.lat,a.lng,1500,'')})}
 }
 function rExploreOff(){v.innerHTML=`<div class="card pad"><b>Mapa no activado</b><p class="mute" style="margin:6px 0 0">El mapa de OpenStreetMap con bares y restaurantes reales se activa en la versión publicada de la app (mira el README). Mientras tanto puedes añadir restaurantes a mano al crear una reseña.</p></div>`}
-function rExplore(){return OSM?rExploreOSM():rExploreOff()}
+function rExplore(){if(sub!=null)return placeDet(rn(sub));return OSM?rExploreOSM():rExploreOff()}
 function wishScreen(){
   v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Lista de deseos</h2><div class="seg"><button data-wv="0" class="${st==0?'on':''}">Sueltos</button><button data-wv="1" class="${st==1?'on':''}">Por grupos</button></div><div id="bx"></div>`;
   back();v.querySelectorAll('[data-wv]').forEach(b=>b.onclick=()=>{st=+b.dataset.wv;render()});
@@ -473,12 +551,13 @@ function rMe(){
   if(sub!=null){
     v.innerHTML=`<button class="btn" data-bk>‹ Mis listas</button><h2 style="margin-top:12px">${esc(sub)}</h2><div id="bx"></div>`;
     $('[data-bk]').onclick=()=>go('#cats');return wishUI(cats[sub],$('#bx'),sub,true,()=>persistList(sub))}
+  softRefresh('notif');
   const mp=feed.filter(p=>p.u=='Tú'),n=new Set(mp.map(p=>p.r)).size,a=mp.length?+(mp.reduce((t,p)=>t+p.s,0)/mp.length).toFixed(2):'–';
   v.innerHTML=`<div class="row" style="margin:6px 2px"><div class="av" style="width:72px;height:72px;font-size:30px;background:#0E6F73">${esc(me.name[0])}</div><div><b style="font-size:20px">${esc(me.name)}</b><div class="mute">${esc(me.user)} · ${me.pub?'Perfil público':'Perfil privado'}</div></div></div><p style="margin:6px 2px">${me.bio?esc(me.bio):'<span class="mute">Añade una bio en Editar perfil.</span>'}</p>
   <div class="stats"><div><b>${n}</b><span class="mute">sitios</span></div><div><b>${me.fr||0}</b><span class="mute">seguidores</span></div><div><b>${me.fg||0}</b><span class="mute">siguiendo</span></div><div><b>${a}</b><span class="mute">media</span></div></div>
   <button class="btn" id="ed" style="width:100%;margin-bottom:10px">Editar perfil</button>
   <div class="row" style="margin-bottom:14px"><button class="btn fill" id="bw" style="flex:1;padding:12px">❤️ Lista de deseos</button><button class="btn fill" id="bc" style="flex:1;padding:12px">🗂️ Mis listas</button></div>
-  ${REAL?`<button class="btn" id="bn" style="width:100%;margin-bottom:14px">🔔 Notificaciones${notifs.some(n=>!n.read)?` (${notifs.filter(n=>!n.read).length})`:''}</button>`:''}
+  <button class="btn" id="bn" style="width:100%;margin-bottom:14px">🔔 Notificaciones${Math.max(notifs.filter(n=>!n.read).length,INC.size)?` (${Math.max(notifs.filter(n=>!n.read).length,INC.size)})`:''}</button>
   <h2>Mis reseñas</h2>${mp.length?`<div class="grid">${mp.map(p=>`<button data-p="${p.id}" aria-label="Abrir reseña ${esc(p.title)}" style="background:${rn(p.r).bg}">${p.imgs.length?`<img src="${p.imgs[0]}" alt="">`:rn(p.r).e}<i>${p.s}</i><b>♥ ${p.l+p.k} · 💬 ${nc(p)}</b></button>`).join('')}</div>`:`<p class="mute">Aún no has publicado reseñas. Pulsa + para la primera.</p>`}<div style="height:70px"></div>`;
   v.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>go(+b.dataset.p));
   $('#bw').onclick=()=>go('#wish');$('#bc').onclick=()=>go('#cats');if($('#bn'))$('#bn').onclick=()=>go('#notif');
@@ -532,16 +611,16 @@ function newReview(pre){
     feed.unshift(p);tab='feed';fm='fol';go(null);shareSheet(p,tg)};
 }
 $('#fab').onclick=()=>newReview();
-$('#modal').onclick=e=>{if(e.target.id=='modal')hide()};
+$('#modal').onclick=e=>{if(e.target.id=='modal'&&!forceSheet)hide()};
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;go(null)});
 $('#th').onclick=()=>{const d=document.documentElement,dark=getComputedStyle(d).getPropertyValue('--bg').trim()=='#0F1715';d.dataset.theme=dark?'light':'dark'};
 
-const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><path d="M8 20h24a12 12 0 0 1-24 0z" fill="var(--acf)"/><path d="M15 15q-2-3 0-5M21 15q-2-3 0-5M27 15q-2-3 0-5" stroke="var(--acf)" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`;
+const LOGO=(z)=>`<svg width="${z}" height="${z}" viewBox="0 0 40 40" role="img" aria-label="Logo de Ñam Ñam"><rect width="40" height="40" rx="12" fill="var(--ac)"/><g fill="var(--acf)"><path d="M6 21a8 7.2 0 0 1 16 0z"/><rect x="6" y="25.4" width="16" height="3" rx="1.5"/><path d="M6 30h16v.8a2.6 2.6 0 0 1-2.6 2.6H8.6A2.6 2.6 0 0 1 6 30.8z"/><rect x="24" y="16.5" width="11" height="2.4" rx="1.2"/><path d="M25 19.4h9l-1.1 13a1.2 1.2 0 0 1-1.2 1.1h-4.4a1.2 1.2 0 0 1-1.2-1.1z"/></g><path d="M5.5 23.4q1.6 1.8 3.2 0t3.2 0t3.2 0t3.2 0t3.2 0" fill="none" stroke="var(--acf)" stroke-width="1.6" stroke-linecap="round"/><path d="M31 16.5l1.6-7.2h3.4" fill="none" stroke="var(--acf)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><g fill="var(--ac)"><ellipse cx="11" cy="18" rx="1" ry=".55"/><ellipse cx="14.2" cy="16.4" rx="1" ry=".55"/><ellipse cx="17.5" cy="18" rx="1" ry=".55"/></g><path d="M25.9 25h7.2M26.3 29.2h6.4" stroke="var(--ac)" stroke-width="1.3" stroke-linecap="round"/></svg>`;
 const GICON='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>';
 const REAL=!!CONFIG.SUPABASE;
 if(REAL){const cl=x=>String(x||'').replace(/[\s\u200B-\u200D\uFEFF]/g,'');CONFIG.SUPABASE.url=cl(CONFIG.SUPABASE.url).replace(/^(https:\/\/[a-z0-9-]+\.supabase\.co)[\s\S]*$/,'$1').replace(/\/+$/,'');CONFIG.SUPABASE.key=cl(CONFIG.SUPABASE.key)}
 const keyHint=()=>{const k=(CONFIG.SUPABASE&&CONFIG.SUPABASE.key)||'';return k?' La app está usando una clave que empieza por «'+k.slice(0,15)+'…» y tiene '+k.length+' caracteres.':' No hay ninguna clave en CONFIG.'};
-let accts={},ses=null,amode='in',sb=null,stripped=false;
+let accts={},ses=null,amode='in',sb=null,stripped=false,apub=null,forceSheet=false;
 try{accts=JSON.parse(localStorage.getItem('nn_accts')||'{}')}catch(e){}
 const store=()=>{try{localStorage.setItem('nn_accts',JSON.stringify(accts))}catch(e){}};
 const sha=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch(e){return btoa(unescape(encodeURIComponent(t)))}};
@@ -577,13 +656,21 @@ async function afterSession(user){
     let un=base.length<3?base+'user':base;for(let i=1;i<6;i++){const x=await sb.rpc('username_available',{u:un});if(x.error||x.data)break;un=base+i}
     p=await sbx(sb.from('profiles').insert({id:user.id,username:un,name:md.name||md.full_name||base}).select('*').single())}
   ses={uid:user.id,email:user.email,name:p.name,user:p.username,bio:p.bio||'',pub:p.pub!==false,g:(user.identities||[]).some(i=>i.provider=='google')};
-  PC[ses.uid]={id:ses.uid,username:ses.user,name:ses.name,pub:ses.pub};enterApp();
+  let pend='';try{pend=localStorage.getItem('nn_pub_pending')||''}catch(e){}
+  const md=user.user_metadata||{};let askP=false;
+  if(!md.pub_applied){
+    if(md.pub!==undefined&&md.pub!==null)await applyPub(user,md.pub!==false&&md.pub!=='false');
+    else if(pend==='true'||pend==='false')await applyPub(user,pend==='true');
+    else if(Date.now()-new Date(p.created_at)<15*60000)askP=true}
+  try{localStorage.removeItem('nn_pub_pending')}catch(e){}
+  PC[ses.uid]={id:ses.uid,username:ses.user,name:ses.name,pub:ses.pub};enterApp();if(askP)askPrivacy();
   const safe=fn=>fn().catch(()=>toast('No se pudieron cargar algunos datos'));
   await Promise.all([safe(loadSaved),safe(loadFollows)]);
   await Promise.all([safe(loadFeed),safe(loadSpaces),safe(loadLists),safe(loadNotifs)]);render()}
 /* ===== Persistencia en Supabase (solo modo real) ===== */
-const PC={},VC={},lastLoad={feed:0,spaces:0},chainQ=new Map();
+const PC={},VC={},lastLoad={feed:0,spaces:0,notif:0},chainQ=new Map();
 let notifs=[],ldb={},pollT=null;
+const PEND=new Set(),INC=new Set();
 const ago=ts=>{const x=Math.max(0,(Date.now()-new Date(ts))/1000);return x<60?'ahora':x<3600?'hace '+Math.floor(x/60)+' min':x<86400?'hace '+Math.floor(x/3600)+' h':'hace '+Math.floor(x/86400)+' d'};
 const photoUrl=pth=>sb.storage.from('review-photos').getPublicUrl(pth).data.publicUrl;
 const pathOf=u=>u&&u.includes('/review-photos/')?decodeURIComponent(u.split('/review-photos/')[1].split('?')[0]):'';
@@ -684,16 +771,32 @@ async function loadNotifs(){
   const rows=await sbx(sb.from('notifications').select('*').eq('user_id',ses.uid).order('id',{ascending:false}).limit(40));
   await profilesById(rows.map(r=>r.from_user));const rids=rows.map(r=>r.review_id).filter(Boolean);
   const rv=rids.length?await sbx(sb.from('reviews').select('id,title').in('id',rids)):[];
-  notifs=rows.map(r=>({id:r.id,type:r.type,rid:r.review_id,read:r.read,w:ago(r.created_at),u:PC[r.from_user]?(PC[r.from_user].name||PC[r.from_user].username):'Alguien',title:(rv.find(x=>x.id==r.review_id)||{}).title||''}))}
+  notifs=rows.map(r=>({id:r.id,type:r.type,rid:r.review_id,read:r.read,w:ago(r.created_at),from:r.from_user,fu:PC[r.from_user]?PC[r.from_user].username:'',u:PC[r.from_user]?(PC[r.from_user].name||PC[r.from_user].username):'Alguien',title:(rv.find(x=>x.id==r.review_id)||{}).title||''}))}
 function notify(uid,type,rid){if(!REAL||!ses||!uid||uid==ses.uid)return;sb.from('notifications').insert({user_id:uid,from_user:ses.uid,type,review_id:rid||null}).then(()=>{})}
+async function acceptReq(n){await sbx(sb.from('follows').update({status:'accepted'}).eq('follower',n.from).eq('followed',ses.uid));INC.delete(n.from);me.fr++;notify(n.from,'accepted')}
+async function declineReq(n){await sbx(sb.from('follows').delete().eq('follower',n.from).eq('followed',ses.uid));INC.delete(n.from)}
 function notifScreen(){
-  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Notificaciones</h2>`+(notifs.length?notifs.map(n=>`<button class="card pad lnk" data-n="${n.id}" style="background:var(--card)"><b>${esc(n.u)}</b> ${n.type=='tag'?'te etiquetó en':n.type=='comment'?'comentó en':'ha empezado a seguirte'}${n.type!='follow'?` «${esc(n.title)}»`:''}<div class="mute">${n.w}${n.read?'':' · nueva'}</div></button>`).join(''):'<p class="mute">No tienes notificaciones.</p>');
+  softRefresh('notif');
+  const uOf=n=>{const pr=PC[n.from]||{};return {id:n.from,user:n.fu,name:pr.name||n.u,bio:pr.bio||'',pub:pr.pub!==false}};
+  const acts=n=>{
+    if(n.type=='request')return INC.has(n.from)?`<button class="btn fill" data-ac="${n.id}">Aceptar</button><button class="btn" data-dc="${n.id}">Rechazar</button>`:'<span class="mute">Respondida</span>';
+    if((n.type=='follow'||n.type=='accepted')&&n.fu){const u=uOf(n),f=FW.includes(u.user),pe=PEND.has(u.user);return `<button class="btn ${f||pe?'':'fill'}" data-fb="${n.id}">${f?'Siguiendo':pe?'Solicitado':(u.pub===false?'Solicitar seguir':'Seguir de vuelta')}</button>`}
+    return ''};
+  const txt=n=>n.type=='tag'?'te etiquetó en «'+n.title+'»':n.type=='comment'?'comentó en «'+n.title+'»':n.type=='request'?'quiere seguirte':n.type=='accepted'?'aceptó tu solicitud de seguimiento':'ha empezado a seguirte';
+  v.innerHTML=`<button class="btn" data-back>‹ Perfil</button><h2 style="margin-top:12px">Notificaciones</h2>`+(notifs.length?notifs.map(n=>`<div class="card pad" data-n="${esc(n.id)}" style="cursor:pointer"><div class="row">${av(n.fu||n.u)}<div style="flex:1;min-width:0"><b>${esc(n.u)}</b> ${esc(txt(n))}<div class="mute">${n.w}${n.read?'':' · nueva'}</div></div></div>${acts(n)?`<div class="row" style="margin-top:10px;justify-content:flex-end">${acts(n)}</div>`:''}</div>`).join(''):'<p class="mute">No tienes notificaciones.</p>');
   back();
-  v.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{const n=notifs.find(x=>x.id==b.dataset.n);if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else toast('Esa reseña ya no está disponible')});
-  if(REAL&&notifs.some(n=>!n.read)){notifs.forEach(n=>n.read=true);sb.from('notifications').update({read:true}).eq('user_id',ses.uid).eq('read',false).then(()=>{})}}
+  const nOf=id=>notifs.find(x=>String(x.id)==String(id));
+  v.querySelectorAll('.card[data-n]').forEach(c=>c.onclick=e=>{if(e.target.closest('button'))return;const n=nOf(c.dataset.n);if(!n)return;if(n.rid&&feed.some(p=>p.id==n.rid))go(n.rid);else if(n.fu)sheetUser(uOf(n))});
+  v.querySelectorAll('[data-ac]').forEach(b=>b.onclick=async()=>{try{await acceptReq(nOf(b.dataset.ac));toast('Solicitud aceptada')}catch(e){toast(e.message)}notifScreen()});
+  v.querySelectorAll('[data-dc]').forEach(b=>b.onclick=async()=>{try{await declineReq(nOf(b.dataset.dc));toast('Solicitud rechazada')}catch(e){toast(e.message)}notifScreen()});
+  v.querySelectorAll('[data-fb]').forEach(b=>b.onclick=async()=>{const n=nOf(b.dataset.fb),u=uOf(n);if(FW.includes(u.user)||PEND.has(u.user))return;try{await setFollow(u,true);toast(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name)}catch(e){toast(e.message)}notifScreen()});
+  if(notifs.some(n=>!n.read)){notifs.forEach(n=>n.read=true);
+    if(REAL)sb.from('notifications').update({read:true}).eq('user_id',ses.uid).eq('read',false).then(()=>{});
+    else{const a=accts[ses.email];if(a){a.seenF=notifs.map(n=>n.from);store()}}}}
 function softRefresh(k){
   if(!REAL||!ses||Date.now()-lastLoad[k]<15000)return;lastLoad[k]=Date.now();
-  (k=='feed'?loadFeed():loadSpaces()).then(()=>{if((k=='feed'&&tab=='feed'&&sub==null)||(k=='spaces'&&tab=='social'&&sub==null))render()}).catch(()=>{})}
+  const job=k=='feed'?loadFeed():k=='notif'?Promise.all([loadNotifs(),loadFollows()]):loadSpaces();
+  job.then(()=>{if((k=='feed'&&tab=='feed'&&sub==null)||(k=='spaces'&&tab=='social'&&sub==null)||(k=='notif'&&tab=='me'&&(sub==null||sub=='#notif')))render()}).catch(()=>{})}
 async function pollSpace(sp){
   if(!REAL||!sp.dbid||tab!='social'||cur()!==sp||st!=0||sub2!=null)return;
   try{const rows=await sbx(sb.from('space_messages').select('*').eq('space_id',sp.dbid).gt('id',sp.lastId||0).order('id'));
@@ -708,35 +811,66 @@ async function findUsers(q){
   if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub').or(`username.ilike.*${t}*,name.ilike.*${t}*`).neq('id',ses.uid).limit(20));
     return rows.map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}))}
   return Object.entries(accts).filter(([e,a])=>e!==ses.email&&((a.name||'').toLowerCase().includes(t)||(a.user||'').toLowerCase().includes(t))).slice(0,20).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:a.pub!==false}))}
+let sugg=null;
+async function findSuggested(){
+  if(REAL){const rows=await sbx(sb.from('profiles').select('id,username,name,bio,pub,created_at').eq('pub',true).neq('id',ses.uid).order('created_at',{ascending:false}).limit(30));
+    return rows.filter(r=>!FW.includes(r.username)).slice(0,8).map(r=>({id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:true}))}
+  return Object.entries(accts).filter(([e,a])=>e!==ses.email&&a.pub!==false).map(([e,a])=>({id:e,user:a.user,name:a.name,bio:a.bio||'',pub:true})).filter(u=>!FW.includes(u.user)).slice(0,8)}
 async function setFollow(p,on){
-  if(REAL){if(on){await sbx(sb.from('follows').insert({follower:ses.uid,followed:p.id}));notify(p.id,'follow')}else await sbx(sb.from('follows').delete().eq('follower',ses.uid).eq('followed',p.id))}
-  else{const a=accts[ses.email];a.following=a.following||[];if(on){if(!a.following.includes(p.id))a.following.push(p.id)}else a.following=a.following.filter(x=>x!==p.id);store()}
+  if(REAL){
+    if(on){const stt=p.pub!==false?'accepted':'pending';
+      await sbx(sb.from('follows').insert({follower:ses.uid,followed:p.id,status:stt}));
+      if(stt=='accepted'){if(!FW.includes(p.user)){FW.push(p.user);me.fg++}notify(p.id,'follow')}else{PEND.add(p.user);notify(p.id,'request')}
+      PROF[p.user]=p;return}
+    await sbx(sb.from('follows').delete().eq('follower',ses.uid).eq('followed',p.id));
+    PEND.delete(p.user);const i=FW.indexOf(p.user);if(i>=0){FW.splice(i,1);me.fg--}return}
+  const a=accts[ses.email];a.following=a.following||[];
+  if(on){if(!a.following.includes(p.id))a.following.push(p.id)}else a.following=a.following.filter(x=>x!==p.id);store();
   if(on){if(!FW.includes(p.user)){FW.push(p.user);me.fg++}PROF[p.user]=p}else{const i=FW.indexOf(p.user);if(i>=0){FW.splice(i,1);me.fg--}}}
 async function loadFollows(){
-  FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);
+  FW.length=0;PEND.clear();INC.clear();Object.keys(PROF).forEach(k=>delete PROF[k]);
   if(REAL){
-    const rows=await sbx(sb.from('follows').select('followed').eq('follower',ses.uid));
-    if(rows.length){const ps=await sbx(sb.from('profiles').select('id,username,name,bio,pub').in('id',rows.map(r=>r.followed)));
-      ps.forEach(r=>{FW.push(r.username);PROF[r.username]={id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false}})}
-    const c=await sb.from('follows').select('follower',{count:'exact',head:true}).eq('followed',ses.uid);me.fr=c.count||0}
+    const mineR=await sbx(sb.from('follows').select('followed,status').eq('follower',ses.uid));
+    const incR=await sbx(sb.from('follows').select('follower').eq('followed',ses.uid).eq('status','pending'));
+    const ids=[...new Set([...mineR.map(r=>r.followed),...incR.map(r=>r.follower)])];
+    if(ids.length){const ps=await sbx(sb.from('profiles').select('id,username,name,bio,pub').in('id',ids));
+      ps.forEach(r=>{PC[r.id]=r;const m=mineR.find(x=>x.followed==r.id);if(!m)return;PROF[r.username]={id:r.id,user:r.username,name:r.name,bio:r.bio||'',pub:r.pub!==false};if(m.status=='pending')PEND.add(r.username);else FW.push(r.username)})}
+    incR.forEach(r=>INC.add(r.follower));
+    const c=await sb.from('follows').select('follower',{count:'exact',head:true}).eq('followed',ses.uid).eq('status','accepted');me.fr=c.count||0}
   else{const a=accts[ses.email]||{};
     (a.following||[]).forEach(e=>{const b=accts[e];if(b){FW.push(b.user);PROF[b.user]={id:e,user:b.user,name:b.name,bio:b.bio||'',pub:b.pub!==false}}});
-    me.fr=Object.values(accts).filter(x=>(x.following||[]).includes(ses.email)).length}
+    const fl=Object.entries(accts).filter(([e,x])=>(x.following||[]).includes(ses.email));me.fr=fl.length;
+    notifs=fl.map(([e,x])=>{PC[e]={id:e,username:x.user,name:x.name,bio:x.bio||'',pub:x.pub!==false};return {id:'f'+e,type:'follow',from:e,fu:x.user,u:x.name,w:'',read:(a.seenF||[]).includes(e),title:'',rid:null}})}
   me.fg=FW.length}
+async function applyPub(user,val){
+  try{await sbx(sb.from('profiles').update({pub:val}).eq('id',user.id));ses.pub=val;me.pub=val}catch(e){}
+  sb.auth.updateUser({data:{pub_applied:true,pub:val}}).then(()=>{})}
+function askPrivacy(){
+  forceSheet=true;
+  sheet(`<h2>¿Cómo quieres tu cuenta?</h2><p class="mute" style="margin-top:0">Puedes cambiarlo después en Editar perfil.</p><button class="btn fill" id="pp1" style="width:100%;padding:14px;margin-bottom:10px">🌍 Pública · cualquiera puede ver tus reseñas y seguirte</button><button class="btn" id="pp0" style="width:100%;padding:14px">🔒 Privada · solo te siguen quienes aceptes</button>`);
+  const pick=async val=>{forceSheet=false;me.pub=val;if(ses)ses.pub=val;
+    if(REAL){try{await sbx(sb.from('profiles').update({pub:val}).eq('id',ses.uid))}catch(e){toast('No se pudo guardar')}sb.auth.updateUser({data:{pub_applied:true,pub:val}}).then(()=>{})}
+    else{const a=accts[ses.email];if(a){a.pub=val;a.pubSet=true;store()}}
+    hide();render()};
+  $('#pp1').onclick=()=>pick(true);$('#pp0').onclick=()=>pick(false)}
 function sheetUser(u){
-  const f=FW.includes(u.user);
-  sheet(`<div class="row" style="margin-bottom:10px">${av(u.user,56)}<div><h2 style="margin:0">${esc(u.name)}</h2><div class="mute">@${esc(u.user)} · ${u.pub?'Perfil público':'Perfil privado'}</div></div></div><p>${u.bio?esc(u.bio):'<span class="mute">Sin bio.</span>'}</p><button class="btn ${f?'':'fill'}" id="uf" style="width:100%;padding:12px">${f?'Siguiendo':'Seguir'}</button>`);
-  $('#uf').onclick=async()=>{const on=!FW.includes(u.user);try{await setFollow(u,on);hide();toast(on?'Ahora sigues a '+u.name:'Has dejado de seguir a '+u.name);if(tab=='feed'&&sub==null&&fm=='all')usersUI()}catch(e){toast(e.message)}}}
+  const f=FW.includes(u.user),pe=PEND.has(u.user);
+  sheet(`<div class="row" style="margin-bottom:10px">${av(u.user,56)}<div><h2 style="margin:0">${esc(u.name)}</h2><div class="mute">@${esc(u.user)} · ${u.pub===false?'Perfil privado':'Perfil público'}</div></div></div><p>${u.bio?esc(u.bio):'<span class="mute">Sin bio.</span>'}</p><button class="btn ${f||pe?'':'fill'}" id="uf" style="width:100%;padding:12px">${f?'Siguiendo':pe?'Solicitado':u.pub===false?'Solicitar seguir':'Seguir'}</button>`);
+  $('#uf').onclick=async()=>{const on=!(FW.includes(u.user)||PEND.has(u.user));try{await setFollow(u,on);hide();toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Listo');if(tab=='feed'&&sub==null&&fm=='all')usersUI();if(tab=='me'&&sub=='#notif')notifScreen()}catch(e){toast(e.message)}}}
 function usersUI(){
   const inp=$('#us'),box=$('#ur'),dg=$('#dg');
-  const card=u=>{const f=FW.includes(u.user);return `<div class="card pad row">${av(u.user)}<button class="lnk" data-pu="${esc(u.user)}" style="flex:1;min-width:0"><b>${esc(u.name)}</b><div class="mute">@${esc(u.user)}${u.pub?'':' · perfil privado'}</div></button><button class="btn ${f?'':'fill'}" data-fo="${esc(u.user)}">${f?'Siguiendo':'Seguir'}</button></div>`};
+  const card=u=>{const f=FW.includes(u.user),pe=PEND.has(u.user);return `<div class="card pad row">${av(u.user)}<button class="lnk" data-pu="${esc(u.user)}" style="flex:1;min-width:0"><b>${esc(u.name)}</b><div class="mute">@${esc(u.user)}${u.pub===false?' · perfil privado':''}</div></button><button class="btn ${f||pe?'':'fill'}" data-fo="${esc(u.user)}">${f?'Siguiendo':pe?'Solicitado':u.pub===false?'Solicitar':'Seguir'}</button></div>`};
+  const pool=()=>[...(ures||[]),...(sugg||[])];
+  const bind=()=>{
+    box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=async()=>{const u=pool().find(x=>x.user==b.dataset.fo),on=!(FW.includes(u.user)||PEND.has(u.user));b.disabled=true;
+      try{await setFollow(u,on);toast(on?(u.pub===false?'Solicitud enviada a '+u.name:'Ahora sigues a '+u.name):'Listo')}catch(e){toast(e.message)}draw()});
+    box.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>sheetUser(pool().find(x=>x.user==b.dataset.pu)))};
   const draw=()=>{
-    if(ures===null&&!umsg){box.innerHTML='';dg.style.display='';return}
+    if(ures===null&&!umsg){
+      box.innerHTML=sugg===null?'<p class="mute">Cargando personas…</p>':sugg.length?`<h2 style="margin:4px 2px 10px;font-size:17px">Personas para seguir</h2>${sugg.map(card).join('')}`:'<p class="mute">Todavía no hay otras personas con perfil público.</p>';
+      dg.style.display='';bind();return}
     dg.style.display='none';
-    box.innerHTML=umsg?`<p class="mute">${esc(umsg)}</p>`:(ures.length?ures.map(card).join(''):'<p class="mute">No hemos encontrado a nadie con ese nombre.</p>');
-    box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=async()=>{const u=ures.find(x=>x.user==b.dataset.fo),on=!FW.includes(u.user);b.disabled=true;
-      try{await setFollow(u,on);toast(on?'Ahora sigues a '+u.name:'Has dejado de seguir a '+u.name)}catch(e){toast(e.message)}draw()});
-    box.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>sheetUser(ures.find(x=>x.user==b.dataset.pu)))};
+    box.innerHTML=umsg?`<p class="mute">${esc(umsg)}</p>`:(ures.length?ures.map(card).join(''):'<p class="mute">No hemos encontrado a nadie con ese nombre.</p>');bind()};
   const run=async()=>{uq=inp.value.trim();
     if(!uq){ures=null;umsg='';draw();return}
     if(uq.length<2){ures=null;umsg='Escribe al menos 2 letras.';draw();return}
@@ -744,23 +878,26 @@ function usersUI(){
     try{ures=await findUsers(uq)}catch(e){ures=null;umsg=e.message||'No se pudo buscar.'}draw()};
   let t=null;inp.oninput=()=>{clearTimeout(t);t=setTimeout(run,350)};
   inp.onkeydown=e=>{if(e.key=='Enter'){clearTimeout(t);run()}};$('#ub').onclick=run;
+  if(sugg===null)findSuggested().then(l=>{sugg=l;if(inp.isConnected)draw()}).catch(()=>{sugg=[];if(inp.isConnected)draw()});
   draw()}
 function enterApp(){
   me.name=ses.name;me.user='@'+ses.user;me.bio=ses.bio||'';me.pub=ses.pub!==false;me.fr=0;me.fg=0;
-  $('#auth').style.display='none';lock(false);tab='feed';go(null)}
-function demoEnter(email){ses={...accts[email],email};try{localStorage.setItem('nn_sess',email)}catch(e){}enterApp();loadFollows().then(render)}
-function showAuth(){ses=null;amode='in';authView();$('#auth').style.display='flex';lock(true)}
+  $('#auth').style.display='none';lock(false);tab='feed';go(null);
+  if(!locTimer){locTimer=setInterval(locSample,120000);locSample()}
+  if(!notifTimer)notifTimer=setInterval(()=>{if(REAL&&ses&&document.visibilityState=='visible')Promise.all([loadNotifs(),loadFollows()]).then(()=>{const hd=$('#hdot');if(hd)hd.hidden=!(notifs.some(n=>!n.read)||INC.size>0)}).catch(()=>{})},60000)}
+function demoEnter(email){ses={...accts[email],email};try{localStorage.setItem('nn_sess',email)}catch(e){}enterApp();if(ses.pubSet===false)askPrivacy();loadFollows().then(render)}
+function showAuth(){ses=null;amode='in';apub=null;authView();$('#auth').style.display='flex';lock(true)}
 async function authRegister(d){
   if(REAL){
     let free=true;try{const x=await sb.rpc('username_available',{u:d.user});if(!x.error&&x.data===false)free=false}catch(e){}
     if(!free)throw E('Ese nombre de usuario no está disponible.');
-    const r=await sbx(sb.auth.signUp({email:d.email,password:d.pw,options:{data:{name:d.name,username:d.user},emailRedirectTo:here()}}));
+    const r=await sbx(sb.auth.signUp({email:d.email,password:d.pw,options:{data:{name:d.name,username:d.user,pub:d.pub},emailRedirectTo:here()}}));
     if(r.user&&r.user.identities&&!r.user.identities.length)throw E('Ya existe una cuenta con ese correo.');
     if(!r.session){amode='in';authView();$('#aerr').textContent='✉ Te hemos enviado un correo para confirmar tu cuenta. Después podrás iniciar sesión.'}
     return}
   if(accts[d.email])throw E('Ya existe una cuenta con ese correo.');
   if(Object.values(accts).some(a=>a.user==d.user))throw E('Ese nombre de usuario no está disponible.');
-  accts[d.email]={name:d.name,user:d.user,h:await sha(d.pw),g:false,bio:'',pub:true};store();demoEnter(d.email)}
+  accts[d.email]={name:d.name,user:d.user,h:await sha(d.pw),g:false,bio:'',pub:d.pub!==false,pubSet:true};store();demoEnter(d.email)}
 async function authLogin(email,pw){
   if(REAL){await sbx(sb.auth.signInWithPassword({email,password:pw}));return}
   const a=accts[email];if(!a)throw E('Correo o contraseña incorrectos.');
@@ -810,15 +947,15 @@ async function saveProfile(){
   if(!ses)return;ses.name=me.name;ses.bio=me.bio;ses.pub=me.pub;
   if(REAL){try{await sbx(sb.from('profiles').update({name:me.name,bio:me.bio,pub:me.pub}).eq('id',ses.uid))}catch(e){toast('No se pudo guardar en la base de datos')}}
   else if(accts[ses.email]){Object.assign(accts[ses.email],{name:me.name,bio:me.bio,pub:me.pub});store()}}
-function resetData(){notifs=[];ldb={};Object.keys(PC).forEach(k=>delete PC[k]);Object.keys(VC).forEach(k=>delete VC[k]);lastLoad.feed=0;lastLoad.spaces=0;clearInterval(pollT);pollT=null;FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
+function resetData(){PEND.clear();INC.clear();sugg=null;gres=[];gmsg='';gnote='';autoTried=false;notifs=[];ldb={};Object.keys(PC).forEach(k=>delete PC[k]);Object.keys(VC).forEach(k=>delete VC[k]);lastLoad.feed=0;lastLoad.spaces=0;clearInterval(pollT);pollT=null;FW.length=0;Object.keys(PROF).forEach(k=>delete PROF[k]);me.fr=0;me.fg=0;uq='';ures=null;umsg='';feed=[];groups=[];chats={};wish.length=0;Object.keys(cats).forEach(k=>delete cats[k]);cats['Italianos']=[];cats['Asiáticos']=[];wsync=new Set();Object.keys(wnotes).forEach(k=>delete wnotes[k])}
 async function logout(){hide();resetData();if(REAL){try{await sb.auth.signOut()}catch(e){}}else{try{localStorage.removeItem('nn_sess')}catch(e){}}showAuth()}
 function googleSim(link){
   sheet(`<h2>Continuar con Google</h2><p class="mute" style="margin-top:0">Simulación: con Firebase conectado se abre la ventana oficial de Google.</p><input id="ge" type="email" placeholder="tucuenta@gmail.com" autocomplete="email" aria-label="Cuenta de Google"><div id="gerr" role="alert" class="aerr"></div><button class="btn fill" id="gc" style="width:100%;padding:12px">${link?'Vincular cuenta':'Continuar'}</button>`);
-  const fn=()=>{const em=$('#ge').value.trim().toLowerCase();
+  const fn=()=>{const em=$('#ge').value.trim().toLowerCase();const pc=(()=>{try{return localStorage.getItem('nn_pub_pending')||''}catch(e){return ''}})();
     if(!/^\S+@\S+\.\S+$/.test(em))return $('#gerr').textContent='⚠ Escribe un email válido';
     if(link){ses.g=true;accts[ses.email].g=true;store();hide();toast('Cuenta de Google vinculada');return}
     if(!accts[em]){const b=em.split('@')[0].replace(/[^a-z0-9._]/g,'').slice(0,20)||'usuario';let u=b,i=0;while(Object.values(accts).some(a=>a.user==u))u=b+(++i);
-      accts[em]={name:b.replace(/[._]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),user:u,g:true,bio:'',pub:true}}
+      accts[em]={name:b.replace(/[._]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase()),user:u,g:true,bio:'',pub:pc!=='false',pubSet:pc==='true'||pc==='false'}}
     accts[em].g=true;store();hide();demoEnter(em)};
   $('#gc').onclick=fn;$('#ge').onkeydown=e=>{if(e.key=='Enter')fn()};$('#ge').focus();
 }
@@ -829,14 +966,15 @@ function authView(){
   <label class="igf"><input id="ae" type="email" placeholder=" " autocomplete="email" aria-label="Correo electrónico"><span>Correo electrónico</span></label>
   ${up?`<label class="igf"><input id="an" placeholder=" " autocomplete="name" aria-label="Nombre completo"><span>Nombre completo</span></label><label class="igf"><input id="au" placeholder=" " autocomplete="username" autocapitalize="none" aria-label="Nombre de usuario"><span>Nombre de usuario</span></label>`:''}
   <label class="igf"><input id="ap" type="password" placeholder=" " autocomplete="${up?'new-password':'current-password'}" aria-label="Contraseña" style="padding-right:76px"><span>Contraseña</span><button type="button" class="lk sh" id="sh" hidden>Mostrar</button></label>
+  ${up?`<div style="text-align:left;margin:6px 0 4px;font-weight:700;font-size:14px">Tipo de cuenta</div><div class="seg" style="margin-bottom:6px"><button type="button" data-ap="1" class="${apub===true?'on':''}">🌍 Pública</button><button type="button" data-ap="0" class="${apub===false?'on':''}">🔒 Privada</button></div><p class="mute" id="aph" style="font-size:12px;margin:0 0 8px;text-align:left">${apub===null?'Elige una opción para continuar.':apub?'Tus reseñas las puede ver cualquiera en Descubrir y cualquiera puede seguirte.':'Solo te verán quienes aceptes. Quien quiera seguirte tendrá que pedírtelo.'}</p>`:''}
   ${up?'<p class="mute" style="font-size:12px;margin:6px 0">Al registrarte aceptas las condiciones y la política de privacidad de Ñam Ñam.</p>':''}
   <button class="igb" id="as" disabled>${up?'Registrarte':'Iniciar sesión'}</button>
   <div id="aerr" role="alert" class="aerr" style="margin-top:10px"></div>
   ${up?'':`<div class="or"><span>O</span></div><button class="btn gbtn" id="gg">${GICON} Iniciar sesión con Google</button><div style="margin-top:14px"><button class="lk sm" id="fp">¿Has olvidado tu contraseña?</button></div>`}
   </div><div class="igc s">${up?'¿Tienes una cuenta?':'¿No tienes una cuenta?'} <button class="lk" data-am="${up?'in':'up'}">${up?'Inicia sesión':'Regístrate'}</button></div>
   ${REAL?'<p style="text-align:center;margin:6px 0"><button class="lk sm" id="dg0">¿Problemas para entrar? Comprobar conexión</button></p>':'<p class="mute" style="text-align:center;font-size:12px">Modo demostración: las cuentas se guardan solo en este navegador. Conecta Supabase para guardarlas en una base de datos real.</p>'}</div>`;
-  const val=()=>({email:$('#ae').value.trim().toLowerCase(),pw:$('#ap').value,name:up?$('#an').value.trim():'',user:up?$('#au').value.trim():''});
-  const ok=()=>{const d=val();return /^\S+@\S+\.\S+$/.test(d.email)&&d.pw.length>=6&&(!up||(d.name&&/^[a-z0-9._]{3,20}$/.test(d.user)))};
+  const val=()=>({email:$('#ae').value.trim().toLowerCase(),pw:$('#ap').value,name:up?$('#an').value.trim():'',user:up?$('#au').value.trim():'',pub:apub});
+  const ok=()=>{const d=val();return /^\S+@\S+\.\S+$/.test(d.email)&&d.pw.length>=6&&(!up||(d.name&&/^[a-z0-9._]{3,20}$/.test(d.user)&&apub!==null))};
   const chk=()=>{$('#as').disabled=!ok()};
   const err=m=>$('#aerr').textContent=m?'⚠ '+m:'';
   const submit=async()=>{if(!ok())return;err('');$('#as').disabled=true;const d=val();
@@ -846,7 +984,8 @@ function authView(){
     i.onkeydown=e=>{if(e.key=='Enter')submit()}});
   $('#sh').onclick=()=>{const p=$('#ap'),h=p.type=='password';p.type=h?'text':'password';$('#sh').textContent=h?'Ocultar':'Mostrar'};
   $('#as').onclick=submit;
-  $('#gg').onclick=()=>REAL?authGoogleReal(err):googleSim(false);
+  document.querySelectorAll('#auth [data-ap]').forEach(b=>b.onclick=()=>{apub=b.dataset.ap=='1';document.querySelectorAll('#auth [data-ap]').forEach(x=>x.classList.toggle('on',(x.dataset.ap=='1')==apub));const h=$('#aph');if(h)h.textContent=apub?'Tus reseñas las puede ver cualquiera en Descubrir y cualquiera puede seguirte.':'Solo te verán quienes aceptes. Quien quiera seguirte tendrá que pedírtelo.';chk()});
+  $('#gg').onclick=()=>{if(up&&apub===null)return err('Elige primero si tu cuenta será pública o privada.');try{localStorage.setItem('nn_pub_pending',up?String(apub):'')}catch(e){}REAL?authGoogleReal(err):googleSim(false)};
   if(!up)$('#fp').onclick=async()=>{const m=$('#ae').value.trim().toLowerCase();if(!/^\S+@\S+\.\S+$/.test(m))return err('Escribe tu correo arriba y vuelve a pulsar.');
     try{await authReset(m);err('');$('#aerr').textContent='✉ Si existe una cuenta con ese correo, te hemos enviado un enlace para restablecerla.'}catch(e){err(e.message)}};
   document.querySelectorAll('#auth [data-am]').forEach(b=>b.onclick=()=>{amode=b.dataset.am;authView()});
@@ -867,6 +1006,8 @@ async function boot(){
     return}
   let e=null;try{e=localStorage.getItem('nn_sess')}catch(x){}
   if(e&&accts[e])demoEnter(e)}
+$('#hp').onclick=()=>{if(ses){tab='me';go(null)}};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible')locSample()});
 render();boot();
 
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(()=>{})});
